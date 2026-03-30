@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/base.css') }}">
+    {% block style %}{% endblock %}
+</head>
+<body class="admin-style">
+    <nav class="sidebar-left">
+        <div class="brand">
+            <i class="fas fa-heart-pulse"></i>
+            <span>Counselor.AI</span>
+        </div>
+
+        <ul class="nav-menu">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users-cog"></i> User Management
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-exclamation-triangle"></i> High-Risk Alerts
+                <span class="nav-badge">3</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-comment-alt"></i> User Feedback
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-sliders-h"></i> System Config
+            </a>
+            <div style="flex: 1;"></div> <a href="#" class="nav-item">
+                <i class="fas fa-user-circle"></i> My Profile
+            </a>
+            <a href="{{ url_for('login') }}" class="nav-item" style="color: var(--accent-alert);">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+            </a>
+        </ul>
+
+        <div class="user-profile">
+            <div class="avatar">AD</div>
+            <div style="font-size: 0.85rem;">
+                <div style="font-weight: 600;">Admin User</div>
+                <div style="color: var(--text-muted); font-size: 0.75rem;">System Administrator</div>
+            </div>
+        </div>
+    </nav>
+    {% block content %}{% endblock %}
+
+</body>
+
+{% block scripts %}{% endblock %}
+
+{% block modals %}{% endblock %}
+
+</html>

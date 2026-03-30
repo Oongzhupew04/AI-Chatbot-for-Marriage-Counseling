@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check In - MarriageCounselor.AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/modals/checkin.css') }}">
+</head>
+<body>
+    <div class="modal-overlay">
+        <div class="modal-container">
+            
+            <div class="modal-header">
+                <div class="header-text">
+                    <h2>Daily Check-In</h2>
+                    <p>Reflect on your day to track your progress.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="date-badge">
+                        <i class="far fa-calendar-alt"></i> Today
+                    </div>
+                    <button class="close-btn" data-url="{{ url_for('home') }}" onclick="window.location.href=this.dataset.url"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                
+                <div class="checkin-card">
+                    <div class="card-header">
+                        <h3><span class="step-num">1</span> Emotions</h3>
+                        <span>How are you feeling right now?</span>
+                    </div>
+                    
+                    <div class="emoji-grid">
+                        <div class="emoji-option" title="Stressed">😫</div>
+                        <div class="emoji-option" title="Sad">😢</div>
+                        <div class="emoji-option selected" title="Neutral">😐</div>
+                        <div class="emoji-option" title="Happy">🙂</div>
+                        <div class="emoji-option" title="Excited">😍</div>
+                    </div>
+
+                    <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                        <span style="font-size: 0.85rem; font-weight: 600; margin-bottom: 10px; display: block;">Energy Level:</span>
+                        <div class="checklist">
+                            <li><input type="radio" name="energy" id="low"> <label for="low">Low Energy (Drained)</label></li>
+                            <li><input type="radio" name="energy" id="med" checked> <label for="med">Balanced</label></li>
+                            <li><input type="radio" name="energy" id="high"> <label for="high">High Energy</label></li>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkin-card featured">
+                    <div class="badge-featured">Key Focus</div>
+                    <div class="card-header">
+                        <h3 style="color: var(--primary-sage);"><span class="step-num" style="background:var(--primary-sage); color:white;">2</span> Needs</h3>
+                        <span>What is your primary unmet need today?</span>
+                    </div>
+
+                    <ul class="checklist">
+                        <li><input type="checkbox" id="n1"> <label for="n1"><strong>Love & Belonging</strong> (Connection, Intimacy)</label></li>
+                        <li><input type="checkbox" id="n2" checked> <label for="n2"><strong>Esteem</strong> (Appreciation, Respect)</label></li>
+                        <li><input type="checkbox" id="n3"> <label for="n3"><strong>Safety</strong> (Stability, Reassurance)</label></li>
+                        <li><input type="checkbox" id="n4"> <label for="n4"><strong>Physiological</strong> (Rest, Help with chores)</label></li>
+                    </ul>
+                </div>
+
+                <div class="checkin-card">
+                    <div class="card-header">
+                        <h3><span class="step-num">3</span> Journal</h3>
+                        <span>What's on your mind? (Encrypted)</span>
+                    </div>
+
+                    <textarea class="notes-area" placeholder="E.g., I felt really appreciated when you..."></textarea>
+                    
+                    <button class="card-btn btn-outline">
+                        <i class="fas fa-microphone"></i> Record Voice Note
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline" style="border:none; color: var(--text-muted); font-size: 0.9rem;" data-url="{{ url_for('home') }}" onclick="window.location.href=this.dataset.url">Skip for now</button>
+                <div style="display: flex; gap: 12px;">
+                    <button class="card-btn btn-outline" style="width: auto; margin:0; padding: 10px 20px;" data-url="{{ url_for('home') }}" onclick="window.location.href=this.dataset.url">Cancel</button>
+                    <button class="card-btn btn-primary" style="width: auto; margin:0; padding: 10px 24px;">Save Entry</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

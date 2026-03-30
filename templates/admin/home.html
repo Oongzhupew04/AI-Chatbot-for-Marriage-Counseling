@@ -1,0 +1,183 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Admin Dashboard - Counselor.AI{% endblock %}
+
+{% block style %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/home.css') }}">{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h1>Analytics & Overview</h1>
+            <div class="header-actions">
+                <div class="icon-btn" title="Notifications">
+                    <i class="far fa-bell"></i>
+                    <div class="badge"></div>
+                </div>
+                <button style="background: var(--text-main); color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 600; cursor: pointer;">
+                    <i class="fas fa-plus" style="margin-right: 8px;"></i> Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            
+            <div class="stat-card card-alert">
+                <div class="card-header-row">
+                    <div class="card-title">Active Risk Alerts</div>
+                    <i class="fas fa-bell" style="color: var(--accent-alert);"></i>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Requires Review</div>
+                <div class="alert-count">3</div>
+                
+                <div class="avatar-stack">
+                    <div class="mini-avatar" style="background:#FED7D7; color:#C53030;">A</div>
+                    <div class="mini-avatar" style="background:#FED7D7; color:#C53030;">B</div>
+                    <div class="mini-avatar" style="background:#FED7D7; color:#C53030;">C</div>
+                    <div class="mini-avatar" style="background: #eee; color: #666;">+25</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="card-header-row">
+                    <div class="card-title">Total Sessions</div>
+                    <i class="fas fa-chart-line" style="color: var(--primary-sage);"></i>
+                </div>
+                <div class="alert-count" style="color: var(--primary-dark);">5,839</div>
+                <div style="font-size: 0.8rem; color: #38A169;">+11% last week</div>
+                
+                <svg class="chart-mock-line" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path class="svg-line" d="M0,24 Q10,20 20,22 T40,15 T60,18 T80,12 T100,20"/>
+                </svg>
+            </div>
+
+            <div class="stat-card">
+                <div class="card-header-row">
+                    <div class="card-title">Avg. Feedback</div>
+                    <div style="background: #C6F6D5; color: #276749; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">+8%</div>
+                </div>
+                
+                <div style="font-size: 2rem; font-weight: 700;">4.8/5</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Based on 120 ratings</div>
+
+                <div class="chart-mock-bar">
+                    <div class="bar" style="height: 30%;"></div>
+                    <div class="bar" style="height: 50%;"></div>
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="bar active" style="height: 80%;"></div>
+                </div>
+            </div>
+
+            <div class="stat-card card-config">
+                <div>
+                    <div class="card-title" style="font-size: 1.2rem; margin-bottom: 5px;">System Status</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">DeepSeek API: Online</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Database: Healthy</div>
+                </div>
+                <button class="config-btn">Manage Config</button>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <span>Recent High-Risk Incidents</span>
+            <button class="action-btn">View All</button>
+        </div>
+
+        <div class="incident-list">
+            <div class="incident-item">
+                <div class="incident-avatar"><i class="fas fa-user-injured"></i></div>
+                <div class="incident-info">
+                    <h4>User: Anon_22</h4>
+                    <p>Trigger: "Self-harm"</p>
+                </div>
+                <div class="status-pill pill-pending">Pending Review</div>
+            </div>
+
+            <div class="incident-item">
+                <div class="incident-avatar"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="incident-info">
+                    <h4>User: John Doe</h4>
+                    <p>Trigger: "Violence"</p>
+                </div>
+                <div class="status-pill pill-resolved">Resolved</div>
+            </div>
+
+            <div class="incident-item">
+                <div class="incident-avatar"><i class="fas fa-user-injured"></i></div>
+                <div class="incident-info">
+                    <h4>User: Sara K.</h4>
+                    <p>Trigger: "Abuse"</p>
+                </div>
+                <div class="status-pill pill-pending">Pending Review</div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <span>User Management</span>
+            <div style="position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 10px; top: 8px; color: #A0AEC0;"></i>
+                <input type="text" placeholder="Search users..." style="padding: 8px 10px 8px 30px; border: 1px solid var(--border-light); border-radius: 8px; outline: none;">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="5%"><input type="checkbox"></th>
+                        <th width="25%">User Profile</th>
+                        <th width="15%">Account Type</th>
+                        <th width="15%">Status</th>
+                        <th width="20%">Registration Date</th>
+                        <th width="10%">Sessions</th>
+                        <th width="10%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-img"></div>
+                                <strong>Vincent Oong</strong>
+                            </div>
+                        </td>
+                        <td>Couple</td>
+                        <td><span class="status-pill pill-pending" style="background:#FEEBC8; color:#9C4221;">Flagged</span></td>
+                        <td>Feb 19th, 2026</td>
+                        <td>12</td>
+                        <td><button class="action-btn">Details</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-img" style="background: #B2F5EA;"></div>
+                                <strong>Adrian Daren</strong>
+                            </div>
+                        </td>
+                        <td>Individual</td>
+                        <td><span class="status-pill pill-resolved" style="background:#C6F6D5; color:#22543D;">Active</span></td>
+                        <td>Feb 18th, 2026</td>
+                        <td>5</td>
+                        <td><button class="action-btn">Details</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-img" style="background: #FED7E2;"></div>
+                                <strong>Roxanne Hills</strong>
+                            </div>
+                        </td>
+                        <td>Couple</td>
+                        <td><span class="status-pill pill-resolved" style="background:#C6F6D5; color:#22543D;">Active</span></td>
+                        <td>Apr 16th, 2026</td>
+                        <td>24</td>
+                        <td><button class="action-btn">Details</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+{% endblock %}

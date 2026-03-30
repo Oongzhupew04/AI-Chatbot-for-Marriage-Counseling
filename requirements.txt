@@ -1,0 +1,4 @@
+Flask
+python-dotenv
+jaydebeapi
+JPype1

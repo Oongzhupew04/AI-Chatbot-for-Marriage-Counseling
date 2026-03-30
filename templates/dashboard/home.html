@@ -1,0 +1,329 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Dashboard - MarriageCounselor.AI{% endblock %}
+
+{% block style %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/home.css') }}">{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div style="position: absolute; top: 24px; left: 40px; font-weight: 600; font-size: 1.1rem;">AI Chat</div>
+        <div style="position: absolute; top: 24px; right: 40px; display: flex; gap: 15px;">
+            <button class="upgrade-pill"><i class="fas fa-bolt"></i> Upgrade Plan</button>
+            <i class="far fa-bell" style="font-size: 1.2rem; color: var(--text-muted); cursor: pointer; align-self: center;"></i>
+        </div>
+
+        <div id="welcome-section">
+            <div class="welcome-header">
+                <h1>Welcome to Your Safe Space</h1>
+                <p>Start by checking in or discussing a specific issue. We are here to listen.</p>
+            </div>
+
+            <div class="action-grid">
+                <div class="action-card" data-url="{{ url_for('checkin') }}" onclick="window.location.href=this.dataset.url">
+                    <div class="card-content">
+                        <div class="icon-box icon-orange"><i class="fas fa-clipboard-check"></i></div>
+                        <div class="card-text">Daily Check-in</div>
+                    </div>
+                    <i class="fas fa-plus plus-icon"></i>
+                </div>
+                
+                <div class="action-card">
+                    <div class="card-content">
+                        <div class="icon-box icon-blue"><i class="fas fa-comments"></i></div>
+                        <div class="card-text">Start Session</div>
+                    </div>
+                    <i class="fas fa-plus plus-icon"></i>
+                </div>
+
+                <div class="action-card" data-url="{{ url_for('analysis') }}" onclick="window.location.href=this.dataset.url">
+                    <div class="card-content">
+                        <div class="icon-box icon-green"><i class="fas fa-chart-line"></i></div>
+                        <div class="card-text">View Analysis</div>
+                    </div>
+                    <i class="fas fa-plus plus-icon"></i>
+                </div>
+
+                <div class="action-card">
+                    <div class="card-content">
+                        <div class="icon-box icon-red"><i class="fas fa-phone-alt"></i></div>
+                        <div class="card-text">Emergency Help</div>
+                    </div>
+                    <i class="fas fa-plus plus-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat-box" class="chat-container">
+        </div>
+
+        <div class="input-wrapper">
+            <textarea id="user-input" class="chat-input" placeholder="Tell me what's on your mind today..."></textarea>
+            <div class="input-footer">
+                <div class="attachments">
+                    <button class="attach-btn"><i class="fas fa-paperclip"></i> Attach</button>
+                    <button class="attach-btn"><i class="fas fa-microphone"></i> Voice Message</button>
+                </div>
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            Counselor.AI is an emotional support tool, not a licensed therapist. In emergencies, call 999.
+        </div>
+    </main>
+
+    <aside class="sidebar-right">
+        <div class="right-header">
+            <h3>Recent Sessions</h3>
+            <i class="fas fa-ellipsis-h" style="color: var(--text-muted); cursor: pointer;"></i>
+        </div>
+
+        <ul class="history-list">
+            <li class="history-item">
+                <div class="history-icon"><i class="far fa-comment-alt"></i></div>
+                <div class="history-info">
+                    <h4>Communication Issue</h4>
+                    <p>Discussed feeling unheard...</p>
+                </div>
+            </li>
+            <li class="history-item">
+                <div class="history-icon"><i class="far fa-comment-alt"></i></div>
+                <div class="history-info">
+                    <h4>Trust Building</h4>
+                    <p>Reflecting on last week's...</p>
+                </div>
+            </li>
+            <li class="history-item">
+                <div class="history-icon"><i class="far fa-file-alt"></i></div>
+                <div class="history-info">
+                    <h4>Weekly Report</h4>
+                    <p>Analysis of emotional tre...</p>
+                </div>
+            </li>
+            <li class="history-item">
+                <div class="history-icon"><i class="far fa-heart"></i></div>
+                <div class="history-info">
+                    <h4>Date Night Ideas</h4>
+                    <p>List of activities for...</p>
+                </div>
+            </li>
+        </ul>
+
+        <div class="right-header" style="margin-top: 40px;">
+            <h3>Resources</h3>
+        </div>
+
+        <ul class="history-list">
+            <li class="history-item">
+                <div class="history-icon"><i class="fas fa-book-open"></i></div>
+                <div class="history-info">
+                    <h4>Love Languages</h4>
+                    <p>Understanding the basics...</p>
+                </div>
+            </li>
+        </ul>
+    </aside>
+{% endblock %}
+
+{% block modals %}
+    {# {% include 'feedback.html' %} #}
+    <div id="thank-you-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; animation: popUp 0.3s ease;">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: #7C9A92; margin-bottom: 20px;"></i>
+            <h2 style="font-family: 'Merriweather', serif; margin-bottom: 10px;">Session Ended</h2>
+            <p style="color: #718096;">Thank you for sharing with us today.</p>
+        </div>
+    </div>
+
+    <style>
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* Style for the Yes/No buttons in chat */
+        .confirmation-buttons { display: flex; gap: 10px; margin-top: 5px; margin-left: 10px; }
+        .btn-chat { padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-yes { background: #E53E3E; color: white; } /* Red for ending */
+        .btn-no { background: #E2E8F0; color: #2D3748; }
+    </style>
+
+    <div id="emergency-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; width: 90%; max-width: 500px; border-radius: 20px; padding: 30px; text-align: center; border-left: 10px solid #E53E3E; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            
+            <i class="fas fa-life-ring" style="font-size: 4rem; color: #E53E3E; margin-bottom: 20px;"></i>
+            
+            <h2 style="font-family: 'Merriweather', serif; color: #2D3748; margin-bottom: 10px;">You Are Not Alone</h2>
+            <p style="color: #4A5568; margin-bottom: 25px; line-height: 1.6;">
+                We noticed you might be going through a difficult time. Please reach out to a professional who can listen and help immediately.
+            </p>
+
+            <div style="background: #FFF5F5; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 25px;">
+                <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-phone-alt" style="color: #E53E3E; font-size: 1.2rem;"></i>
+                    <div>
+                        <strong style="display: block; color: #2D3748;">Befrienders KL (24/7)</strong>
+                        <a href="tel:0376272929" style="color: #E53E3E; font-weight: 700; text-decoration: none; font-size: 1.1rem;">03-7627 2929</a>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-phone-alt" style="color: #E53E3E; font-size: 1.2rem;"></i>
+                    <div>
+                        <strong style="display: block; color: #2D3748;">Talian Kasih (24/7)</strong>
+                        <a href="tel:15999" style="color: #E53E3E; font-weight: 700; text-decoration: none; font-size: 1.1rem;">15999</a>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-phone-alt" style="color: #E53E3E; font-size: 1.2rem;"></i>
+                    <div>
+                        <strong style="display: block; color: #2D3748;">HEAL Line (Mental Health)</strong>
+                        <a href="tel:15555" style="color: #E53E3E; font-weight: 700; text-decoration: none; font-size: 1.1rem;">15555</a>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeEmergency()" style="background: #718096; color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                I am safe now
+            </button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function sendMessage() {
+            const inputField = document.getElementById("user-input");
+            const message = inputField.value.trim().toLowerCase();
+            const chatBox = document.getElementById("chat-box"); // Ensure this matches your container ID
+            const welcomeSection = document.getElementById("welcome-section");
+
+            if (message === "") return;
+
+            // --- SAFETY CHECK ---
+            if (message.includes("suicide") || message.includes("killing") || message.includes("die") || message.includes("kill")) {
+                document.getElementById("emergency-modal").style.display = "flex";
+                inputField.value = ""; // Optional: clear the input
+                return; // <--- STOP HERE. Do not send to bot.
+            }
+
+            // 1. Hide Welcome Section & Show Chat Box
+            if (welcomeSection) welcomeSection.style.display = "none";
+            if (chatBox) chatBox.style.display = "flex";
+
+            // 2. Add User Message
+            const userBubble = document.createElement("div");
+            userBubble.classList.add("message-bubble", "user-msg");
+            userBubble.innerText = message;
+            chatBox.appendChild(userBubble);
+
+            // Clear input
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 3. Add "Typing..." Indicator
+            const typingBubble = document.createElement("div");
+            typingBubble.classList.add("typing-indicator");
+            typingBubble.id = "typing-bubble"; // ID to remove it later
+            typingBubble.innerHTML = `
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            `;
+            chatBox.appendChild(typingBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 4. Wait 1 Second (1000ms) then Fetch Response
+            setTimeout(() => {
+                // Remove the typing bubble
+                const typingElement = document.getElementById("typing-bubble");
+                if (typingElement) typingElement.remove();
+
+                // Send to Flask Backend
+                fetch('/get_response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Add Bot Response
+                    const botBubble = document.createElement("div");
+                    botBubble.classList.add("message-bubble", "bot-msg");
+                    botBubble.innerText = data.response;
+                    chatBox.appendChild(botBubble);
+
+                    // 4. CHECK ACTION: Is it the "End Session" confirmation?
+                    if (data.action === "confirm_end") {
+                        const buttonContainer = document.createElement("div");
+                        buttonContainer.className = "confirmation-buttons";
+                        buttonContainer.innerHTML = `
+                            <button class="btn-chat btn-yes" onclick="confirmEndSession(this)">Yes</button>
+                            <button class="btn-chat btn-no" onclick="cancelEndSession(this)">No</button>
+                        `;
+                        chatBox.appendChild(buttonContainer);
+                    }
+
+                    // Scroll to bottom
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(error => console.error('Error:', error));
+                
+            }, 1000); // <-- This 1000 is the 1-second delay
+        }
+
+        // Allow "Enter" key to send
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+
+        // --- NEW FUNCTIONS FOR THE HARDCODED FLOW ---
+
+        function confirmEndSession(btnElement) {
+            // 1. Remove the buttons so they can't be clicked again
+            btnElement.parentElement.remove();
+
+            // 2. Show "Thank You" Modal
+            const thankYouModal = document.getElementById("thank-you-modal");
+            thankYouModal.style.display = "flex";
+            const feedbackModal = document.getElementById("feedback-modal");
+
+            // 3. Wait 2 seconds, then Hide Thank You -> Show Feedback
+            setTimeout(() => {
+                thankYouModal.style.display = "none";
+                
+
+                window.location.href = "{{ url_for('feedback') }}";
+                // Show Feedback Modal (Ensure your feedback.html has this ID)
+                // If you are using the exact file provided earlier, you might need to select by class if ID is missing:
+                // document.querySelector('.modal-overlay').style.display = 'flex';
+
+
+                // const feedbackModal = document.getElementById("feedback-modal");
+                // if(feedbackModal) {
+                //     feedbackModal.style.display = "flex";
+                // } else {
+                //     alert("Feedback modal ID not found! Check feedback.html");
+                // }
+            }, 2000);
+        }
+
+        function cancelEndSession(btnElement) {
+            // Remove buttons and add a bot message saying "Okay"
+            const chatBox = document.getElementById("chat-box");
+            btnElement.parentElement.remove();
+            
+            const botBubble = document.createElement("div");
+            botBubble.classList.add("message-bubble", "bot-msg");
+            botBubble.innerText = "Okay, we can continue chatting.";
+            chatBox.appendChild(botBubble);
+        }
+
+        function closeEmergency() {
+            document.getElementById("emergency-modal").style.display = "none";
+        }
+    </script>
+{% endblock %}

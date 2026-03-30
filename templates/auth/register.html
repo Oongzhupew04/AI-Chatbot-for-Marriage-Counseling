@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Account - MarriageCounselor.AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth/register.css') }}">
+</head>
+<body>
+
+    <div class="bg-blob"></div>
+
+    <div class="register-card">
+        <div class="brand">
+            <i class="fas fa-heart-pulse"></i>
+            <span>Counselor.AI</span>
+        </div>
+
+        <div class="header">
+            <h1>Create your account</h1>
+            <p>Start your journey towards a healthier relationship.</p>
+        </div>
+
+        <button class="btn-google">
+            <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" width="20" style="margin-right: 8px;"> -->
+            <i class="fa-brands fa-google"></i>
+            Sign up with Google
+        </button>
+
+        <div class="divider">
+            <span>or sign up with email</span>
+        </div>
+
+        <form action="/register" method="POST">
+            
+            <div class="form-group">
+                <label for="username">Username / Full Name</label>
+                <input type="text" id="username" name="username" class="input-field" placeholder="Vincent Oong" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="input-field" placeholder="vincent@mmu.edu.my" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="input-field" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="input-field" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="privacy_policy" name="privacy_policy" required>
+                <label for="privacy_policy">
+                    I agree to the <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>.
+                </label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="ai_consent" name="ai_consent" required>
+                <label for="ai_consent">
+                    I consent to AI-assisted emotional support and understand this does not replace professional therapy.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">Create Account</button>
+        </form>
+
+        <div class="footer-links">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+        </div>
+    </div>
+
+</body>
+</html>
