@@ -96,16 +96,29 @@
 </body>
 
 <script>
+    const feedbackModal = document.getElementById('feedback-modal');
+
+    function openFeedback() {
+        feedbackModal.style.display = "flex";
+    }
+
     function closeFeedback() {
-        // document.getElementById("feedback-modal").style.display = "none";
+        feedbackModal.style.display = "none";
         window.location.href = "{{ url_for('home') }}";
     }
 
     function submitFeedback() {
         // Here you would normally send data to Flask
         alert("Thank you for your feedback!");
-        // closeFeedback(); // Close modal after submit
+        closeFeedback(); // Close modal after submit
         window.location.href = "{{ url_for('home') }}";
     }
+
+    // Close if user clicks the dark background outside the white box
+    // window.addEventListener('click', function(event) {
+    //     if (event.target === feedbackModal) {
+    //         closeFeedback();
+    //     }
+    // });
 </script>
 </html>

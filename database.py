@@ -40,6 +40,8 @@ class DatabaseSingleton:
                 driver_args=[username, password],
                 jars=jar_path
             )
+            self._connection.jconn.setAutoCommit(False)
+            print("=> Auto-commit is OFF. Manual commits are now required.")
         except Exception as e:
             print(f"CRITICAL: Failed to connect to database. Error: {e}")
             raise e

@@ -6,3 +6,10 @@ env/
 # Python Cache
 __pycache__/
 *.py[cod]
+
+# Python Files
+tempCodeRunnerFile.py
+
+# AI Models
+*.gguf
+*.bin

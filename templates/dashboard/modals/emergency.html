@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Help - MarriageCounselor.AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/modals/emergency.css') }}">
+</head>
+<body>
+    <!-- The ID remains so your JavaScript can still find and trigger it -->
+    <div id="emergency-modal" class="emergency-overlay">
+        <div class="emergency-container">
+            
+            <i class="fas fa-life-ring emergency-icon"></i>
+            
+            <h2 class="emergency-heading">You Are Not Alone</h2>
+            <p class="emergency-text">
+                We noticed you might be going through a difficult time. Please reach out to a professional who can listen and help immediately.
+            </p>
+
+            <div class="emergency-contacts-box">
+                <div class="contact-row">
+                    <i class="fas fa-phone-alt contact-row-icon"></i>
+                    <div>
+                        <strong class="contact-name">Befrienders KL (24/7)</strong>
+                        <a href="tel:0376272929" class="contact-number">03-7627 2929</a>
+                    </div>
+                </div>
+                
+                <div class="contact-row">
+                    <i class="fas fa-phone-alt contact-row-icon"></i>
+                    <div>
+                        <strong class="contact-name">Talian Kasih (24/7)</strong>
+                        <a href="tel:15999" class="contact-number">15999</a>
+                    </div>
+                </div>
+
+                <div class="contact-row">
+                    <i class="fas fa-phone-alt contact-row-icon"></i>
+                    <div>
+                        <strong class="contact-name">HEAL Line (Mental Health)</strong>
+                        <a href="tel:15555" class="contact-number">15555</a>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeEmergencyModal()" class="btn-safe">
+                I am safe now
+            </button>
+        </div>
+    </div>
+</body>
+<script>
+    const emergencyModal = document.getElementById("emergency-modal");
+
+    function openEmergencyModal() {
+        emergencyModal.style.display = 'flex';
+    }
+
+    function closeEmergencyModal() {
+        emergencyModal.style.display = 'none';
+    }
+</script>

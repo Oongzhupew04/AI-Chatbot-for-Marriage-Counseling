@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/modals/checkin.css') }}">
 </head>
 <body>
-    <div class="modal-overlay">
+    <div id="checkinModal" class="modal-overlay">
         <div class="modal-container">
             
             <div class="modal-header">
@@ -20,7 +20,7 @@
                     <div class="date-badge">
                         <i class="far fa-calendar-alt"></i> Today
                     </div>
-                    <button class="close-btn" data-url="{{ url_for('home') }}" onclick="window.location.href=this.dataset.url"><i class="fas fa-times"></i></button>
+                    <button class="close-btn" onclick="closeCheckinModal()"><i class="fas fa-times"></i></button>
                 </div>
             </div>
 
@@ -81,15 +81,38 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn-outline" style="border:none; color: var(--text-muted); font-size: 0.9rem;" data-url="{{ url_for('home') }}" onclick="window.location.href=this.dataset.url">Skip for now</button>
                 <div style="display: flex; gap: 12px;">
-                    <button class="card-btn btn-outline" style="width: auto; margin:0; padding: 10px 20px;" data-url="{{ url_for('home') }}" onclick="window.location.href=this.dataset.url">Cancel</button>
+                    <button class="card-btn btn-outline" style="width: auto; margin:0; padding: 10px 20px;" onclick="closeCheckinModal()">Skip for now</button>
                     <button class="card-btn btn-primary" style="width: auto; margin:0; padding: 10px 24px;">Save Entry</button>
                 </div>
             </div>
 
         </div>
     </div>
-
 </body>
+
+<script>
+    const checkinModal = document.getElementById('checkinModal');
+
+    function openCheckinModal() {
+        checkinModal.style.display = 'flex';
+    }
+
+    function closeCheckinModal() {
+        checkinModal.style.display = 'none';
+    }
+
+    function submitCheckinModal() {
+        // Here you would normally send data to Flask
+        alert("Check-in saved!");
+        closeCheckinModal(); // Close modal after submit
+    }
+
+    // Close if user clicks the dark background outside the white box
+    // window.addEventListener('click', function(event) {
+    //     if (event.target === checkinModal) {
+    //         closeCheckinModal();
+    //     }
+    // });
+</script>
 </html>

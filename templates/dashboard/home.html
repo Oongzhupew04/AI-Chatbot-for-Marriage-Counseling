@@ -2,7 +2,9 @@
 
 {% block title %}Dashboard - MarriageCounselor.AI{% endblock %}
 
-{% block style %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/home.css') }}">{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/home.css') }}">
+{% endblock %}
 
 {% block content %}
     <main class="main-content">
@@ -19,7 +21,7 @@
             </div>
 
             <div class="action-grid">
-                <div class="action-card" data-url="{{ url_for('checkin') }}" onclick="window.location.href=this.dataset.url">
+                <div class="action-card" onclick="openCheckinModal()">
                     <div class="card-content">
                         <div class="icon-box icon-orange"><i class="fas fa-clipboard-check"></i></div>
                         <div class="card-text">Daily Check-in</div>
@@ -43,7 +45,7 @@
                     <i class="fas fa-plus plus-icon"></i>
                 </div>
 
-                <div class="action-card">
+                <div class="action-card" onclick="openEmergencyModal()">
                     <div class="card-content">
                         <div class="icon-box icon-red"><i class="fas fa-phone-alt"></i></div>
                         <div class="card-text">Emergency Help</div>
@@ -128,68 +130,14 @@
 {% endblock %}
 
 {% block modals %}
-    {# {% include 'feedback.html' %} #}
-    <div id="thank-you-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; animation: popUp 0.3s ease;">
-            <i class="fas fa-check-circle" style="font-size: 3rem; color: #7C9A92; margin-bottom: 20px;"></i>
-            <h2 style="font-family: 'Merriweather', serif; margin-bottom: 10px;">Session Ended</h2>
-            <p style="color: #718096;">Thank you for sharing with us today.</p>
-        </div>
-    </div>
-
-    <style>
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        /* Style for the Yes/No buttons in chat */
-        .confirmation-buttons { display: flex; gap: 10px; margin-top: 5px; margin-left: 10px; }
-        .btn-chat { padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-yes { background: #E53E3E; color: white; } /* Red for ending */
-        .btn-no { background: #E2E8F0; color: #2D3748; }
-    </style>
-
-    <div id="emergency-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: white; width: 90%; max-width: 500px; border-radius: 20px; padding: 30px; text-align: center; border-left: 10px solid #E53E3E; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-            
-            <i class="fas fa-life-ring" style="font-size: 4rem; color: #E53E3E; margin-bottom: 20px;"></i>
-            
-            <h2 style="font-family: 'Merriweather', serif; color: #2D3748; margin-bottom: 10px;">You Are Not Alone</h2>
-            <p style="color: #4A5568; margin-bottom: 25px; line-height: 1.6;">
-                We noticed you might be going through a difficult time. Please reach out to a professional who can listen and help immediately.
-            </p>
-
-            <div style="background: #FFF5F5; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 25px;">
-                <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
-                    <i class="fas fa-phone-alt" style="color: #E53E3E; font-size: 1.2rem;"></i>
-                    <div>
-                        <strong style="display: block; color: #2D3748;">Befrienders KL (24/7)</strong>
-                        <a href="tel:0376272929" style="color: #E53E3E; font-weight: 700; text-decoration: none; font-size: 1.1rem;">03-7627 2929</a>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
-                    <i class="fas fa-phone-alt" style="color: #E53E3E; font-size: 1.2rem;"></i>
-                    <div>
-                        <strong style="display: block; color: #2D3748;">Talian Kasih (24/7)</strong>
-                        <a href="tel:15999" style="color: #E53E3E; font-weight: 700; text-decoration: none; font-size: 1.1rem;">15999</a>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <i class="fas fa-phone-alt" style="color: #E53E3E; font-size: 1.2rem;"></i>
-                    <div>
-                        <strong style="display: block; color: #2D3748;">HEAL Line (Mental Health)</strong>
-                        <a href="tel:15555" style="color: #E53E3E; font-weight: 700; text-decoration: none; font-size: 1.1rem;">15555</a>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="closeEmergency()" style="background: #718096; color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s;">
-                I am safe now
-            </button>
-        </div>
-    </div>
+    {% include 'dashboard/modals/checkin.html' %}
+    {% include 'dashboard/modals/feedback.html' %}
+    {% include 'dashboard/modals/thankyou.html' %}
+    {% include 'dashboard/modals/emergency.html' %}
 {% endblock %}
 
 {% block scripts %}
+    <meta id="flask-data" data-show="{{ 'true' if show_modal else 'false' }}">
     <script>
         function sendMessage() {
             const inputField = document.getElementById("user-input");
@@ -201,8 +149,8 @@
 
             // --- SAFETY CHECK ---
             if (message.includes("suicide") || message.includes("killing") || message.includes("die") || message.includes("kill")) {
-                document.getElementById("emergency-modal").style.display = "flex";
-                inputField.value = ""; // Optional: clear the input
+                openEmergencyModal();
+                inputField.value = ""; // Clear the input
                 return; // <--- STOP HERE. Do not send to bot.
             }
 
@@ -287,16 +235,16 @@
             btnElement.parentElement.remove();
 
             // 2. Show "Thank You" Modal
-            const thankYouModal = document.getElementById("thank-you-modal");
-            thankYouModal.style.display = "flex";
-            const feedbackModal = document.getElementById("feedback-modal");
+            openThankYouModal();
 
             // 3. Wait 2 seconds, then Hide Thank You -> Show Feedback
             setTimeout(() => {
-                thankYouModal.style.display = "none";
-                
-
-                window.location.href = "{{ url_for('feedback') }}";
+                closeThankYouModal();
+                const feedbackModal = document.getElementById("feedback-modal");
+                if(feedbackModal) {
+                    openFeedback();
+                }
+                // window.location.href = "{{ url_for('feedback') }}";
                 // Show Feedback Modal (Ensure your feedback.html has this ID)
                 // If you are using the exact file provided earlier, you might need to select by class if ID is missing:
                 // document.querySelector('.modal-overlay').style.display = 'flex';
@@ -322,8 +270,14 @@
             chatBox.appendChild(botBubble);
         }
 
-        function closeEmergency() {
-            document.getElementById("emergency-modal").style.display = "none";
+        // --- THE "ONE-TIME TICKET" FOR CHECK-IN AUTO-TRIGGER ---
+        const flaskData = document.getElementById('flask-data');
+        
+        // Check if the HTML element says 'true'
+        if (flaskData && flaskData.dataset.show === 'true') {
+            window.addEventListener('DOMContentLoaded', (event) => {
+                openCheckinModal();
+            });
         }
     </script>
 {% endblock %}

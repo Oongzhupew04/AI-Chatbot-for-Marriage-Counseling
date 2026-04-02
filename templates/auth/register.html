@@ -29,19 +29,19 @@
         </button>
 
         <div class="divider">
-            <span>or sign up with email</span>
+            <span>or sign up manually</span>
         </div>
 
         <form action="/register" method="POST">
             
             <div class="form-group">
                 <label for="username">Username / Full Name</label>
-                <input type="text" id="username" name="username" class="input-field" placeholder="Vincent Oong" required>
+                <input type="text" id="username" name="username" class="input-field" placeholder="Name" required>
             </div>
 
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" class="input-field" placeholder="vincent@mmu.edu.my" required>
+                <input type="email" id="email" name="email" class="input-field" placeholder="email_address@gmail.com" required>
             </div>
             
             <div class="form-row">
@@ -69,7 +69,9 @@
                 </label>
             </div>
 
-            <button type="submit" class="btn-submit">Create Account</button>
+            <div class="error-message" id="error_box"></div>
+
+            <button type="submit" class="btn-submit" id="submitBtn" disabled>Create Account</button>
         </form>
 
         <div class="footer-links">
@@ -78,4 +80,84 @@
     </div>
 
 </body>
+<script>
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm_password');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorDisplay = document.getElementById('error_box');
+    const privacyCheck = document.getElementById('privacy_policy');
+    const aiConsentCheck = document.getElementById('ai_consent');
+
+    function validateForm() {
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        const confirm = confirmInput.value;
+        let errorMessage = "";
+        let isValid = true;
+        let isConfirmPasswordValid = false;
+
+        // 1. Email check
+        if (!email.includes('@')) {
+            errorMessage = "Email Address must contain an '@' symbol.";
+            isValid = false;
+        }
+        
+        // 2. Password rules
+        if (password.length > 0) { // Only check if they started typing
+            if (password.length < 8) {
+                errorMessage = "Password must be at least 8 characters.";
+                isValid = false;
+            } else if (!/[A-Z]/.test(password)) {
+                errorMessage = "Password must contain an uppercase letter.";
+                isValid = false;
+            } else if (!/[a-z]/.test(password)) {
+                errorMessage = "Password must contain a lowercase letter.";
+                isValid = false;
+            } else if (!/[0-9]/.test(password)) {
+                errorMessage = "Password must contain a number.";
+                isValid = false;
+            }
+        } else {
+            isValid = false;
+        }
+
+        // 3. Confirm password check
+        if (confirm.length > 0 && password !== confirm) {
+            errorMessage = "Password and Confirm Password do not match!";
+            isValid = false;
+        }
+        else if (confirm.length > 0 && password == confirm) {
+            isConfirmPasswordValid = true;
+            
+        }
+
+        // 4. Terms and consent check
+        if (isConfirmPasswordValid && (!privacyCheck.checked || !aiConsentCheck.checked)) {
+            errorMessage = "You must accept the terms and AI consent.";
+            isValid = false;
+        }
+
+        // Display error message
+        errorDisplay.innerText = errorMessage;
+
+        // Enable or disable the button
+        if (isValid && password === confirm) {
+            submitBtn.disabled = false;
+            submitBtn.style.background = "#000000"; // Turn button black
+            submitBtn.style.cursor = "pointer";
+        }
+    }
+
+    // Run the validation every time the user types a key
+    emailInput.addEventListener('input', validateForm);
+    emailInput.addEventListener('change', validateForm);
+    passwordInput.addEventListener('input', validateForm);
+    passwordInput.addEventListener('change', validateForm);
+    confirmInput.addEventListener('input', validateForm);
+    confirmInput.addEventListener('change', validateForm);
+
+    privacyCheck.addEventListener('change', validateForm);
+    aiConsentCheck.addEventListener('change', validateForm);
+</script>
 </html>

@@ -259,3 +259,10 @@ body {
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1); }
 }
+
+@keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* Style for the Yes/No buttons in chat */
+.confirmation-buttons { display: flex; gap: 10px; margin-top: 5px; margin-left: 10px; }
+.btn-chat { padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+.btn-yes { background: #E53E3E; color: white; } /* Red for ending */
+.btn-no { background: #E2E8F0; color: #2D3748; }
