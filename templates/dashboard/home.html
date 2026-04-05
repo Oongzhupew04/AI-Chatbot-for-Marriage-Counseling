@@ -180,43 +180,45 @@
             chatBox.appendChild(typingBubble);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // 4. Wait 1 Second (1000ms) then Fetch Response
-            setTimeout(() => {
+            // 4. Fetch Response
+            // Send to Flask Backend
+            fetch('/get_response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
                 // Remove the typing bubble
                 const typingElement = document.getElementById("typing-bubble");
                 if (typingElement) typingElement.remove();
 
-                // Send to Flask Backend
-                fetch('/get_response', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Add Bot Response
-                    const botBubble = document.createElement("div");
-                    botBubble.classList.add("message-bubble", "bot-msg");
-                    botBubble.innerText = data.response;
-                    chatBox.appendChild(botBubble);
+                // Add Bot Response
+                const botBubble = document.createElement("div");
+                botBubble.classList.add("message-bubble", "bot-msg");
+                botBubble.innerText = data.response;
+                chatBox.appendChild(botBubble);
 
-                    // 4. CHECK ACTION: Is it the "End Session" confirmation?
-                    if (data.action === "confirm_end") {
-                        const buttonContainer = document.createElement("div");
-                        buttonContainer.className = "confirmation-buttons";
-                        buttonContainer.innerHTML = `
-                            <button class="btn-chat btn-yes" onclick="confirmEndSession(this)">Yes</button>
-                            <button class="btn-chat btn-no" onclick="cancelEndSession(this)">No</button>
-                        `;
-                        chatBox.appendChild(buttonContainer);
-                    }
+                // 4. CHECK ACTION: Is it the "End Session" confirmation?
+                if (data.action === "confirm_end") {
+                    const buttonContainer = document.createElement("div");
+                    buttonContainer.className = "confirmation-buttons";
+                    buttonContainer.innerHTML = `
+                        <button class="btn-chat btn-yes" onclick="confirmEndSession(this)">Yes</button>
+                        <button class="btn-chat btn-no" onclick="cancelEndSession(this)">No</button>
+                    `;
+                    chatBox.appendChild(buttonContainer);
+                }
 
-                    // Scroll to bottom
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                })
-                .catch(error => console.error('Error:', error));
-                
-            }, 1000); // <-- This 1000 is the 1-second delay
+                // Scroll to bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Remove the typing bubble
+                const typingElement = document.getElementById("typing-bubble");
+                if (typingElement) typingElement.remove();
+            });
         }
 
         // Allow "Enter" key to send

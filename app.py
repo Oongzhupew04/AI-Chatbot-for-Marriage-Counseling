@@ -1,60 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
-from werkzeug.security import generate_password_hash, check_password_hash
-from database import db
-import os
-import threading
-import jaydebeapi
+from services.auth_service import AuthService
 from dotenv import load_dotenv
+from deepseek_ai_cloud import analyze_risk, detect_intent, generate_response, CRISIS_RESOURCES
+from services.chat_service import ChatService
+from repositories.chat_repo import ChatRepository
+
 
 app = Flask(__name__)
 app.secret_key = "secret_sage_key" # Required for session management
+auth_service = AuthService()
+chat_service = ChatService()
+chat_repo = ChatRepository()
+
 
 load_dotenv()
-
-class DatabaseSingleton:
-    _instance = None
-    _lock = threading.Lock()
-    _connection = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super(DatabaseSingleton, cls).__new__(cls)
-                    cls._instance._initialize_connection()
-        return cls._instance
-
-    def _initialize_connection(self):
-        """This runs ONLY ONCE when the first instance is created."""
-        print("=> Starting JVM and opening openGauss connection (This should only print ONCE)...")
-        
-        jar_path = os.getenv("DB_JAR_PATH")
-        driver_class = "org.opengauss.Driver"
-        
-        host = os.getenv("DB_HOST")
-        port = os.getenv("DB_PORT")
-        db_name = os.getenv("DB_NAME")
-        url = f"jdbc:opengauss://{host}:{port}/{db_name}"
-        
-        username = os.getenv("DB_USER")
-        password = os.getenv("DB_PASSWORD")
-
-        try:
-            self._connection = jaydebeapi.connect(
-                jclassname=driver_class,
-                url=url,
-                driver_args=[username, password],
-                jars=jar_path
-            )
-        except Exception as e:
-            print(f"CRITICAL: Failed to connect to database. Error: {e}")
-            raise e
-
-    def get_connection(self):
-        """Returns the active database connection."""
-        return self._connection
-
-db = DatabaseSingleton()
 
 # --- CONTROLLER ROUTES ---
 
@@ -68,90 +27,52 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        try:
-            conn = db.get_connection()
-            cursor = conn.cursor()
-
-            query = "SELECT password, role FROM users WHERE email = ?"
-            cursor.execute(query, (email,))
-            
-            # Fetch the first matching row (since emails should be unique)
-            user_record = cursor.fetchone()
-            cursor.close()
-
-            # 3. Check if the user exists in the database
-            if user_record:
-                db_password = user_record[0]
-                db_role = user_record[1]
-
-                # 4. Check if the typed password matches the database password
-                if check_password_hash(db_password, password):
-
-                    session['show_checkin'] = True
-                    
-                    # 5. Route the user based on their role
-                    if db_role == 'admin':
-                        return redirect(url_for('admin'))
-                    else:
-                        return redirect(url_for('home'))
-            else:
-                flash("Invalid email address or password.", "error")
-
-        except Exception as e:
-            print(f"Database Login Error: {e}")
-            flash("An error occurred connecting to the server.", "error")
+        
+        user, error = auth_service.login(email, password)
+        
+        if error:
+            flash(error, "error")
             return render_template('auth/login.html')
-
-    # If it's a GET request (just visiting the page), show the form
+        
+        session['user_id'] = user.id
+        session['show_checkin'] = True
+        if user.role == 'admin':
+            return redirect(url_for('admin'))
+        else:
+            return redirect(url_for('home'))
+    
     return render_template('auth/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Get the input from the registration form
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-
-        try:
-            conn = db.get_connection()
-            cursor = conn.cursor()
-
-            # 2. Check if the email is already registered
-            check_query = "SELECT id FROM users WHERE email = ?"
-            cursor.execute(check_query, (email,))
-            existing_user = cursor.fetchone()
-
-            if existing_user:
-                flash("Email is already registered. Please log in instead.", "error")
-                cursor.close()
-                return redirect(url_for('login'))
-
-            # 3. Hash the password! 
-            hashed_pw = generate_password_hash(password)
-
-            # 4. Insert the new user into the openGauss database
-            # We set the default role to 'user'
-            insert_query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)"
-            cursor.execute(insert_query, (username, email, hashed_pw, 'user'))
-            
-            # 5. COMMIT to save the changes to the hard drive!
-            conn.commit()
-            cursor.close()
-
-            flash("Registration successful! You can now log in.", "success")
+        
+        success, message = auth_service.register(username, email, password)
+        
+        if success:
+            flash(message, "success")
             return redirect(url_for('login'))
-
-        except Exception as e:
-            print(f"Database Registration Error: {e}")
-            flash("An error occurred connecting to the server.", "error")
+        else:
+            flash(message, "error")
             return render_template('auth/register.html')
-
-    # If it's a GET request (just visiting the page), show the form
+    
     return render_template('auth/register.html')
 
 @app.route('/home')
 def home():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+        
+    # 2. THE FIX: Generate a brand new chat session EVERY time this page loads
+    new_chat = chat_repo.create_chat(user_id)
+    
+    if new_chat:
+        # Overwrite the old chat_id in the cookie with the brand new one
+        session['chat_id'] = new_chat.id
 
     show_modal = session.pop('show_checkin', False)
 
@@ -175,20 +96,63 @@ def admin():
 def feedback():
     return render_template('dashboard/modals/feedback.html')
 
+@app.route('/new_chat', methods=['POST'])
+def new_chat():
+    """Start a fresh chat session."""
+    session.pop('chat_id', None)  # Clear the old chat_id
+    return jsonify({"status": "success", "message": "Starting new chat..."})
+
 @app.route('/get_response', methods=['POST'])
 def get_response():
-    user_input = request.json.get('message', '').lower()
+    user_id = session.get('user_id')  # Set at login
+    chat_id = chat_service.get_or_create_chat(user_id, session.get('chat_id', None))
+    session['chat_id'] = chat_id
+
+    # Keep the original casing for the LLM prompt.
+    user_input = request.json.get('message', '').strip()
     
-    # 1. Check for "end session" keyword
-    if "end session" in user_input:
+    # 1. Check for "end session" keyword (Frontend action)
+    if "end session" in user_input.lower():
         return jsonify({
             "response": "Are you sure you want to end this session?",
-            "action": "confirm_end" # <--- Signal to frontend to show buttons
+            "action": "confirm_end" 
         })
     
-    # 2. Default Hardcoded Response
+    # 2. Risk detection (Highest Priority)
+    risk_level = analyze_risk(user_input)
+    if risk_level >= 1:
+        urgency = "high" if risk_level == 2 else "moderate"
+        bot_reply = f"I am hearing that you are in a very distressing and potentially unsafe situation. {CRISIS_RESOURCES}"
+        if urgency == "high":
+            bot_reply += "\n*Please* reach out to someone for physical support right now."
+        
+        # Log to your database and return the crisis response
+        chat_service.log_message(chat_id, user_input, "[CRISIS INTERVENTION TRIGGERED]", risk_level)
+        return jsonify({"response": bot_reply, "action": "none"})
+
+    # 3. Intent/mood detection (Hardcoded rules for common issues)
+    intent_response = detect_intent(user_input)
+    if intent_response:
+        chat_service.log_message(chat_id, user_input, intent_response, risk_level)
+        return jsonify({"response": intent_response, "action": "none"})
+
+    # 4. Default LLM response (Sending to Huawei ECS)
+    system_msg = (
+        "You are a professional, empathetic, and neutral marriage counselor. "
+        "Provide constructive advice, validate feelings, and encourage healthy communication between partners. "
+        "Do not take sides. Keep your responses concise and conversational.\n\n"
+    )
+    full_prompt = f"{system_msg}User: {user_input}\nCounselor:"
+    
+    # Call your ECS server
+    ai_response = generate_response(full_prompt)
+    
+    # Log the successful AI response
+    chat_service.log_message(chat_id, user_input, ai_response, risk_level)
+
+    # Return the AI response to the frontend
     return jsonify({
-        "response": "Hello Vincent, how can I help you?", 
+        "response": ai_response, 
         "action": "none"
     })
 

@@ -21,8 +21,8 @@
         </div>
 
         <div class="nav-menu">
-            <a href="{{ url_for('home') }}" class="nav-item active">
-                <i class="fas fa-comment-dots"></i> AI Chat
+            <a href="#" class="nav-item active" id="newChatBtn" onclick="startNewChat(); return false;">
+                <i class="fas fa-comment-dots"></i> New Chat
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-folder-open"></i> History
@@ -65,3 +65,16 @@
     {% block scripts %}{% endblock %}
 </body>
 </html>
+<script>
+function startNewChat() {
+    fetch('/new_chat', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Navigate to home after successful session clear
+        window.location.href = "{{ url_for('home') }}";
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>

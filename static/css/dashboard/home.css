@@ -195,7 +195,7 @@ body {
     display: none; /* Hidden by default */
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 120px;
 }
 
 .message-bubble {
