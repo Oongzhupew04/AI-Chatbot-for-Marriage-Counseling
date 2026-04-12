@@ -3,13 +3,14 @@ import axios from 'axios';
 
 interface ChatPayload {
     message: string;
-    chatId: string | null;
+    chatId: number | null;
 }
 
 interface ChatResponse {
     response: string;
     action: string;
     risk_level: number;
+    chatId?: number;
 }
 
 export const useChatMutation = () => {

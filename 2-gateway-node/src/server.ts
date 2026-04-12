@@ -121,20 +121,36 @@ app.post('/api/chat/new', authenticateToken, async (req: AuthRequest, res: Respo
 
 // Translate: @app.route('/get_response', methods=['POST'])
 app.post('/api/chat', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
-    const { message, chatId } = req.body;
+    // Note: Changed 'const' to 'let' so we can assign the new ID!
+    let { message, chatId } = req.body;
     const userId = req.user.userId;
 
     try {
+        // --- 1. THE INTERCEPTOR: If React sends null, create a real DB record first! ---
+        if (!chatId) {
+            console.log(`Creating new DB chat record for user ${userId}...`);
+            const newChatResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/new_chat`, {
+                user_id: userId
+            });
+            
+            // Overwrite the null with the actual Database ID Python just created!
+            chatId = newChatResponse.data.chat_id; 
+        }
+
+        // --- 2. SEND THE MESSAGE ---
         console.log("Sending to Python:", { user_id: userId, chat_id: chatId, message: message });
-        // Node.js acts as the middleman, forwarding the safe, verified request to Python
         const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/get_response`, {
             user_id: userId,
-            chat_id: chatId,
+            chat_id: chatId, // This is now guaranteed to be a real string/ID!
             message: message
         });
 
-        // Send Python's response (which includes Risk Analysis, Intent, and LLM text) back to React
-        res.json(pythonResponse.data);
+        // --- 3. SEND BACK TO REACT ---
+        res.json({
+            ...pythonResponse.data,
+            chatId: chatId // Send the new ID back so React saves it in Zustand
+        });
+        
     } catch (error: any) {
         console.error("Python Service Error:", error.message);
         res.status(500).json({ error: "AI Compute Service is currently unavailable." });

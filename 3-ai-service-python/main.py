@@ -4,17 +4,18 @@ from dotenv import load_dotenv
 import uvicorn
 
 from services.auth_service import AuthService
-from services.chat_service import ChatService 
+from services.chat_service import ChatService
+from repositories.chat_repo import ChatRepository
 from deepseek_ai_cloud import analyze_risk, detect_intent, generate_response, CRISIS_RESOURCES
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
-from typing import Optional #will be deleted
+from typing import Optional
 
 load_dotenv()
 
 app = FastAPI(title="AI Compute Service", description="Internal AI Microservice")
 auth_service = AuthService()
+chat_repository = ChatRepository()
 chat_service = ChatService()
 
 # ==========================================
@@ -27,7 +28,7 @@ class LoginRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     user_id: int
-    chat_id: Optional[str] = None #will be deleted
+    chat_id: Optional[int] = None
     message: str
 
 class ChatResponse(BaseModel):
@@ -72,9 +73,15 @@ async def internal_login(login_data: LoginRequest):
 
 @app.post('/internal/new_chat')
 async def new_chat(data: NewChatRequest):
-    """Generates a new chat session."""
-    # In a full app, this would call chat_service to create a DB entry
-    return {"status": "success", "chat_id": f"chat_{data.user_id}_latest"}
+    try:
+        # 1. Ask the service/repo to create the row in the database
+        new_id = chat_service.get_or_create_chat(data.user_id, None)
+        
+        # 2. Return the official database ID to Node.js
+        return {"status": "success", "chat_id": new_id}
+    except Exception as e:
+        print(f"Database Error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create chat in database")
 
 
 @app.post("/internal/get_response", response_model=ChatResponse)
@@ -83,6 +90,14 @@ async def process_chat(chat_data: ChatRequest):
     Internal endpoint called ONLY by the Node.js Gateway.
     """
     user_input = chat_data.message.strip()
+    chat_id = chat_data.chat_id
+
+    if "end session" in user_input.lower():
+        return ChatResponse(
+            response="Are you sure you want to end this session?",
+            action="confirm_end",
+            risk_level=0
+        )
     
     # 1. Risk detection (Highest Priority)
     risk_level = analyze_risk(user_input)
@@ -93,13 +108,13 @@ async def process_chat(chat_data: ChatRequest):
             bot_reply += "\n*Please* reach out to someone for physical support right now."
         
         # Log to your database (openGauss) via ChatService
-        chat_service.log_message(chat_data.chat_id, user_input, "[CRISIS INTERVENTION TRIGGERED]", risk_level)
+        chat_service.log_message(chat_id, user_input, "[CRISIS INTERVENTION TRIGGERED]", risk_level)
         return ChatResponse(response=bot_reply, action="none", risk_level=risk_level)
 
     # 2. Intent/mood detection
     intent_response = detect_intent(user_input)
     if intent_response:
-        chat_service.log_message(chat_data.chat_id, user_input, intent_response, risk_level)
+        chat_service.log_message(chat_id, user_input, intent_response, risk_level)
         return ChatResponse(response=intent_response, action="none", risk_level=risk_level)
 
     # 3. Default LLM response (Sending to Huawei ECS)
@@ -114,7 +129,7 @@ async def process_chat(chat_data: ChatRequest):
     ai_response = generate_response(full_prompt)
     
     # Log successful AI response
-    chat_service.log_message(chat_data.chat_id, user_input, ai_response, risk_level)
+    chat_service.log_message(chat_id, user_input, ai_response, risk_level)
 
     return ChatResponse(response=ai_response, action="none", risk_level=risk_level)
 

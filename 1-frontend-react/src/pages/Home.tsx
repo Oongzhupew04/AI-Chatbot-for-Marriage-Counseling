@@ -12,11 +12,15 @@ export default function Home(): JSX.Element {
     const navigate = useNavigate();
     // State to track if the modal is open
     const [isCheckinModalOpen, setIsCheckinModalOpen] = useState(false);
-    const [input, setInput] = useState<string>('');
+    const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
     const [showEmergency, setShowEmergency] = useState(false);
+    const [input, setInput] = useState<string>('');
+
+    // Get today's date string for check-in comparison
+    const getTodayString = () => new Date().toDateString();
     
     // Zustand
-    const { messages, chatId, addMessage } = useChatStore();
+    const { messages, chatId, addMessage, setChatId } = useChatStore();
     
     // React Query
     const chatMutation = useChatMutation();
@@ -40,8 +44,6 @@ export default function Home(): JSX.Element {
         const unsafeWords = ["suicide", "killing", "die", "kill"];
         if (unsafeWords.some(word => text.toLowerCase().includes(word))) {
             setShowEmergency(true);
-            setInput('');
-            return;
         }
 
         // 1. Update UI immediately (Optimistic update)
@@ -53,6 +55,10 @@ export default function Home(): JSX.Element {
             { message: text, chatId },
             {
                 onSuccess: (data) => {
+                    if (data.chatId && !chatId) {
+                        setChatId(data.chatId);
+                    }
+
                     addMessage({ 
                         sender: 'bot', 
                         text: data.response, 
@@ -67,6 +73,35 @@ export default function Home(): JSX.Element {
         );
     };
 
+
+    // AUTO-TRIGGER CHECKIN MODAL: Runs exactly once when the page loads
+    useEffect(() => {
+        const today = getTodayString();
+        const lastCheckIn = localStorage.getItem('lastCheckInDate');
+
+        if (lastCheckIn === today) {
+            // They already did it today
+            setHasCheckedInToday(true);
+        } else {
+            // It's a new day (or their first time ever)! 
+            // Automatically pop open the modal
+            setHasCheckedInToday(false);
+            setIsCheckinModalOpen(true);
+        }
+    }, []);
+
+    // THE SUBMIT ACTION: When they finish the form in the modal
+    const handleCheckInSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // ... your backend fetch() code to save the check-in goes here ...
+
+        // Lock it in for the day
+        localStorage.setItem('lastCheckInDate', getTodayString());
+        setHasCheckedInToday(true);
+        setIsCheckinModalOpen(false); // Close the modal
+    };
+
     return (
         <>
             <main className={styles['main-content']}>
@@ -78,52 +113,86 @@ export default function Home(): JSX.Element {
                     <i className="far fa-bell" style={{ fontSize: '1.2rem', color: 'var(--text-muted)', cursor: 'pointer', alignSelf: 'center' }}></i>
                 </div>
 
-                <div id="welcome-section">
-                    <div className={styles['welcome-header']}>
-                        <h1>Welcome to Your Safe Space</h1>
-                        <p>Start by checking in or discussing a specific issue. We are here to listen.</p>
+                {messages.length === 0 && (
+                    <div id="welcome-section">
+                        <div className={styles['welcome-header']}>
+                            <h1>Welcome to Your Safe Space</h1>
+                            <p>Start by checking in or discussing a specific issue. We are here to listen.</p>
+                        </div>
+
+                        <div className={styles['action-grid']}>
+                            <div className={styles['action-card']} onClick={openCheckinModal}>
+                                <div className={styles['card-content']}>
+                                    <div className={`${styles['icon-box']} ${styles['icon-orange']}`}><i className="fas fa-clipboard-check"></i></div>
+                                    <div className={styles['card-text']}>Daily Check-in</div>
+                                </div>
+                                <i className="fas fa-plus plus-icon"></i>
+                            </div>
+
+                            <div className={styles['action-card']}>
+                                <div className={styles['card-content']}>
+                                    <div className={`${styles['icon-box']} ${styles['icon-blue']}`}><i className="fas fa-comments"></i></div>
+                                    <div className={styles['card-text']}>Start Session</div>
+                                </div>
+                                <i className="fas fa-plus plus-icon"></i>
+                            </div>
+
+                            <div className={styles['action-card']} data-url="{{ url_for('analysis') }}" onClick={() => navigate('/analysis')}>
+                                <div className={styles['card-content']}>
+                                    <div className={`${styles['icon-box']} ${styles['icon-green']}`}><i className="fas fa-chart-line"></i></div>
+                                    <div className={styles['card-text']}>View Analysis</div>
+                                </div>
+                                <i className="fas fa-plus plus-icon"></i>
+                            </div>
+
+                            <div className={styles['action-card']} onClick={openEmergencyModal}>
+                                <div className={styles['card-content']}>
+                                    <div className={`${styles['icon-box']} ${styles['icon-red']}`}><i className="fas fa-phone-alt"></i></div>
+                                    <div className={styles['card-text']}>Emergency Help</div>
+                                </div>
+                                <i className="fas fa-plus plus-icon"></i>
+                            </div>
+                        </div>
                     </div>
+                )}
 
-                    <div className={styles['action-grid']}>
-                        <div className={styles['action-card']} onClick={openCheckinModal}>
-                            <div className={styles['card-content']}>
-                                <div className={`${styles['icon-box']} ${styles['icon-orange']}`}><i className="fas fa-clipboard-check"></i></div>
-                                <div className={styles['card-text']}>Daily Check-in</div>
+                {messages.length > 0 && (
+                    <div id="chat-box" className={styles['chat-container']}>
+                        {/* 1. Loop through all saved messages and draw them */}
+                        {messages.map((m, index) => (
+                            <div key={index} className={`${styles['message-bubble']} ${styles[`${m.sender}-msg`]}`}>
+                                {m.text}
                             </div>
-                            <i className="fas fa-plus plus-icon"></i>
-                        </div>
+                        ))}
 
-                        <div className={styles['action-card']}>
-                            <div className={styles['card-content']}>
-                                <div className={`${styles['icon-box']} ${styles['icon-blue']}`}><i className="fas fa-comments"></i></div>
-                                <div className={styles['card-text']}>Start Session</div>
+                        {/* 2. Show the typing animation automatically while waiting for Python */}
+                        {chatMutation.isPending && (
+                            <div className={`${styles['message-bubble']} ${styles['bot-msg']} ${styles['typing-indicator']}`}>
+                                <div className={styles['dot']}></div>
+                                <div className={styles['dot']}></div>
+                                <div className={styles['dot']}></div>
                             </div>
-                            <i className="fas fa-plus plus-icon"></i>
-                        </div>
+                        )}
 
-                        <div className={styles['action-card']} data-url="{{ url_for('analysis') }}" onClick={() => navigate('/analysis')}>
-                            <div className={styles['card-content']}>
-                                <div className={`${styles['icon-box']} ${styles['icon-green']}`}><i className="fas fa-chart-line"></i></div>
-                                <div className={styles['card-text']}>View Analysis</div>
-                            </div>
-                            <i className="fas fa-plus plus-icon"></i>
-                        </div>
-
-                        <div className={styles['action-card']} onClick={openEmergencyModal}>
-                            <div className={styles['card-content']}>
-                                <div className={`${styles['icon-box']} ${styles['icon-red']}`}><i className="fas fa-phone-alt"></i></div>
-                                <div className={styles['card-text']}>Emergency Help</div>
-                            </div>
-                            <i className="fas fa-plus plus-icon"></i>
-                        </div>
+                        {/* 3. The invisible anchor that auto-scrolls to the bottom */}
+                        <div ref={chatEndRef} />
                     </div>
-                </div>
-
-                <div id="chat-box" className={styles['chat-container']}>
-                </div>
+                )}
 
                 <div className={styles['input-wrapper']}>
-                    <textarea id="user-input" className={styles['chat-input']} placeholder="Tell me what's on your mind today..."></textarea>
+                    <textarea 
+                        id="user-input" 
+                        className={styles['chat-input']} 
+                        placeholder="Tell me what's on your mind today..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault(); // Prevents adding a new line
+                                handleSendMessage(); // Fires your send function
+                            }
+                        }}
+                    ></textarea>
                     <div className={styles['input-footer']}>
                         <div className={styles['attachments']}>
                             <button className={styles['attach-btn']}><i className="fas fa-paperclip"></i> Attach</button>

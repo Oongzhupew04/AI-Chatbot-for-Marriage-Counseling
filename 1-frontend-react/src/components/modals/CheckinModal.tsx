@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './CheckinModal.module.css';
 
 
-export default function CheckinModal({ onClose }) {
+export default function CheckinModal({ onClose }: { onClose: () => void }) {
     const [selectedEmoji, setSelectedEmoji] = useState('Neutral');
 
     const emojis = [

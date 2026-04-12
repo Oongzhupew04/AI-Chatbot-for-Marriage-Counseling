@@ -8,8 +8,8 @@ export interface Message {
 
 interface ChatState {
     messages: Message[];
-    chatId: string | null;
-    setChatId: (id: string) => void;
+    chatId: number | null;
+    setChatId: (id: number) => void;
     addMessage: (msg: Message) => void;
     clearSession: () => void;
 }

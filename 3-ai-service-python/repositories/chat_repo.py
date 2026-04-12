@@ -25,6 +25,7 @@ class ChatRepository:
     
     def log_message(self, chat_id, user_msg, bot_msg, risk_level):
         """Log a message to an existing chat."""
+        conn = None
         try:
             conn = db.get_connection()
             cursor = conn.cursor()
@@ -39,6 +40,9 @@ class ChatRepository:
             
             return True
         except Exception as e:
+            if conn:
+                conn.rollback()
+
             print(f"Error logging message: {e}")
             return False
     
