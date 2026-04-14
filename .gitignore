@@ -54,3 +54,7 @@ htmlcov/
 # Mac/Windows system files
 .DS_Store
 Thumbs.db
+
+# Ignore the generated RAG vector database
+chroma_db/
+chroma_db/*

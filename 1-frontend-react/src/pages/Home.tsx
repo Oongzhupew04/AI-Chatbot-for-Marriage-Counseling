@@ -32,6 +32,50 @@ export default function Home(): JSX.Element {
     const openEmergencyModal = () => setShowEmergency(true);
     const closeEmergencyModal = () => setShowEmergency(false);
 
+    // Kicks user out of Home Page when token expired
+    // useEffect(() => {
+    //     const token = localStorage.getItem('token');
+        
+    //     if (token) {
+    //         try {
+    //             // A JWT is split into 3 parts by periods. We want the middle part (the data)
+    //             const payload = JSON.parse(atob(token.split('.')[1]));
+                
+    //             // The 'exp' value is in seconds. Date.now() is in milliseconds.
+    //             const isExpired = (payload.exp * 1000) < Date.now();
+                
+    //             if (isExpired) {
+    //                 console.log("Token expired on load. Logging out.");
+    //                 localStorage.removeItem('token');
+    //                 navigate('/login');
+    //             }
+    //         } catch (e) {
+    //             // If the token is mangled or unreadable, kick them out
+    //             localStorage.removeItem('token');
+    //             navigate('/login');
+    //         }
+    //     } else {
+    //         // No token at all? Kick them out.
+    //         navigate('/login');
+    //     }
+    // }, [navigate]);
+
+    // AUTO-TRIGGER CHECKIN MODAL: Runs exactly once when the page loads
+    useEffect(() => {
+        const today = getTodayString();
+        const lastCheckIn = localStorage.getItem('lastCheckInDate');
+
+        if (lastCheckIn === today) {
+            // They already did it today
+            setHasCheckedInToday(true);
+        } else {
+            // It's a new day (or their first time ever)! 
+            // Automatically pop open the modal
+            setHasCheckedInToday(false);
+            setIsCheckinModalOpen(true);
+        }
+    }, []);
+
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, chatMutation.isPending]);
@@ -72,23 +116,6 @@ export default function Home(): JSX.Element {
             }
         );
     };
-
-
-    // AUTO-TRIGGER CHECKIN MODAL: Runs exactly once when the page loads
-    useEffect(() => {
-        const today = getTodayString();
-        const lastCheckIn = localStorage.getItem('lastCheckInDate');
-
-        if (lastCheckIn === today) {
-            // They already did it today
-            setHasCheckedInToday(true);
-        } else {
-            // It's a new day (or their first time ever)! 
-            // Automatically pop open the modal
-            setHasCheckedInToday(false);
-            setIsCheckinModalOpen(true);
-        }
-    }, []);
 
     // THE SUBMIT ACTION: When they finish the form in the modal
     const handleCheckInSubmit = async (e: React.FormEvent) => {

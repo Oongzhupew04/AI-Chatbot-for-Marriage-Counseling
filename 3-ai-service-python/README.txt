@@ -9,3 +9,8 @@ npm run dev
 
 admin@gmail.com
 admin123
+
+
+
+Example AI question for Safety_Needs_safety.md:
+My husband keeps buying expensive things without telling me and it scares me.

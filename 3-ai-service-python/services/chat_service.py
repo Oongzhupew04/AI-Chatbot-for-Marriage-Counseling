@@ -1,11 +1,29 @@
 # services/chat_service.py
 from repositories.chat_repo import ChatRepository
+import os
+from deepseek_ai_cloud import analyze_risk, detect_intent, generate_counseling_response, CRISIS_RESOURCES
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
 
 class ChatService:
     """Handles chat business logic and session management."""
     
     def __init__(self):
         self.chat_repo = ChatRepository()
+        print("Booting up RAG Database Engine (Takes ~10-15 seconds)...")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # Point to where chroma_db actually lives (adjust this if it's in a parent folder!)
+        # e.g., os.path.join(current_dir, "..", "chroma_db") if it's one folder up
+        db_path = os.path.join(current_dir, "chroma_db") 
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name="all-MiniLM-L6-v2",
+            model_kwargs={'device': 'cpu'}
+        )
+        self.vector_db = Chroma(
+            persist_directory="chroma_db", 
+            embedding_function=self.embeddings
+        )
+        print("Chroma Database loaded. System ready.\n")
     
     def get_or_create_chat(self, user_id, chat_id):
         """Get existing chat_id or create a new one."""
@@ -22,3 +40,42 @@ class ChatService:
     def get_chat_history(self, chat_id):
         """Retrieve chat history."""
         return self.chat_repo.get_chat_history(chat_id)
+    
+    def process_user_message(self, chat_id: int, user_input: str):
+        """Orchestrates the entire AI pipeline and returns a dictionary for the router."""
+        
+        # 1. Frontend Action Check
+        if "end session" in user_input.lower():
+            return {"response": "Are you sure you want to end this session?", "action": "confirm_end", "risk_level": 0}
+
+        # 2. Risk Detection
+        risk_level = analyze_risk(user_input)
+        if risk_level >= 1:
+            urgency = "high" if risk_level == 2 else "moderate"
+            bot_reply = f"I am hearing that you are in a very distressing and potentially unsafe situation. {CRISIS_RESOURCES}"
+            if urgency == "high":
+                bot_reply += "\n*Please* reach out to someone for physical support right now."
+            
+            self.log_message(chat_id, user_input, "[CRISIS INTERVENTION TRIGGERED]", risk_level)
+            return {"response": bot_reply, "action": "none", "risk_level": risk_level}
+
+        # 3. Intent Detection
+        intent_response = detect_intent(user_input)
+        if intent_response:
+            self.log_message(chat_id, user_input, intent_response, risk_level)
+            return {"response": intent_response, "action": "none", "risk_level": risk_level}
+
+        # 4. RAG Retrieval
+        try:
+            # Assuming vector_db is initialized in your service's __init__
+            results = self.vector_db.similarity_search(user_input, k=2)
+            retrieved_context = "\n\n".join([doc.page_content for doc in results])
+        except Exception as e:
+            print(f"Vector DB Search Error: {e}")
+            retrieved_context = "" # Failsafe: Continue without context if DB is down
+
+        # 5. Default LLM Response
+        ai_response = generate_counseling_response(user_input, retrieved_context)
+        self.log_message(chat_id, user_input, ai_response, risk_level)
+        
+        return {"response": ai_response, "action": "none", "risk_level": risk_level}

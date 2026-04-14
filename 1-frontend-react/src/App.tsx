@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Pages
 import Login from './pages/auth/Login';
@@ -12,99 +12,89 @@ import Sidebar from './components/Sidebar';
 import AdminSidebar from './components/admin/AdminSidebar';
 import AdminHome from './pages/admin/AdminHome';
 
-// --- THE ROUTE GUARD ---
+// ==========================================
+// --- THE ROUTE GUARDS (LAYOUT COMPONENTS) ---
+// ==========================================
+
 // --- 1. USER GUARD ---
-// This checks if you are logged in before showing the page
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // Check if a token exists in the browser's memory
+const ProtectedLayout = () => {
   const isAuthenticated = localStorage.getItem('token') !== null;
   const role = localStorage.getItem('userRole');
 
   if (!isAuthenticated) {
-    // If there is no token, immediately redirect to the login page
     return <Navigate to="/login" replace />;
   }
 
-  // If an admin tries to go to a user page, kick them to the admin dashboard!
   if (String(role).toLowerCase() === 'admin') {
     return <Navigate to="/admin-home" replace />;
   }
   
-  // If they DO have a token, show them the Sidebar and the page they requested
+  // Return the Sidebar, and inject the requested page inside using <Outlet />
   return (
     <Sidebar>
-      {children}
+      <Outlet />
     </Sidebar>
   );
 };
 
 // --- 2. ADMIN GUARD ---
-const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+const AdminLayout = () => {
   const isAuthenticated = localStorage.getItem('token') !== null;
   const role = localStorage.getItem('userRole');
 
-  // 1. THE THEME INJECTOR
+  // THE THEME INJECTOR
   useEffect(() => {
-    // When this component loads, attach the admin theme to the whole webpage
     document.body.setAttribute('data-theme', 'admin');
-    
-    // When the component unmounts (user logs out or leaves), clean it up!
     return () => {
       document.body.removeAttribute('data-theme');
     };
-  }, []); // The empty array [] means this only runs once when the page loads
+  }, []); 
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   
-  // If a normal user tries to sneak into the admin page, kick them out!
   if (String(role).toLowerCase() !== 'admin') {
     return <Navigate to="/" replace />; 
   }
 
   return (
     <AdminSidebar>
-      {children}
+      <Outlet />
     </AdminSidebar>
   );
 };
+
+// ==========================================
+// --- MAIN APP ROUTER ---
+// ==========================================
 
 export default function App(): JSX.Element {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
+        
         {/* --- Public Routes (Anyone can see these) --- */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* --- Protected Routes (Must be logged in) --- */}
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/analysis" 
-          element={
-            <ProtectedRoute>
-              <Analysis />
-            </ProtectedRoute>
-          } 
-        />
+        {/* --- SECURE ZONE: USERS --- */}
+        {/* Every route inside this block gets the Sidebar and User Auth checks automatically */}
+        <Route element={<ProtectedLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} /> {/* Added explicit /home path */}
+          <Route path="/analysis" element={<Analysis />} />
+        </Route>
 
-        <Route 
-          path="/admin-home" 
-          element={
-            <AdminRoute>
-              <AdminHome />
-            </AdminRoute>
-          } 
-        />
+        {/* --- SECURE ZONE: ADMINS --- */}
+        {/* Every route inside this block gets the AdminSidebar, Theme, and Admin Auth checks automatically */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin-home" element={<AdminHome />} />
+          {/* Example of adding future admin routes: */}
+          {/* <Route path="/admin-users" element={<AdminUsers />} /> */}
+        </Route>
 
         {/* --- Catch-All (If they type a random URL, send them to login) --- */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+        
       </Routes>
     </Router>
   );

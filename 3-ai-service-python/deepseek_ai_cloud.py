@@ -1,7 +1,21 @@
 import requests
 import re
 import json
+import time
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
 
+# ==========================================
+# RAG DATABASE INITIALIZATION (Loads once!)
+# ==========================================
+print("Booting up RAG Database Engine (Takes ~10-15 seconds)...")
+embeddings = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",
+    model_kwargs={'device': 'cpu'}
+)
+# Ensure the 'chroma_db' folder is in the same directory as this script
+vector_db = Chroma(persist_directory="chroma_db", embedding_function=embeddings)
+print("Database loaded. System ready.\n")
 
 # --- CONFIGURATION ---
 # The IP and Port of your Huawei Cloud ECS running Ollama
@@ -100,6 +114,23 @@ def generate_response(prompt):
     except requests.exceptions.RequestException as e:
         print(f"[API ERROR] Failed to connect to DeepSeek: {e}")
         return "I'm having trouble connecting to my thought process right now. Please try again in a moment."
+
+def generate_counseling_response(user_input: str, retrieved_context: str = "") -> str:
+    system_msg = f"""You are an empathetic, professional marriage counselor AI. 
+You use Maslow's Hierarchy of Needs to diagnose and advise on relationship issues.
+
+Use ONLY the following retrieved context to inform your advice. 
+Context from Knowledge Base:
+{retrieved_context}
+
+Instructions:
+1. Validate the user's feelings warmly.
+2. Provide gentle, actionable advice based strictly on the Context provided.
+"""
+    full_prompt = f"{system_msg}User: {user_input}\nCounselor:"
+    
+    # Call your actual DeepSeek/ECS API here using full_prompt
+    return generate_response(full_prompt)
 
 def main():
     system_msg = (

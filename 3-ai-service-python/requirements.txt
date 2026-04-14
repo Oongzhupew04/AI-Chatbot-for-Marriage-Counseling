@@ -5,3 +5,10 @@ requests
 python-dotenv
 jaydebeapi
 JPype1
+openpyxl
+langchain
+langchain-community
+chromadb
+sentence-transformers
+unstructured
+markdown
