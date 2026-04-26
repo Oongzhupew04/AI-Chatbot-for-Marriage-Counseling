@@ -5,17 +5,19 @@ import uvicorn
 
 from services.auth_service import AuthService
 from services.chat_service import ChatService
+from services.checkin_service import CheckinService
 from repositories.chat_repo import ChatRepository
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from typing import Optional
+from typing import List, Optional
 
 load_dotenv()
 
 app = FastAPI(title="AI Compute Service", description="Internal AI Microservice")
 auth_service = AuthService()
-chat_repository = ChatRepository()
 chat_service = ChatService()
+checkin_service = CheckinService()
+chat_repository = ChatRepository()
 
 # ==========================================
 # --- PYDANTIC MODELS (Data Validation) ---
@@ -24,6 +26,30 @@ chat_service = ChatService()
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+    sex: str
+    age: int
+    years_married: int
+    children_count: int
+    children_raised: int
+    education: str
+    material_situation: str
+    religious_affiliation: str
+    religiousness: int
+    q10: str
+    q11: str
+    q12: str
+    q13: str
+    q14: str
+    q15: str
+    q16: str
+    q17: str
+    q18: str
+    q19: str
 
 class ChatRequest(BaseModel):
     user_id: int
@@ -37,6 +63,18 @@ class ChatResponse(BaseModel):
 
 class NewChatRequest(BaseModel):
     user_id: int
+
+class RotationalData(BaseModel):
+    question: str
+    score: int
+
+class CheckinRequest(BaseModel):
+    user_id: int
+    coreMetric: int
+    rotational: RotationalData
+    unmetNeeds: List[str]
+    journalEntry: Optional[str] = ""
+    timestamp: str
 
 # ==========================================
 # --- INTERNAL API ROUTES (For Node.js) ---
@@ -70,6 +108,42 @@ async def internal_login(login_data: LoginRequest):
         }
     }
 
+@app.post('/internal/register')
+async def internal_register(reg_data: RegisterRequest):
+    try:
+        # Pass the expanded dictionary or object to your auth_service
+        # (You will need to update the register method inside auth_service.py to accept these kwargs)
+        user, error = auth_service.register(
+            username=reg_data.username,
+            email=reg_data.email,
+            password=reg_data.password,
+            demographics={
+                "sex": reg_data.sex,
+                "age": reg_data.age,
+                "years_married": reg_data.years_married,
+                "children_count": reg_data.children_count,
+                "children_raised": reg_data.children_raised,
+                "education": reg_data.education,
+                "material_situation": reg_data.material_situation,
+                "religious_affiliation": reg_data.religious_affiliation,
+                "religiousness": reg_data.religiousness
+            },
+            scale_1={
+                "q10": reg_data.q10, "q11": reg_data.q11, "q12": reg_data.q12,
+                "q13": reg_data.q13, "q14": reg_data.q14, "q15": reg_data.q15,
+                "q16": reg_data.q16, "q17": reg_data.q17, "q18": reg_data.q18,
+                "q19": reg_data.q19
+            }
+        )
+        
+        if error:
+            raise HTTPException(status_code=400, detail=error)
+            
+        return {"success": True, "message": "User registered successfully"}
+    except Exception as e:
+        print(f"Registration Error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to register user in database")
+
 @app.post('/internal/new_chat')
 async def new_chat(data: NewChatRequest):
     try:
@@ -101,6 +175,26 @@ async def process_chat(chat_data: ChatRequest):
         risk_level=result["risk_level"]
     )
 
+@app.get('/internal/users/{user_id}/chats')
+async def get_user_chats(user_id: int):
+    sessions = chat_service.chat_repo.get_user_sessions(user_id)
+    return {"sessions": sessions}
+
+@app.get('/internal/chats/{chat_id}/messages')
+async def get_messages(chat_id: int):
+    messages = chat_service.chat_repo.get_chat_history(chat_id)
+    return {"messages": messages}
+
+@app.post('/internal/checkin')
+async def handle_checkin(data: CheckinRequest):
+    try:
+        # Pass the validated Pydantic object directly to the service
+        result = checkin_service.process_daily_checkin(data)
+        
+        return {"success": True, "data": result}
+    except Exception as e:
+        print(f"Check-in Processing Error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process check-in")
 
 if __name__ == '__main__':
     # Run the internal service on port 8000

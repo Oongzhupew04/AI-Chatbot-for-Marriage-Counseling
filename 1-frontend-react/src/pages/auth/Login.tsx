@@ -50,7 +50,7 @@ export default function Login() {
     };
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', position: 'relative', padding: '40px 20px', marginTop: '40px' }}>
+        <div className={styles['body']}>
             <div className={styles['bg-blob']}></div>
             <div className={styles['login-card']}>
                 <div className={styles.brand}>
@@ -69,7 +69,7 @@ export default function Login() {
                 <form onSubmit={handleLogin}>
                     <div className={styles['form-group']}>
                         <label htmlFor="email">Email Address</label>
-                        <input type="email" id="email" className={styles['input-field']} placeholder="vincent@mmu.edu.my" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                        <input type="email" id="email" className={styles['input-field']} placeholder="example@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                     <div className={styles['form-group']}>
                         <label htmlFor="password">Password</label>

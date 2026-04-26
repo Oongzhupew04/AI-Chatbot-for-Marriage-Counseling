@@ -46,20 +46,59 @@ class ChatRepository:
             print(f"Error logging message: {e}")
             return False
     
-    def get_chat_history(self, chat_id):
-        """Retrieve all messages for a chat."""
+    def get_chat_history(self, chat_id: int):
+        """Fetch all messages for a specific chat ID."""
+        conn = None
         try:
             conn = db.get_connection()
             cursor = conn.cursor()
             
-            query = "SELECT id, chat_id, timestamp, user_message, bot_response, risk_level FROM messages WHERE chat_id = ? ORDER BY id"
+            query = """
+                SELECT user_message, bot_response
+                FROM messages
+                WHERE chat_id = ?
+                ORDER BY timestamp ASC
+            """
             cursor.execute(query, (chat_id,))
-            
             rows = cursor.fetchall()
-            cursor.close()
             
-            messages = [Message(row[0], row[1], row[2], row[3], row[4], row[5]) for row in rows]
-            return messages
+            # Transform the DB rows into the exact format React expects!
+            history = []
+            for row in rows:
+                if row[0]: # user_message
+                    history.append({"sender": "user", "text": row[0]})
+                if row[1]: # bot_response
+                    history.append({"sender": "bot", "text": row[1]})
+                    
+            cursor.close()
+            return history
         except Exception as e:
-            print(f"Error fetching chat history: {e}")
+            print(f"Error fetching history: {e}")
+            return []
+
+    def get_user_sessions(self, user_id: int):
+        """Fetch all chat sessions for a user, sorted by newest first."""
+        conn = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            # Get the chat ID and the first user message to act as the "Title" of the chat
+            query = """
+                SELECT c.id, c.updated_at, 
+                    (SELECT m.user_message FROM messages m WHERE m.chat_id = c.id ORDER BY m.timestamp ASC LIMIT 1) as title
+                FROM chats c
+                WHERE c.user_id = ?
+                ORDER BY c.updated_at DESC
+            """
+            cursor.execute(query, (user_id,))
+            
+            # Format into a nice dictionary list
+            columns = [column[0] for column in cursor.description]
+            sessions = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            
+            cursor.close()
+            return sessions
+        except Exception as e:
+            print(f"Error fetching chats: {e}")
             return []

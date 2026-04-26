@@ -28,11 +28,6 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                     <span>Counselor.AI</span>
                 </div>
 
-                <div className={styles['search-wrapper']}>
-                    <i className="fas fa-search"></i>
-                    <input type="text" placeholder="Search sessions..." />
-                </div>
-
                 <div className={styles['nav-menu']}>
                     <a href="#" className={`${styles['nav-item']} ${styles['active']}`} id="newChatBtn" onClick={startNewChat}>
                         <i className="fas fa-comment-dots"></i> New Chat

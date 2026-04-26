@@ -2,7 +2,7 @@ import requests
 import re
 import json
 import time
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 # ==========================================
@@ -57,6 +57,26 @@ def detect_intent(text):
             return response
     return None
 
+def is_casual_chat(user_msg):
+    msg_lower = user_msg.lower().strip()
+    
+    # Common conversational starters/enders
+    casual_phrases = [
+        "hi", "hello", "hey", "how are you", "good morning", 
+        "good afternoon", "good evening", "thanks", "thank you", 
+        "who are you", "bye", "goodbye", "see you"
+    ]
+    
+    if msg_lower in casual_phrases:
+        return True
+        
+    # If it's a very short message containing a casual word, it's likely casual
+    words = msg_lower.split()
+    if len(words) <= 5 and any(phrase in msg_lower for phrase in casual_phrases):
+        return True
+        
+    return False
+
 def analyze_risk(text):
     """Assess risk level (0-2) based on keywords and intensity."""
     high_risk_phrases = ["suicide", "killing myself", "end it all", "don't want to live", "he hit me", "she hit me", "afraid for my life"]
@@ -83,6 +103,8 @@ def generate_response(prompt):
         data = response.json()
         raw_response = data.get("response", "").strip()
 
+        print(f"--- DEBUG: RAW RESPONSE START ---\n{raw_response}\n--- DEBUG: RAW RESPONSE END ---")
+
         # Safety check on the AI's output
         if is_unsafe(raw_response):
             print(f"[SAFETY FILTER] Blocked unsafe AI response.") 
@@ -92,7 +114,7 @@ def generate_response(prompt):
                 f"\n{CRISIS_RESOURCES}"
             )
         
-        # # Optional: DeepSeek often outputs its "thinking" process inside <think></think> tags.
+        # # DeepSeek often outputs its "thinking" process inside <think></think> tags.
         # # This regex removes the thinking tags so the user only sees the final advice.
 
         clean_response = raw_response
@@ -106,8 +128,8 @@ def generate_response(prompt):
         # or cases where the model forgot to close the tag (goes to the end of the string).
         clean_response = re.sub(r'<think>.*?(?:</think>|$)', '', clean_response, flags=re.DOTALL | re.IGNORECASE)
 
-        # Clean up any leftover whitespace or newlines
-        clean_response = clean_response.strip()
+        # Remove first 2 consecutive newlines
+        clean_response = re.sub(r'\n{2,}', '', clean_response, count=1)
         
         return clean_response
 
@@ -132,54 +154,17 @@ Instructions:
     # Call your actual DeepSeek/ECS API here using full_prompt
     return generate_response(full_prompt)
 
-def main():
-    system_msg = (
-        "You are a professional, empathetic, and neutral marriage counselor. "
-        "Provide constructive advice, validate feelings, and encourage healthy communication between partners. "
-        "Do not take sides. Keep your responses concise and conversational.\n\n"
-    )
-    
-    print("\nAI Marriage Counselor (Type 'exit' to quit)")
-    print("---------------------------------------------")
+def generate_casual_response(user_msg):
+    """
+    Builds a lightweight prompt for small talk and uses the base generator.
+    """
+    casual_prompt = f"""You are a warm, empathetic AI marriage counselor.
+Introduce yourself as a warm, empathetic AI marriage counselor.
+Ask the user to describe their marriage situation and how you can support them today.
+Do NOT give clinical advice.
 
-    while True:
-        user_msg = input("\nYou: ").strip()
+User: "{user_msg}"
+Counselor:"""
 
-        if user_msg.lower() in ["exit", "quit", "goodbye", "bye"]:
-            print("Counselor: Thank you for sharing today. Relationships take work, and you took a great step. Take care.")
-            break
-
-        # 1. Risk detection (Priority)
-        risk_level = analyze_risk(user_msg)
-        if risk_level >= 1:
-            urgency = "high" if risk_level == 2 else "moderate"
-            print(f"\nCounselor: I am hearing that you are in a very distressing and potentially unsafe situation. {CRISIS_RESOURCES}")
-            if urgency == "high":
-                print("\n*Please* reach out to someone for physical support right now.")
-            # log_to_db(user_msg, "[CRISIS INTERVENTION TRIGGERED]", risk_level)
-            continue
-
-        # 2. Intent/mood detection (Hardcoded rules for common marriage issues)
-        intent_response = detect_intent(user_msg)
-        if intent_response:
-            print(f"Counselor: {intent_response}")
-            # log_to_db(user_msg, intent_response, risk_level)
-            continue
-
-        # 3. Default LLM response (Sending to ECS)
-        # DeepSeek responds best when the prompt clearly separates the roles
-        full_prompt = f"{system_msg}User: {user_msg}\nCounselor:"
-        
-        # Add a little loading indicator since the API call takes a few seconds
-        print("Counselor is typing...", end="\r") 
-        
-        ai_response = generate_response(full_prompt)
-        
-        # Clear the "typing..." text and print the actual response
-        print(" " * 30, end="\r") 
-        print(f"Counselor: {ai_response}")
-
-        # log_to_db(user_msg, ai_response, risk_level)
-
-if __name__ == "__main__":
-    main()
+    # Reuse your existing server connection function!
+    return generate_response(casual_prompt)

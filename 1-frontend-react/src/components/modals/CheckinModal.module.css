@@ -142,6 +142,32 @@
             font-size: 0.8rem; font-weight: 700;
         }
 
+        .num-option {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0 10px 0;
+        }
+
+        .num-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* This class will be applied dynamically when the button is selected */
+        .num-button.selected {
+            border: 2px solid var(--primary-sage, #4A5D23);
+            background-color: var(--primary-sage, #e8ede1); 
+            color: white;
+            font-weight: bold;
+        }
+
         .emoji-grid {
             display: flex; justify-content: space-between; gap: 8px; margin: 20px 0;
             padding: 0 10px;

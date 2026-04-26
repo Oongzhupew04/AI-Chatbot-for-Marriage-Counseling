@@ -1,7 +1,7 @@
 # services/chat_service.py
 from repositories.chat_repo import ChatRepository
 import os
-from deepseek_ai_cloud import analyze_risk, detect_intent, generate_counseling_response, CRISIS_RESOURCES
+from deepseek_ai_cloud import analyze_risk, detect_intent, generate_casual_response, is_casual_chat, generate_counseling_response, CRISIS_RESOURCES
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
@@ -11,10 +11,6 @@ class ChatService:
     def __init__(self):
         self.chat_repo = ChatRepository()
         print("Booting up RAG Database Engine (Takes ~10-15 seconds)...")
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # Point to where chroma_db actually lives (adjust this if it's in a parent folder!)
-        # e.g., os.path.join(current_dir, "..", "chroma_db") if it's one folder up
-        db_path = os.path.join(current_dir, "chroma_db") 
         self.embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2",
             model_kwargs={'device': 'cpu'}
@@ -65,17 +61,31 @@ class ChatService:
             self.log_message(chat_id, user_input, intent_response, risk_level)
             return {"response": intent_response, "action": "none", "risk_level": risk_level}
 
-        # 4. RAG Retrieval
-        try:
-            # Assuming vector_db is initialized in your service's __init__
-            results = self.vector_db.similarity_search(user_input, k=2)
-            retrieved_context = "\n\n".join([doc.page_content for doc in results])
-        except Exception as e:
-            print(f"Vector DB Search Error: {e}")
-            retrieved_context = "" # Failsafe: Continue without context if DB is down
+        # 4. Route the message: Casual Chat vs. Counseling Issue
+        if is_casual_chat(user_input):
+            print(f"[Router] chat_id {chat_id}: Detected casual conversation. Bypassing RAG.")
+            
+            # Use the lightweight casual prompt function
+            ai_response = generate_casual_response(user_input)
+            
+        else:
+            print(f"[Router] chat_id {chat_id}: Detected relationship issue. Engaging RAG.")
+            
+            # 5. RAG Retrieval (Only runs for actual issues)
+            try:
+                results = self.vector_db.similarity_search(user_input, k=2)
+                retrieved_context = "\n\n".join([doc.page_content for doc in results])
+                retrieved_sources = [doc.metadata.get("source", "Unknown file") for doc in results]
+                print(f"[RAG LOG] chat_id {chat_id} retrieved files: {retrieved_sources}")
+                
+            except Exception as e:
+                print(f"[RAG ERROR] Vector DB Search Error: {e}")
+                retrieved_context = "" # Failsafe: Continue without context if DB is down
 
-        # 5. Default LLM Response
-        ai_response = generate_counseling_response(user_input, retrieved_context)
+            # 6. Default LLM Response (Using RAG Context)
+            ai_response = generate_counseling_response(user_input, retrieved_context)
+
+        # 7. Log the interaction (Happens for BOTH casual and clinical paths)
         self.log_message(chat_id, user_input, ai_response, risk_level)
         
         return {"response": ai_response, "action": "none", "risk_level": risk_level}

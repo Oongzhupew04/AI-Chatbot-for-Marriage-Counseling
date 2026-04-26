@@ -153,7 +153,29 @@ body {
 }
 .right-header h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
 
-.history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.search-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+}
+.search-wrapper input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border-radius: 10px;
+    border: 2px solid var(--border-light);
+    background: #F8FAFC;
+    color: var(--text-muted);
+    outline: none;
+}
+.search-wrapper i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.history-list { max-height: 55vh; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 12px; }
 .history-item {
     display: flex; gap: 12px; padding: 10px;
     border-radius: var(--radius-md);
@@ -172,6 +194,13 @@ body {
 }
 .history-info h4 { font-size: 0.85rem; font-weight: 500; margin-bottom: 2px; }
 .history-info p { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+
+.no-sessions {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
 
 .upgrade-pill {
     background: #1A202C; /* Dark Button */
@@ -196,6 +225,7 @@ body {
     flex-direction: column;
     gap: 15px;
     margin-bottom: 120px;
+    white-space: pre-wrap;
 }
 
 .message-bubble {

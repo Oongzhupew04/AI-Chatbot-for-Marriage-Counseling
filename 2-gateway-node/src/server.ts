@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(morgan('dev')); // helps see request logs in the terminal
 
 const PORT = process.env.PORT || 3000;
 // This points to your Python AI Service (FastAPI/Flask running on port 8000)
@@ -43,17 +44,33 @@ const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction):
 };
 
 // ==========================================
-// --- 1. AUTHENTICATION ROUTES ---
+// --- AUTHENTICATION ROUTES (PUBLIC ROUTES) ---
 // ==========================================
 
 // Translate: @app.route('/register', methods=['POST'])
 app.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
-    const { username, email, password } = req.body;
+    const { 
+        username, email, password, 
+        sex, age, years_married, children_count, 
+        children_raised, education, material_situation, 
+        religious_affiliation, religiousness,
+        q10, q11, q12, q13, q14, q15, q16, q17, q18, q19
+    } = req.body;
     
     try {
         // Forward the registration data to your Python backend to save in openGauss
         const response = await axios.post(`${PYTHON_SERVICE_URL}/internal/register`, {
-            username, email, password
+            username, email, password,
+            sex,
+            age: parseInt(age),
+            years_married: parseInt(years_married),
+            children_count: parseInt(children_count),
+            children_raised: parseInt(children_raised),
+            education,
+            material_situation,
+            religious_affiliation,
+            religiousness: parseInt(religiousness),
+            q10, q11, q12, q13, q14, q15, q16, q17, q18, q19
         });
         
         res.json(response.data);
@@ -102,11 +119,17 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
 });
 
 // ==========================================
-// --- 2. CHAT & AI ROUTES ---
+// --- THE SECURITY GATEWAY ---
+// ==========================================
+// Every route defined below this line will AUTOMATICALLY require a valid JWT token.
+app.use(authenticateToken);
+
+// ==========================================
+// --- CHAT & AI ROUTES (PROTECTED ROUTES) ---
 // ==========================================
 
 // Translate: @app.route('/new_chat', methods=['POST'])
-app.post('/api/chat/new', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+app.post('/api/chat/new', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         // Forward to Python to generate a new chat ID in the database
         const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/new_chat`, {
@@ -120,7 +143,7 @@ app.post('/api/chat/new', authenticateToken, async (req: AuthRequest, res: Respo
 });
 
 // Translate: @app.route('/get_response', methods=['POST'])
-app.post('/api/chat', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+app.post('/api/chat', async (req: AuthRequest, res: Response): Promise<void> => {
     // Note: Changed 'const' to 'let' so we can assign the new ID!
     let { message, chatId } = req.body;
     const userId = req.user.userId;
@@ -154,6 +177,52 @@ app.post('/api/chat', authenticateToken, async (req: AuthRequest, res: Response)
     } catch (error: any) {
         console.error("Python Service Error:", error.message);
         res.status(500).json({ error: "AI Compute Service is currently unavailable." });
+    }
+});
+
+// Get all sessions for the logged-in user
+app.get('/api/chats', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/users/${userId}/chats`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch chats:", error.message);
+        res.status(500).json({ error: "Could not load chats" });
+    }
+});
+
+// Get message history for a specific session
+app.get('/api/chats/:chatId/messages', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const chatId = req.params.chatId;
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/chats/${chatId}/messages`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch messages:", error.message);
+        res.status(500).json({ error: "Could not load message history" });
+    }
+});
+
+// Translate: @app.route('/checkin', methods=['POST'])
+app.post('/api/checkin', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const checkinData = req.body;
+
+        console.log(`Receiving Daily Check-in from user ${userId}...`);
+
+        // Forward the check-in data to your Python backend (which will save it to the DB)
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/checkin`, {
+            user_id: userId,
+            ...checkinData
+        });
+
+        res.json({ success: true, data: pythonResponse.data });
+    } catch (error: any) {
+        console.error("Failed to save check-in:", error.message);
+        // Fallback response if Python isn't ready to receive it yet
+        res.status(500).json({ error: "Could not save daily check-in to database." });
     }
 });
 

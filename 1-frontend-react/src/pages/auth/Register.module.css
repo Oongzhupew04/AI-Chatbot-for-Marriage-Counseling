@@ -1,4 +1,4 @@
-body {
+.body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
@@ -8,6 +8,8 @@ body {
     justify-content: center;
     position: relative;
     padding: 40px 20px;
+    margin-top: 85vh;
+    margin-bottom: 85vh;
 }
 
 /* Decorative Background Blob */

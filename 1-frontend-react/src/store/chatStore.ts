@@ -11,13 +11,27 @@ interface ChatState {
     chatId: number | null;
     setChatId: (id: number) => void;
     addMessage: (msg: Message) => void;
+    setMessages: (msgs: Message[]) => void;
     clearSession: () => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
     messages: [],
     chatId: null,
-    setChatId: (id) => set({ chatId: id }),
+    setChatId: (id: number) => {
+        // 1. Back it up to the browser memory
+        localStorage.setItem('currentChatId', id.toString());
+        
+        // 2. Update React's live memory
+        set({ chatId: id });
+    },
     addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
-    clearSession: () => set({ messages: [], chatId: null }),
+    setMessages: (msgs) => set({ messages: msgs }),
+    clearSession: () => {
+        // 1. Wipe it from the browser memory
+        localStorage.removeItem('currentChatId');
+        
+        // 2. Clear React's live memory and empty the screen
+        set({ chatId: null, messages: [] });
+    },
 }));

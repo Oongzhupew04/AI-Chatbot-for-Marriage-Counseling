@@ -1,7 +1,11 @@
 import React from 'react';
 import styles from './EmergencyModal.module.css';
 
-export default function EmergencyModal({ onClose }: { onClose: () => void }) {
+interface EmergencyModalProps {
+    onClose: () => void;
+}
+
+export default function EmergencyModal({ onClose }: EmergencyModalProps) {
     return (
         <div className={styles['emergency-overlay']}>
             <div className={styles['emergency-container']}>

@@ -51,14 +51,25 @@ def generate_rag_document(prompt):
 # 3. AUTOMATED RAG GENERATION LOOP
 # ==========================================
 def build_knowledge_base():
-    # Load your Data Dictionary CSV
-    df = pd.read_excel('variable_table_v2.xlsx')
+    # --- NEW PATH LOGIC ---
+    # Get the absolute path of the directory containing this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Define exact paths based on the script's location
+    excel_path = os.path.join(script_dir, 'variable_table_v2.xlsx')
+    output_dir = os.path.join(script_dir, 'RAG_Knowledge_Base')
+    # ----------------------
+
+    # Load your Data Dictionary CSV using the absolute path
+    print(f"Reading data from: {excel_path}")
+    df = pd.read_excel(excel_path)
 
     # Filter for rows that actually map to Maslow
     maslow_df = df[df['maslow_type'].notna() & (df['maslow_type'] != 'None')]
 
-    # Create a folder to save the generated files
-    os.makedirs("RAG_Knowledge_Base", exist_ok=True)
+    # Create the folder in the same directory as the script
+    os.makedirs(output_dir, exist_ok=True)
+    print(f"Saving markdown files to: {output_dir}")
 
     print(f"Starting knowledge base generation using {MODEL_NAME}...")
 
@@ -98,12 +109,14 @@ def build_knowledge_base():
         if generated_markdown:
             # Clean up the filename so it is valid for Windows/Linux
             safe_maslow_level = maslow_level.replace(' ', '_').replace('/', '_')
-            filename = f"RAG_Knowledge_Base/{safe_maslow_level}_{variable_name}.md"
             
-            with open(filename, "w", encoding="utf-8") as file:
+            # Save the file using the absolute output directory path
+            file_path = os.path.join(output_dir, f"{safe_maslow_level}_{variable_name}.md")
+            
+            with open(file_path, "w", encoding="utf-8") as file:
                 file.write(generated_markdown)
                 
-            print(f" -> Saved successfully as {filename}")
+            print(f" -> Saved successfully as {file_path}")
         else:
             print(f" -> FAILED to generate document for {variable_name}. Skipping.")
 

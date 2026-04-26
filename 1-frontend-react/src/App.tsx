@@ -13,12 +13,44 @@ import AdminSidebar from './components/admin/AdminSidebar';
 import AdminHome from './pages/admin/AdminHome';
 
 // ==========================================
+// --- TOKEN CHECK ---
+// ==========================================
+
+const isTokenValid = (): boolean => {
+  const token = localStorage.getItem('token');
+  
+  // 1. If there's no token at all, it's definitely not valid
+  if (!token) return false;
+
+  try {
+    // 2. Split the token and grab the middle part (the payload)
+    const payloadBase64 = token.split('.')[1];
+    
+    // 3. Decode the base64 string and parse the JSON
+    const decodedJson = atob(payloadBase64);
+    const decodedToken = JSON.parse(decodedJson);
+
+    // 4. Compare the times
+    // The 'exp' claim is in seconds, but Date.now() is in milliseconds!
+    const expirationTimeInMilliseconds = decodedToken.exp * 1000;
+
+    // Return true if the expiration time is still in the future
+    return Date.now() < expirationTimeInMilliseconds;
+    
+  } catch (error) {
+    // If the token is mangled, tampered with, or unreadable, instantly reject it
+    console.error("Failed to decode token");
+    return false;
+  }
+};
+
+// ==========================================
 // --- THE ROUTE GUARDS (LAYOUT COMPONENTS) ---
 // ==========================================
 
 // --- 1. USER GUARD ---
 const ProtectedLayout = () => {
-  const isAuthenticated = localStorage.getItem('token') !== null;
+  const isAuthenticated = isTokenValid();
   const role = localStorage.getItem('userRole');
 
   if (!isAuthenticated) {

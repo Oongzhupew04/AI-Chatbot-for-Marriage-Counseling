@@ -3,8 +3,11 @@ import { useChatStore } from '../store/chatStore';
 import { useChatMutation } from '../hooks/useChat';
 import CheckinModal from '../components/modals/CheckinModal';
 import EmergencyModal from '../components/modals/EmergencyModal';
+import ThankYouModal from '../components/modals/ThankYouModal';
+import FeedbackModal from '../components/modals/FeedbackModal';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 
@@ -14,13 +17,16 @@ export default function Home(): JSX.Element {
     const [isCheckinModalOpen, setIsCheckinModalOpen] = useState(false);
     const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
     const [showEmergency, setShowEmergency] = useState(false);
+    const [showThankYou, setShowThankYou] = useState(false);
+    const [showFeedback, setShowFeedback] = useState(false);
+    const [sessions, setSessions] = useState<any[]>([]); // State to hold sidebar items
     const [input, setInput] = useState<string>('');
 
     // Get today's date string for check-in comparison
     const getTodayString = () => new Date().toDateString();
     
     // Zustand
-    const { messages, chatId, addMessage, setChatId } = useChatStore();
+    const { messages, chatId, addMessage, setChatId, setMessages, clearSession } = useChatStore();
     
     // React Query
     const chatMutation = useChatMutation();
@@ -31,54 +37,86 @@ export default function Home(): JSX.Element {
     const closeCheckinModal = () => setIsCheckinModalOpen(false);
     const openEmergencyModal = () => setShowEmergency(true);
     const closeEmergencyModal = () => setShowEmergency(false);
-
-    // Kicks user out of Home Page when token expired
-    // useEffect(() => {
-    //     const token = localStorage.getItem('token');
-        
-    //     if (token) {
-    //         try {
-    //             // A JWT is split into 3 parts by periods. We want the middle part (the data)
-    //             const payload = JSON.parse(atob(token.split('.')[1]));
-                
-    //             // The 'exp' value is in seconds. Date.now() is in milliseconds.
-    //             const isExpired = (payload.exp * 1000) < Date.now();
-                
-    //             if (isExpired) {
-    //                 console.log("Token expired on load. Logging out.");
-    //                 localStorage.removeItem('token');
-    //                 navigate('/login');
-    //             }
-    //         } catch (e) {
-    //             // If the token is mangled or unreadable, kick them out
-    //             localStorage.removeItem('token');
-    //             navigate('/login');
-    //         }
-    //     } else {
-    //         // No token at all? Kick them out.
-    //         navigate('/login');
-    //     }
-    // }, [navigate]);
+    const openThankYouModal = () => setShowThankYou(true);
+    const closeThankYouModal = () => setShowThankYou(false);
+    const openFeedbackModal = () => setShowFeedback(true);
+    const closeFeedbackModal = () => setShowFeedback(false);
 
     // AUTO-TRIGGER CHECKIN MODAL: Runs exactly once when the page loads
     useEffect(() => {
         const today = getTodayString();
         const lastCheckIn = localStorage.getItem('lastCheckInDate');
+        const hasSeenModal = sessionStorage.getItem('hasSeenCheckinModal');
 
         if (lastCheckIn === today) {
             // They already did it today
             setHasCheckedInToday(true);
-        } else {
-            // It's a new day (or their first time ever)! 
-            // Automatically pop open the modal
+        } else if (!hasSeenModal) {
+            // They haven't completed it, AND we haven't shown it to them yet!
             setHasCheckedInToday(false);
             setIsCheckinModalOpen(true);
+
+            // Instantly leave a note so we don't show it again if they switch tabs
+            sessionStorage.setItem('hasSeenCheckinModal', 'true');
         }
     }, []);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, chatMutation.isPending]);
+
+    // 1. Fetch Sessions on Page Load
+    useEffect(() => {
+        const fetchSessions = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:3000/api/chats', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (response.data && response.data.sessions) {
+                    setSessions(response.data.sessions);
+                } else {
+                    console.error("Backend did not return sessions. It returned:", response.data);
+                    setSessions([]); // Keep it as an empty array to prevent crashes!
+                }
+            } catch (err) {
+                console.error("Failed to load sidebar sessions", err);
+                setSessions([]);
+            }
+        };
+        fetchSessions();
+    }, []);
+
+    useEffect(() => {
+        // 1. Check if they left a chat open before refreshing
+        const savedChatId = localStorage.getItem('currentChatId');
+        
+        if (savedChatId) {
+            // 2. Convert it back to a number from a string
+            const parsedId = parseInt(savedChatId, 10);
+            
+            // 3. Automatically trigger the load function!
+            if (!isNaN(parsedId)) {
+                handleLoadSession(parsedId);
+            }
+        }
+    }, []);
+
+    // 2. Function to handle clicking a past session
+    const handleLoadSession = async (loadChatId: number) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://localhost:3000/api/chats/${loadChatId}/messages`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            // Set the active ID and overwrite the screen with the history!
+            setChatId(loadChatId);
+            setMessages(response.data.messages);
+        } catch (err) {
+            console.error("Failed to load chat history", err);
+        }
+    };
 
     const handleSendMessage = () => {
         const text = input.trim();
@@ -101,6 +139,14 @@ export default function Home(): JSX.Element {
                 onSuccess: (data) => {
                     if (data.chatId && !chatId) {
                         setChatId(data.chatId);
+                        setSessions(prevSessions => [
+                            {
+                                id: data.chatId,
+                                title: text,
+                                updated_at: new Date().toISOString()
+                            },
+                            ...prevSessions
+                        ]);
                     }
 
                     addMessage({ 
@@ -117,16 +163,40 @@ export default function Home(): JSX.Element {
         );
     };
 
-    // THE SUBMIT ACTION: When they finish the form in the modal
-    const handleCheckInSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        // ... your backend fetch() code to save the check-in goes here ...
+    const handleConfirmEnd = () => {
+        // 1. Wipe the chat from the screen (this automatically removes the buttons!)
+        clearSession(); 
 
+        // 2. Show the "Thank You" Modal
+        openThankYouModal();
+
+        // 3. Wait 2 seconds, then Hide Thank You -> Show Feedback
+        setTimeout(() => {
+            closeThankYouModal();
+            openFeedbackModal();
+        }, 2000);
+    };
+
+    const handleCancelEnd = () => {
+        // 1. Add the user's decision to the screen (this removes the buttons)
+        addMessage({ sender: 'user', text: 'No, I want to continue.', action: 'none' });
+
+        // 2. Instantly add the bot's response locally, just like your JS snippet
+        addMessage({ sender: 'bot', text: 'Okay, we can continue chatting.', action: 'none' });
+        
+        // (Optional Pro-Tip: You could still fire chatMutation.mutate() here
+        // if you want the Python backend to know the user decided to stay!)
+    };
+
+    const handleCheckinSuccess = () => {
         // Lock it in for the day
         localStorage.setItem('lastCheckInDate', getTodayString());
         setHasCheckedInToday(true);
-        setIsCheckinModalOpen(false); // Close the modal
+        setIsCheckinModalOpen(false); 
+    };
+
+    const handleFeedbackSubmit = () => {
+        
     };
 
     return (
@@ -186,11 +256,35 @@ export default function Home(): JSX.Element {
                 {messages.length > 0 && (
                     <div id="chat-box" className={styles['chat-container']}>
                         {/* 1. Loop through all saved messages and draw them */}
-                        {messages.map((m, index) => (
-                            <div key={index} className={`${styles['message-bubble']} ${styles[`${m.sender}-msg`]}`}>
-                                {m.text}
-                            </div>
-                        ))}
+                        {(messages || []).map((m, index) => {
+                            // Check if this is the very last message in the array
+                            const isLastMessage = index === messages.length - 1;
+
+                            return (
+                                <div key={index} className={`${styles['message-bubble']} ${styles[`${m.sender}-msg`]}`}>
+                                    {/* Display the message text */}
+                                    <div>{m.text}</div>
+
+                                    {/* Conditionally render the Yes/No buttons ONLY on the last message */}
+                                    {isLastMessage && m.action === "confirm_end" && (
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button 
+                                                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer', fontWeight: 'bold' }} 
+                                                onClick={handleConfirmEnd}
+                                            >
+                                                Yes
+                                            </button>
+                                            <button 
+                                                style={{ padding: '8px 23px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-dark)', color: 'white', cursor: 'pointer', fontWeight: 'bold' }} 
+                                                onClick={handleCancelEnd}
+                                            >
+                                                No
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
 
                         {/* 2. Show the typing animation automatically while waiting for Python */}
                         {chatMutation.isPending && (
@@ -240,38 +334,41 @@ export default function Home(): JSX.Element {
             <aside className={styles['sidebar-right']}>
                 <div className={styles['right-header']}>
                     <h3>Recent Sessions</h3>
-                    <i className="fas fa-ellipsis-h" style={{ color: 'var(--text-muted)', cursor: 'pointer' }}></i>
+                </div>
+
+                <div className={styles['search-wrapper']}>
+                    <i className="fas fa-search"></i>
+                    <input type="text" placeholder="Search sessions..." />
                 </div>
 
                 <ul className={styles['history-list']}>
-                    <li className={styles['history-item']}>
-                        <div className={styles['history-icon']}><i className="far fa-comment-alt"></i></div>
-                        <div className={styles['history-info']}>
-                            <h4>Communication Issue</h4>
-                            <p>Discussed feeling unheard...</p>
-                        </div>
-                    </li>
-                    <li className={styles['history-item']}>
-                        <div className={styles['history-icon']}><i className="far fa-comment-alt"></i></div>
-                        <div className={styles['history-info']}>
-                            <h4>Trust Building</h4>
-                            <p>Reflecting on last week's...</p>
-                        </div>
-                    </li>
-                    <li className={styles['history-item']}>
-                        <div className={styles['history-icon']}><i className="far fa-file-alt"></i></div>
-                        <div className={styles['history-info']}>
-                            <h4>Weekly Report</h4>
-                            <p>Analysis of emotional tre...</p>
-                        </div>
-                    </li>
-                    <li className={styles['history-item']}>
-                        <div className={styles['history-icon']}><i className="far fa-heart"></i></div>
-                        <div className={styles['history-info']}>
-                            <h4>Date Night Ideas</h4>
-                            <p>List of activities for...</p>
-                        </div>
-                    </li>
+                    {/* Map over the database sessions! */}
+                    {sessions && sessions.length > 0 ? (
+                        sessions.map(session => (
+                            <li 
+                                key={session.id} 
+                                className={styles['history-item']} 
+                                onClick={() => handleLoadSession(session.id)}
+                            >
+                                <div className={styles['history-icon']}><i className="far fa-comment-alt"></i></div>
+                                <div className={styles['history-info']}>
+                                    {/* We use the first user message as the title. If empty, say "Empty Chat" */}
+                                    <h4>{session.title ? session.title.substring(0, 20) + "..." : "New Chat"}</h4>
+                                    <p>{new Date(session.updated_at).toLocaleDateString('en-GB')}</p>
+                                </div>
+                                <i
+                                    className="fas fa-ellipsis-h"
+                                    style={{ color: 'var(--text-muted)', cursor: 'pointer', marginLeft: 'auto' }}
+                                    onClick={(e) => e.stopPropagation()}
+                                ></i>
+                            </li>
+                        ))
+                    ) : (
+                        // 3. Display the "Empty" state
+                        <li className={styles['no-sessions']}>
+                            <p>No session history found</p>
+                        </li>
+                    )}
                 </ul>
 
                 <div className={styles['right-header']} style={{ marginTop: '40px' }}>
@@ -289,7 +386,9 @@ export default function Home(): JSX.Element {
                 </ul>
             </aside>
             {showEmergency && <EmergencyModal onClose={closeEmergencyModal} />}
-            {isCheckinModalOpen && (<CheckinModal onClose={closeCheckinModal} />)}
+            {isCheckinModalOpen && (<CheckinModal onClose={closeCheckinModal} onSuccess={handleCheckinSuccess} />)}
+            {showThankYou && <ThankYouModal onClose={closeThankYouModal} />}
+            {showFeedback && <FeedbackModal onClose={closeFeedbackModal} onSubmit={handleFeedbackSubmit} />}
         </>
     );
 }
