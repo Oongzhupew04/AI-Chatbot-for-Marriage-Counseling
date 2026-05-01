@@ -103,6 +103,7 @@ async def internal_login(login_data: LoginRequest):
         "success": True,
         "user": {
             "id": user.id,
+            "username": user.username,
             "email": user.email,
             "role": user.role
         }
@@ -179,6 +180,16 @@ async def process_chat(chat_data: ChatRequest):
 async def get_user_chats(user_id: int):
     sessions = chat_service.chat_repo.get_user_sessions(user_id)
     return {"sessions": sessions}
+
+@app.delete('/internal/chats/{chat_id}')
+async def delete_chat(chat_id: int):
+    """Deletes a chat session from the database."""
+    success = chat_service.delete_session(chat_id)
+    
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete chat session")
+        
+    return {"success": True, "message": "Chat deleted successfully"}
 
 @app.get('/internal/chats/{chat_id}/messages')
 async def get_messages(chat_id: int):

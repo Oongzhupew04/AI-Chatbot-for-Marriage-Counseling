@@ -74,5 +74,8 @@
     color: white;
     font-size: 0.9rem;
 }
-.user-info h4 { font-size: 0.9rem; font-weight: 600; }
-.user-info p { font-size: 0.75rem; color: var(--text-muted); }
+.user-info {
+    max-width: 160px;
+}
+.user-info h4 { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;}
+.user-info p { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;}

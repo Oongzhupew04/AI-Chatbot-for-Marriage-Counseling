@@ -19,7 +19,9 @@ export default function Home(): JSX.Element {
     const [showEmergency, setShowEmergency] = useState(false);
     const [showThankYou, setShowThankYou] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
-    const [sessions, setSessions] = useState<any[]>([]); // State to hold sidebar items
+    const [sessions, setSessions] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
     const [input, setInput] = useState<string>('');
 
     // Get today's date string for check-in comparison
@@ -88,6 +90,15 @@ export default function Home(): JSX.Element {
     }, []);
 
     useEffect(() => {
+        // If the user clicks anywhere on the document, close the dropdown
+        const handleClickOutside = () => setOpenDropdownId(null);
+        document.addEventListener('click', handleClickOutside);
+        
+        // Cleanup the event listener
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
         // 1. Check if they left a chat open before refreshing
         const savedChatId = localStorage.getItem('currentChatId');
         
@@ -117,6 +128,38 @@ export default function Home(): JSX.Element {
             console.error("Failed to load chat history", err);
         }
     };
+
+    const handleDeleteSession = async (sessionIdToDelete: number, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevents triggering the `handleLoadSession` click event
+
+        try {
+            // 1. (Optional) Call your backend to delete it from the database
+            const token = localStorage.getItem('token');
+            await axios.delete(`http://localhost:3000/api/chats/${sessionIdToDelete}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // 2. Remove it from the sidebar instantly
+            setSessions(prevSessions => prevSessions.filter(s => s.id !== sessionIdToDelete));
+
+            // 3. If the user deleted the chat they are currently looking at, clear the screen
+            if (chatId === sessionIdToDelete) {
+                clearSession(); // Assuming you have this from your chatStore
+            }
+
+            // 4. Close the dropdown
+            setOpenDropdownId(null);
+
+        } catch (err) {
+            console.error("Failed to delete session", err);
+            alert("Failed to delete the session. Please try again.");
+        }
+    };
+
+    const filteredSessions = sessions.filter(session => {
+        const title = session.title || "New Chat";
+        return title.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
     const handleSendMessage = () => {
         const text = input.trim();
@@ -338,13 +381,18 @@ export default function Home(): JSX.Element {
 
                 <div className={styles['search-wrapper']}>
                     <i className="fas fa-search"></i>
-                    <input type="text" placeholder="Search sessions..." />
+                    <input 
+                        type="text" 
+                        placeholder="Search sessions..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
 
                 <ul className={styles['history-list']}>
-                    {/* Map over the database sessions! */}
-                    {sessions && sessions.length > 0 ? (
-                        sessions.map(session => (
+                    {/* Use filteredSessions instead of sessions */}
+                    {filteredSessions && filteredSessions.length > 0 ? (
+                        filteredSessions.map(session => (
                             <li 
                                 key={session.id} 
                                 className={styles['history-item']} 
@@ -352,21 +400,40 @@ export default function Home(): JSX.Element {
                             >
                                 <div className={styles['history-icon']}><i className="far fa-comment-alt"></i></div>
                                 <div className={styles['history-info']}>
-                                    {/* We use the first user message as the title. If empty, say "Empty Chat" */}
                                     <h4>{session.title ? session.title.substring(0, 20) + "..." : "New Chat"}</h4>
                                     <p>{new Date(session.updated_at).toLocaleDateString('en-GB')}</p>
                                 </div>
-                                <i
-                                    className="fas fa-ellipsis-h"
-                                    style={{ color: 'var(--text-muted)', cursor: 'pointer', marginLeft: 'auto' }}
-                                    onClick={(e) => e.stopPropagation()}
-                                ></i>
+                                {/* 🌟 NEW: The Relative Wrapper */}
+                                <div style={{ position: 'relative', marginLeft: 'auto' }}>
+                                    
+                                    {/* The Trigger Icon */}
+                                    <i
+                                        className="fas fa-ellipsis-h"
+                                        style={{ color: 'var(--text-muted)', cursor: 'pointer', padding: '5px' }}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Stop row click
+                                            setOpenDropdownId(openDropdownId === session.id ? null : session.id);
+                                        }}
+                                    ></i>
+
+                                    {/* The Dropdown Menu */}
+                                    {openDropdownId === session.id && (
+                                        <div className={styles['dropdown-menu']} onClick={(e) => e.stopPropagation()}>
+                                            <button 
+                                                className={styles['dropdown-item-danger']} 
+                                                onClick={(e) => handleDeleteSession(session.id, e)}
+                                            >
+                                                <i className="fas fa-trash"></i> Delete Session
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </li>
                         ))
                     ) : (
-                        // 3. Display the "Empty" state
                         <li className={styles['no-sessions']}>
-                            <p>No session history found</p>
+                            {/* Show a different message if they searched for something that doesn't exist */}
+                            <p>{searchQuery ? "No matching sessions found" : "No session history found"}</p>
                         </li>
                     )}
                 </ul>

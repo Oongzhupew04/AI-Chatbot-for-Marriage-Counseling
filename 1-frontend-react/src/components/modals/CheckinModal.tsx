@@ -79,7 +79,7 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
 
             if (response.ok) {
                 console.log("Check-in saved payload:", payload);
-                alert("Check-in saved! Your dashboard has been updated.");
+                alert("Check-in saved! Your analysis has been updated.");
                 onSuccess();
             } else {
                 const errorData = await response.json();

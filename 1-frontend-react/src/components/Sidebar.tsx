@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Sidebar.module.css';
 import { useNavigate } from 'react-router-dom';
+import { useChatStore } from '../store/chatStore';
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
+    const [userName, setUserName] = useState('');
+    const [userEmail, setUserEmail] = useState('');
+    const [initials, setInitials] = useState('');
     const navigate = useNavigate();
 
     const startNewChat = () => {
@@ -13,12 +17,39 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
     };
 
     const handleLogout = () => {
-        // 1. Destroy the token in the browser's memory
         localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('currentChatId');
+        
+        // 3. Clear Zustand's live memory just to be safe
+        useChatStore.getState().clearSession();
         
         // 2. Redirect back to the login screen
         navigate('/login');
     };
+
+    // 2. Use useEffect to load the data from localStorage when the sidebar mounts
+    useEffect(() => {
+        const storedName = localStorage.getItem('username');
+        const storedEmail = localStorage.getItem('email');
+
+        if (storedName) {
+            setUserName(storedName);
+            
+            // Optional: Create dynamic avatar initials (e.g., "Vincent Oong" -> "VO")
+            const derivedInitials = storedName
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase();
+            setInitials(derivedInitials);
+        }
+
+        if (storedEmail) {
+            setUserEmail(storedEmail);
+        }
+    }, []);
 
     return (
         <>
@@ -30,7 +61,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
 
                 <div className={styles['nav-menu']}>
                     <a href="#" className={`${styles['nav-item']} ${styles['active']}`} id="newChatBtn" onClick={startNewChat}>
-                        <i className="fas fa-comment-dots"></i> New Chat
+                        <i className="fa-solid fa-house"></i> Home
                     </a>
                     <a href="#" className={styles['nav-item']} onClick={() => navigate('/history')}>
                         <i className="fas fa-folder-open"></i> History
@@ -57,10 +88,10 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className={styles['user-profile']}>
-                    <div className={styles['avatar']}>VO</div>
+                    <div className={styles['avatar']}>{initials}</div>
                     <div className={styles['user-info']}>
-                        <h4>Vincent Oong</h4>
-                        <p>vincent@mmu.edu.my</p>
+                        <h4>{userName}</h4>
+                        <p>{userEmail}</p>
                     </div>
                 </div>
             </nav>

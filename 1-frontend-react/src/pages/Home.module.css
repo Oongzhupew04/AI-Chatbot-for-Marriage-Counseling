@@ -156,6 +156,7 @@ body {
 .search-wrapper {
     position: relative;
     margin-bottom: 24px;
+    color: black;
 }
 .search-wrapper input {
     width: 100%;
@@ -175,7 +176,7 @@ body {
     font-size: 0.8rem;
 }
 
-.history-list { max-height: 55vh; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.history-list { height: 55vh; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 12px; }
 .history-item {
     display: flex; gap: 12px; padding: 10px;
     border-radius: var(--radius-md);
@@ -200,6 +201,41 @@ body {
     padding: 20px;
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+/* The floating "..." menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Positions it right below the icon */
+    right: 0;
+    background-color: white; /* or var(--bg-color) */
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 3px;
+    min-width: 150px;
+    z-index: 50; /* Ensures it stays on top of other sidebar items */
+}
+
+/* The delete button inside the menu */
+.dropdown-item-danger {
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #ef4444; /* Red color for danger actions */
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item-danger:hover {
+    background-color: #fee2e2; /* Light red background on hover */
 }
 
 .upgrade-pill {

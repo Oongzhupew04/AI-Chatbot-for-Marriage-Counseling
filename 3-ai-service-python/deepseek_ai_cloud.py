@@ -19,7 +19,7 @@ print("Database loaded. System ready.\n")
 
 # --- CONFIGURATION ---
 # The IP and Port of your Huawei Cloud ECS running Ollama
-OLLAMA_API_URL = "http://190.92.210.171:11434/api/generate"
+OLLAMA_API_URL = "http://190.92.210.171:11434/api/chat"
 MODEL_NAME = "deepseek-r1:1.5b"
 
 # --- CONSTANTS ---
@@ -88,11 +88,11 @@ def analyze_risk(text):
         return 1  # Medium risk
     return 0  # Low risk
 
-def generate_response(prompt):
+def generate_response(messages):
     """Generate a response by calling the DeepSeek model on the ECS instance."""
     payload = {
         "model": MODEL_NAME,
-        "prompt": prompt,
+        "messages": messages,
         "stream": False 
     }
     
@@ -101,7 +101,7 @@ def generate_response(prompt):
         response.raise_for_status() # Raises an error for bad HTTP status codes
         
         data = response.json()
-        raw_response = data.get("response", "").strip()
+        raw_response = data.get("message", {}).get("content", "").strip()
 
         print(f"--- DEBUG: RAW RESPONSE START ---\n{raw_response}\n--- DEBUG: RAW RESPONSE END ---")
 
@@ -141,30 +141,38 @@ def generate_counseling_response(user_input: str, retrieved_context: str = "") -
     system_msg = f"""You are an empathetic, professional marriage counselor AI. 
 You use Maslow's Hierarchy of Needs to diagnose and advise on relationship issues.
 
-Use ONLY the following retrieved context to inform your advice. 
-Context from Knowledge Base:
+Use ONLY the following retrieved context to form your advice. 
+Retrieved Context:
 {retrieved_context}
 
 Instructions:
-1. Validate the user's feelings warmly.
-2. Provide gentle, actionable advice based strictly on the Context provided.
+1. Speak directly to the user in the first-person (using "I", "you", and "we").
+2. Translate the Retrieved Context into a conversational, empathetic dialogue. Do NOT give the user a clinical checklist or tell them what "Action 1" is.
+3. Provide gentle, empathetic, actionable advice based strictly on the concepts provided in the context.
+4. Provide examples or metaphors to make your advice more relatable.
+5. Do NOT make up any information that is not in the retrieved context. If the context does not contain relevant information, respond with message that encourages the user to share more details about their situation.
 """
-    full_prompt = f"{system_msg}User: {user_input}\nCounselor:"
+    messages = [
+        {"role": "system", "content": system_msg},
+        {"role": "user", "content": user_input}
+    ]
     
     # Call your actual DeepSeek/ECS API here using full_prompt
-    return generate_response(full_prompt)
+    return generate_response(messages)
 
 def generate_casual_response(user_msg):
     """
     Builds a lightweight prompt for small talk and uses the base generator.
     """
-    casual_prompt = f"""You are a warm, empathetic AI marriage counselor.
+    casual_prompt = """You are a warm, empathetic AI marriage counselor.
 Introduce yourself as a warm, empathetic AI marriage counselor.
 Ask the user to describe their marriage situation and how you can support them today.
-Do NOT give clinical advice.
+Do NOT give clinical advice."""
 
-User: "{user_msg}"
-Counselor:"""
+    messages = [
+        {"role": "system", "content": casual_prompt},
+        {"role": "user", "content": user_msg}
+    ]
 
     # Reuse your existing server connection function!
-    return generate_response(casual_prompt)
+    return generate_response(messages)

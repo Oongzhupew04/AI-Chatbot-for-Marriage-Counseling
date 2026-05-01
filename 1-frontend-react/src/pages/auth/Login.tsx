@@ -25,6 +25,10 @@ export default function Login() {
                 
                 // 1. Save the token to browser memory
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('userID', data.id);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('email', data.email);
+                localStorage.removeItem('currentChatId');
                 
                 // 2. Extract and save the role (assuming your backend sends data.user.role)
                 const userRole = data.role;

@@ -103,7 +103,7 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
                 { expiresIn: '24h' }
             );
             
-            res.json({ role: user.role, token: token, message: "Login successful" });
+            res.json({ role: user.role, id: user.id, username: user.username, email: user.email, token: token, message: "Login successful" });
         }
     } catch (error: any) {
         // 3. Catch errors (Like Wrong Password or Database Offline)
@@ -189,6 +189,21 @@ app.get('/api/chats', async (req: AuthRequest, res: Response): Promise<void> => 
     } catch (error: any) {
         console.error("Failed to fetch chats:", error.message);
         res.status(500).json({ error: "Could not load chats" });
+    }
+});
+
+// Delete a specific chat session
+app.delete('/api/chats/:chatId', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const chatId = req.params.chatId;
+        
+        // Forward the delete request to Python
+        const pythonResponse = await axios.delete(`${PYTHON_SERVICE_URL}/internal/chats/${chatId}`);
+        
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to delete chat:", error.message);
+        res.status(500).json({ error: "Could not delete chat session" });
     }
 });
 

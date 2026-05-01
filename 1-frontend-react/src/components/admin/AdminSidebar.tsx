@@ -9,6 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const handleLogout = () => {
         // 1. Destroy the token in the browser's memory
         localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
         
         // 2. Redirect back to the login screen
         navigate('/login');

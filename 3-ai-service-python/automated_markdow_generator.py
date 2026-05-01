@@ -7,7 +7,7 @@ import re
 # 1. ECS & OLLAMA CONFIGURATION
 # ==========================================
 # Replace with your actual ECS instance IP or domain
-OLLAMA_API_URL = "http://190.92.210.171:11434/api/generate"
+OLLAMA_API_URL = "http://190.92.210.171:11434/api/chat"
 MODEL_NAME = "deepseek-r1:1.5b"
 
 # ==========================================

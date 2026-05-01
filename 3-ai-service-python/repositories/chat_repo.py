@@ -102,3 +102,25 @@ class ChatRepository:
         except Exception as e:
             print(f"Error fetching chats: {e}")
             return []
+        
+    def delete_user_session(self, chat_id: int):
+        """Deletes a chat session and all its associated messages."""
+        conn = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            # 1. Delete messages first (to avoid foreign key constraint errors)
+            cursor.execute("DELETE FROM messages WHERE chat_id = ?", (chat_id,))
+            
+            # 2. Delete the chat session itself
+            cursor.execute("DELETE FROM chats WHERE id = ?", (chat_id,))
+            
+            conn.commit()
+            cursor.close()
+            return True
+        except Exception as e:
+            if conn:
+                conn.rollback() # Undo the deletion if something crashes
+            print(f"Error deleting chat session: {e}")
+            return False
