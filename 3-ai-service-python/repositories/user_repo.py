@@ -12,7 +12,7 @@ class UserRepository:
             return User(row[0], row[1], row[2], row[3], row[4])
         return None
 
-    def create(self, username, email, password_hash, demographics, scale_1, scale_1_score):
+    def create(self, username, email, password_hash, demographics, scale_1, marital_risk_percentage):
         cursor = db.get_connection().cursor()
         
         query = """
@@ -20,12 +20,12 @@ class UserRepository:
                 username, email, password, role,
                 sex, age, years_married, children_count, children_raised,
                 education, material_situation, religious_affiliation, religiousness,
-                q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, scale_1_score
+                q13, q17, q19, q20, marital_risk_percentage
             ) VALUES (
                 ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?
             )
         """
         
@@ -37,11 +37,9 @@ class UserRepository:
             demographics.get('education'), demographics.get('material_situation'), 
             demographics.get('religious_affiliation'), demographics.get('religiousness'),
             # Scale 1 Text Values
-            scale_1.get('q10'), scale_1.get('q11'), scale_1.get('q12'), 
-            scale_1.get('q13'), scale_1.get('q14'), scale_1.get('q15'), 
-            scale_1.get('q16'), scale_1.get('q17'), scale_1.get('q18'), scale_1.get('q19'),
+            scale_1.get('q13'), scale_1.get('q17'), scale_1.get('q19'), scale_1.get('q20'),
             # Calculated Final Score
-            scale_1_score
+            marital_risk_percentage
         )
         
         cursor.execute(query, values)
@@ -57,7 +55,7 @@ class UserRepository:
                 id, username, email, password, role,
                 sex, age, years_married, children_count, children_raised,
                 education, material_situation, religious_affiliation, religiousness,
-                q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, scale_1_score
+                q13, q17, q19, q20, marital_risk_percentage
             FROM users 
             WHERE id = ?
         """
@@ -85,17 +83,11 @@ class UserRepository:
                 religious_affiliation=row[12],
                 religiousness=row[13],
                 # Scale 1 Text Values & Score (These will be caught by **kwargs in the User model)
-                q10=row[14], 
-                q11=row[15], 
-                q12=row[16], 
-                q13=row[17], 
-                q14=row[18], 
-                q15=row[19], 
-                q16=row[20], 
-                q17=row[21], 
-                q18=row[22], 
-                q19=row[23],
-                scale_1_score=row[24]
+                q13=row[14], 
+                q17=row[15], 
+                q19=row[16], 
+                q20=row[17],
+                marital_risk_percentage=row[18]
             )
             
         return None

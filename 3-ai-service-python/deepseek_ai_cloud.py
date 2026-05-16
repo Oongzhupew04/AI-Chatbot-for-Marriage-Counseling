@@ -1,21 +1,5 @@
 import requests
 import re
-import json
-import time
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-
-# ==========================================
-# RAG DATABASE INITIALIZATION (Loads once!)
-# ==========================================
-print("Booting up RAG Database Engine (Takes ~10-15 seconds)...")
-embeddings = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2",
-    model_kwargs={'device': 'cpu'}
-)
-# Ensure the 'chroma_db' folder is in the same directory as this script
-vector_db = Chroma(persist_directory="chroma_db", embedding_function=embeddings)
-print("Database loaded. System ready.\n")
 
 # --- CONFIGURATION ---
 # The IP and Port of your Huawei Cloud ECS running Ollama

@@ -13,17 +13,17 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
         // In React, you'd typically clear the local chat state or generate a new ID
         localStorage.removeItem('currentChatId');
         navigate('/');
-        window.location.reload(); 
+        window.location.reload();
     };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('userRole');
         localStorage.removeItem('currentChatId');
-        
+
         // 3. Clear Zustand's live memory just to be safe
         useChatStore.getState().clearSession();
-        
+
         // 2. Redirect back to the login screen
         navigate('/login');
     };
@@ -35,7 +35,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
 
         if (storedName) {
             setUserName(storedName);
-            
+
             // Optional: Create dynamic avatar initials (e.g., "Vincent Oong" -> "VO")
             const derivedInitials = storedName
                 .split(' ')
@@ -62,9 +62,6 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                 <div className={styles['nav-menu']}>
                     <a href="#" className={`${styles['nav-item']} ${styles['active']}`} id="newChatBtn" onClick={startNewChat}>
                         <i className="fa-solid fa-house"></i> Home
-                    </a>
-                    <a href="#" className={styles['nav-item']} onClick={() => navigate('/history')}>
-                        <i className="fas fa-folder-open"></i> History
                     </a>
                     <a href="#" className={styles['nav-item']} onClick={() => navigate('/analysis')}>
                         <i className="fas fa-chart-pie"></i> Analysis

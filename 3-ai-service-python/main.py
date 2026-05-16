@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import uvicorn
+import os
+import logging
 
 from services.auth_service import AuthService
 from services.chat_service import ChatService
@@ -12,6 +14,8 @@ from fastapi.responses import JSONResponse
 from typing import List, Optional
 
 load_dotenv()
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+logging.getLogger("transformers").setLevel(logging.ERROR)
 
 app = FastAPI(title="AI Compute Service", description="Internal AI Microservice")
 auth_service = AuthService()
@@ -40,16 +44,10 @@ class RegisterRequest(BaseModel):
     material_situation: str
     religious_affiliation: str
     religiousness: int
-    q10: str
-    q11: str
-    q12: str
     q13: str
-    q14: str
-    q15: str
-    q16: str
     q17: str
-    q18: str
     q19: str
+    q20: str
 
 class ChatRequest(BaseModel):
     user_id: int
@@ -114,7 +112,7 @@ async def internal_register(reg_data: RegisterRequest):
     try:
         # Pass the expanded dictionary or object to your auth_service
         # (You will need to update the register method inside auth_service.py to accept these kwargs)
-        user, error = auth_service.register(
+        result, error = auth_service.register(
             username=reg_data.username,
             email=reg_data.email,
             password=reg_data.password,
@@ -130,17 +128,18 @@ async def internal_register(reg_data: RegisterRequest):
                 "religiousness": reg_data.religiousness
             },
             scale_1={
-                "q10": reg_data.q10, "q11": reg_data.q11, "q12": reg_data.q12,
-                "q13": reg_data.q13, "q14": reg_data.q14, "q15": reg_data.q15,
-                "q16": reg_data.q16, "q17": reg_data.q17, "q18": reg_data.q18,
-                "q19": reg_data.q19
+                "q13": reg_data.q13, "q17": reg_data.q17, "q19": reg_data.q19, "q20": reg_data.q20
             }
         )
         
         if error:
             raise HTTPException(status_code=400, detail=error)
             
-        return {"success": True, "message": "User registered successfully"}
+        return {
+            "success": True, 
+            "message": "User registered successfully", 
+            "dishonesty_detected": result.get("dishonesty_detected", False)
+        }
     except Exception as e:
         print(f"Registration Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to register user in database")
@@ -206,6 +205,31 @@ async def handle_checkin(data: CheckinRequest):
     except Exception as e:
         print(f"Check-in Processing Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to process check-in")
+
+@app.get('/internal/users/{user_id}/analysis')
+async def get_analysis(user_id: int):
+    try:
+        user = auth_service.user_repo.get_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+            
+        baseline = {
+            "maritalRiskPercentage": float(getattr(user, 'marital_risk_percentage', 0) or 0),
+            "q13": int(getattr(user, 'q13', 0) or 0),
+            "q17": int(getattr(user, 'q17', 0) or 0),
+            "q19": int(getattr(user, 'q19', 0) or 0),
+        }
+        
+        checkins = checkin_service.repo.get_recent_checkins(user_id, limit=7)
+        
+        return {
+            "baseline": baseline,
+            "checkins": checkins
+        }
+    except Exception as e:
+        import traceback
+        print(f"Error fetching analysis:\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Failed to fetch analysis data")
 
 if __name__ == '__main__':
     # Run the internal service on port 8000

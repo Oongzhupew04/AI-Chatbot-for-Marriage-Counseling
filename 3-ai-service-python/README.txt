@@ -10,6 +10,8 @@ npm run dev
 admin@gmail.com
 admin123
 
+Check opengauss running:
+sudo docker ps -a
 
 
 Example AI question for Safety_Needs_safety.md:

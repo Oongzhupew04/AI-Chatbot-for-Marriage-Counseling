@@ -7,7 +7,7 @@ jaydebeapi
 JPype1
 openpyxl
 langchain
-langchain-community
+langchain-huggingface
 chromadb
 sentence-transformers
 unstructured

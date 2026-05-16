@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styles from './Register.module.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import DishonestyModal from '../../components/modals/DishonestyModal';
 
 export default function Register() {
     // Updated state to include Q1-Q9 from the questionnaire
-    const [formData, setFormData] = useState({ 
+    const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
@@ -19,9 +20,7 @@ export default function Register() {
         material_situation: '',
         religious_affiliation: '',
         religiousness: '',
-        q10: '', // Default: Neither agree nor disagree
-        q11: '', q12: '', q13: '', q14: '', q15: '',
-        q16: '', q17: '', q18: '', q19: '', // Default: Neither yes nor no
+        q13: '', q17: '', q19: '', q20: '', // Default: Neither yes nor no
         privacy_policy: false,
         ai_consent: false
     });
@@ -29,6 +28,7 @@ export default function Register() {
     const [isValid, setIsValid] = useState(false);
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
         validateForm();
@@ -56,7 +56,7 @@ export default function Register() {
         const requiredFields = [
             'sex', 'age', 'years_married', 'children_count',
             'children_raised', 'education', 'material_situation', 'religious_affiliation',
-            'religiousness', 'q10', 'q11', 'q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19'
+            'religiousness', 'q13', 'q17', 'q19', 'q20'
         ];
 
         // 3. Check if any are empty
@@ -84,7 +84,7 @@ export default function Register() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent standard HTML form submission
-        
+
         // if (!isValid) return; // Extra security check
 
         // Smoothly scroll to the top
@@ -95,9 +95,13 @@ export default function Register() {
             setError(''); // Clear any previous UI errors
 
             const response = await axios.post('http://localhost:3000/api/auth/register', formData);
-            
+
             if (response.data.success) {
-                navigate('/login'); 
+                if (response.data.dishonesty_detected) {
+                    setShowPopup(true);
+                } else {
+                    navigate('/login');
+                }
             } else {
                 setError(response.data.message || "Registration failed. Please try again.");
             }
@@ -113,17 +117,17 @@ export default function Register() {
         }
     };
 
-    // Helper function to render Q11-Q19 dropdowns to save code space
+    // Helper function to render Q13, Q17, Q19 dropdowns to save code space
     const renderScale1Select = (name: string, label: string) => (
         <div className={styles['form-group']} style={{ marginBottom: '10px' }}>
             <label style={{ fontSize: '0.85rem' }}>{label}</label>
             <select name={name} className={styles['input-field']} onChange={handleChange} value={(formData as any)[name]} required>
                 <option value="" disabled></option>
-                <option value="+2">Yes</option>
-                <option value="+1">Rather yes</option>
-                <option value="0">Neither yes nor no</option>
-                <option value="-1">Rather not</option>
-                <option value="-2">No</option>
+                <option value="1">Yes</option>
+                <option value="2">Rather yes</option>
+                <option value="3">Neither yes nor no</option>
+                <option value="4">Rather not</option>
+                <option value="5">No</option>
             </select>
         </div>
     );
@@ -137,7 +141,7 @@ export default function Register() {
                     <h1>Create your account</h1>
                     <p>Start your journey towards a healthier relationship.</p>
                 </div>
-                
+
                 <form onSubmit={handleSubmit}>
                     {/* Account Basics */}
                     <div className={styles['form-group']}>
@@ -197,7 +201,7 @@ export default function Register() {
                     {/* Q6, Q7 */}
                     <div className={styles['form-row']} style={{ display: 'flex', gap: '16px', marginBottom: '15px' }}>
                         <div className={styles['form-group']} style={{ flex: 1 }}>
-                            <label>Education</label>
+                            <label><br />Education</label>
                             <select name="education" className={styles['input-field']} onChange={handleChange} value={formData.education} required>
                                 <option value="" disabled></option>
                                 <option value="No formal education">No formal education</option>
@@ -208,7 +212,7 @@ export default function Register() {
                             </select>
                         </div>
                         <div className={styles['form-group']} style={{ flex: 1 }}>
-                            <label>Material Situation (vs Average People)</label>
+                            <label>Material Situation (compared to Average People)</label>
                             <select name="material_situation" className={styles['input-field']} onChange={handleChange} value={formData.material_situation} required>
                                 <option value="" disabled></option>
                                 <option value="Much better">Much better</option>
@@ -258,30 +262,26 @@ export default function Register() {
                     <hr style={{ margin: '20px 0', borderColor: '#eee' }} />
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '15px' }}>Relationship Assessment</h3>
 
-                    <div className={styles['form-group']} style={{ marginBottom: '15px' }}>
-                        <label style={{ fontSize: '0.85rem' }}>When I get old, I can live on the pension and social benefits.</label>
-                        <select name="q10" className={styles['input-field']} onChange={handleChange} value={formData.q10} required>
-                            <option value="" disabled></option>
-                            <option value="+3">Agree strongly</option>
-                            <option value="+2">Agree somewhat</option>
-                            <option value="+1">Agree slightly</option>
-                            <option value="0">Neither agree nor disagree</option>
-                            <option value="-1">Disagree slightly</option>
-                            <option value="-2">Disagree somewhat</option>
-                            <option value="-3">Disagree strongly</option>
-                        </select>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        {renderScale1Select('q13', 'Do you find your spouse attractive?')}
+                        {renderScale1Select('q17', 'Are you proud of your spouse?')}
+                        {renderScale1Select('q19', 'Do you love your spouse?')}
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        {renderScale1Select('q11', 'Do you enjoy your spouse\'s company?')}
-                        {renderScale1Select('q12', 'Are you happy?')}
-                        {renderScale1Select('q13', 'Do you find your spouse attractive?')}
-                        {renderScale1Select('q14', 'Do you enjoy doing things together?')}
-                        {renderScale1Select('q15', 'Do you enjoy cuddling your spouse?')}
-                        {renderScale1Select('q16', 'Do you respect your spouse?')}
-                        {renderScale1Select('q17', 'Are you proud of your spouse?')}
-                        {renderScale1Select('q18', 'Does your relationship have a romantic side?')}
-                        {renderScale1Select('q19', 'Do you love your spouse?')}
+                    <br />
+                    <br />
+
+                    {/* Q20 implementation */}
+                    <div className={styles['form-group']} style={{ marginBottom: '10px' }}>
+                        <label style={{ fontSize: '1rem', textAlign: 'center' }}>Overall, how satisfied are you with your marriage?</label>
+                        <select name="q20" className={styles['input-field']} onChange={handleChange} value={formData.q20} required>
+                            <option value="" disabled></option>
+                            <option value="1">1 - Very dissatisfied</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5 - Very satisfied</option>
+                        </select>
                     </div>
 
                     <hr style={{ margin: '20px 0', borderColor: '#eee' }} />
@@ -306,6 +306,11 @@ export default function Register() {
                     <p>Already have an account? <Link to="/login">Sign in</Link></p>
                 </div>
             </div>
+
+            {/* Dishonesty Popup Modal */}
+            {showPopup && (
+                <DishonestyModal onClose={() => { setShowPopup(false); navigate('/login'); }} />
+            )}
         </div>
     );
 }

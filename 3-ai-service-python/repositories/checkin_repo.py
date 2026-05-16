@@ -8,6 +8,66 @@ class CheckinRepository:
         # self.collection = self.chroma_client.get_or_create_collection(name="user_journals")
         pass
 
+    def get_recent_checkins(self, user_id: int, limit: int = 7):
+        conn = None
+        cursor = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT satisfaction_score, unmet_needs, journal_text, rotational_q, rotational_score, created_at
+                FROM daily_checkins
+                WHERE user_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?
+            ''', (user_id, limit))
+            
+            rows = cursor.fetchall()
+            
+            # Reverse to chronological order for the frontend (oldest -> newest in the window)
+            rows.reverse()
+                
+            import datetime
+            checkins = []
+            for row in rows:
+                raw_date = row[5]
+                formatted_day = str(raw_date)
+                if raw_date:
+                    try:
+                        if isinstance(raw_date, str):
+                            clean_str = raw_date.replace('T', ' ').replace('Z', '').split('.')[0]
+                            if len(clean_str) == 10:
+                                dt = datetime.datetime.strptime(clean_str, "%Y-%m-%d")
+                            else:
+                                dt = datetime.datetime.strptime(clean_str, "%Y-%m-%d %H:%M:%S")
+                        else:
+                            # Assume it's a java.sql.Timestamp or python datetime
+                            # If it's jaydebeapi timestamp, str(raw_date) might look like '2026-05-16 12:00:00'
+                            clean_str = str(raw_date).split('.')[0]
+                            dt = datetime.datetime.strptime(clean_str, "%Y-%m-%d %H:%M:%S")
+                        
+                        formatted_day = f"{dt.day} {dt.strftime('%b %Y')}"
+                    except Exception as e:
+                        print(f"Date parsing failed for {raw_date}: {e}")
+
+                checkins.append({
+                    "coreMetric": int(row[0] or 0),
+                    "unmetNeeds": [n.strip() for n in row[1].split(",")] if row[1] else [],
+                    "journalEntry": row[2] or "",
+                    "rotationalQuestion": row[3] or "",
+                    "rotationalScore": int(row[4] or 0),
+                    "day": formatted_day
+                })
+                
+            return checkins
+        except Exception as e:
+            print(f"Error fetching checkins: {e}")
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+
     def save_checkin(self, checkin: Checkin):
         conn = None
         cursor = None
@@ -43,8 +103,6 @@ class CheckinRepository:
         finally:
             if cursor:
                 cursor.close()
-            if conn:
-                conn.close()
 
         # 2. Save unstructured text to ChromaDB for the RAG pipeline
         if checkin.journal_text and checkin.journal_text.strip():

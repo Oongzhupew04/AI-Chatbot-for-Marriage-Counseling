@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        /* Language and Environment */
+        "target": "es2022",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        /* Directories */
+        "rootDir": "./src",
+        "outDir": "./dist",
+        /* Interoperability & Constraints (This fixes your Morgan error) */
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        /* Type Checking */
+        "strict": true,
+        "skipLibCheck": true
+    },
+    /* Tell TypeScript which files to compile and which to ignore */
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

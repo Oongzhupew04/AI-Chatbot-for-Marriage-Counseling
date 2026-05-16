@@ -17,7 +17,7 @@ class User:
         material_situation=None, 
         religious_affiliation=None, 
         religiousness=None,
-        # **kwargs catches q10 to q19, and the calculated scale_1_score
+        # **kwargs catches q13, q17, q19, q20, and the calculated marital_risk_percentage
         **kwargs
     ):
         # Core Auth
@@ -38,6 +38,6 @@ class User:
         self.religious_affiliation = religious_affiliation
         self.religiousness = religiousness
         
-        # Dynamically attach Scale 1 variables (q10-q19) and calculated scale_1_score
+        # Dynamically attach Scale 1 variables (q13, q17, q19, q20) and calculated marital_risk_percentage
         for key, value in kwargs.items():
             setattr(self, key, value)

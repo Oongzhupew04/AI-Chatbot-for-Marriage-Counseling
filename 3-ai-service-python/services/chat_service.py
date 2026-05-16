@@ -3,7 +3,7 @@ from repositories.chat_repo import ChatRepository
 import os
 from dotenv import load_dotenv # Added to load your openGauss credentials
 from deepseek_ai_cloud import analyze_risk, detect_intent, generate_casual_response, is_casual_chat, generate_counseling_response, CRISIS_RESOURCES
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 # 1. Swap Chroma for OpenGauss
 from langchain_opengauss import OpenGauss, OpenGaussSettings

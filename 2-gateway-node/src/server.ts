@@ -49,14 +49,14 @@ const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction):
 
 // Translate: @app.route('/register', methods=['POST'])
 app.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
-    const { 
-        username, email, password, 
-        sex, age, years_married, children_count, 
-        children_raised, education, material_situation, 
+    const {
+        username, email, password,
+        sex, age, years_married, children_count,
+        children_raised, education, material_situation,
         religious_affiliation, religiousness,
-        q10, q11, q12, q13, q14, q15, q16, q17, q18, q19
+        q13, q17, q19, q20
     } = req.body;
-    
+
     try {
         // Forward the registration data to your Python backend to save in openGauss
         const response = await axios.post(`${PYTHON_SERVICE_URL}/internal/register`, {
@@ -70,9 +70,9 @@ app.post('/api/auth/register', async (req: Request, res: Response): Promise<void
             material_situation,
             religious_affiliation,
             religiousness: parseInt(religiousness),
-            q10, q11, q12, q13, q14, q15, q16, q17, q18, q19
+            q13, q17, q19, q20
         });
-        
+
         res.json(response.data);
     } catch (error: any) {
         console.error("Python DB Error:", error.message);
@@ -84,7 +84,7 @@ app.post('/api/auth/register', async (req: Request, res: Response): Promise<void
 // Translate: @app.route('/login', methods=['POST'])
 app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
-    
+
     try {
         // 1. Send the email/password to Python for Database verification
         const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/login`, {
@@ -98,11 +98,11 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
 
             // Generate the secure JWT token with the REAL database ID and Role
             const token = jwt.sign(
-                { userId: user.id, email: user.email, role: user.role }, 
-                JWT_SECRET, 
+                { userId: user.id, email: user.email, role: user.role },
+                JWT_SECRET,
                 { expiresIn: '24h' }
             );
-            
+
             res.json({ role: user.role, id: user.id, username: user.username, email: user.email, token: token, message: "Login successful" });
         }
     } catch (error: any) {
@@ -155,9 +155,9 @@ app.post('/api/chat', async (req: AuthRequest, res: Response): Promise<void> => 
             const newChatResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/new_chat`, {
                 user_id: userId
             });
-            
+
             // Overwrite the null with the actual Database ID Python just created!
-            chatId = newChatResponse.data.chat_id; 
+            chatId = newChatResponse.data.chat_id;
         }
 
         // --- 2. SEND THE MESSAGE ---
@@ -173,7 +173,7 @@ app.post('/api/chat', async (req: AuthRequest, res: Response): Promise<void> => 
             ...pythonResponse.data,
             chatId: chatId // Send the new ID back so React saves it in Zustand
         });
-        
+
     } catch (error: any) {
         console.error("Python Service Error:", error.message);
         res.status(500).json({ error: "AI Compute Service is currently unavailable." });
@@ -196,10 +196,10 @@ app.get('/api/chats', async (req: AuthRequest, res: Response): Promise<void> => 
 app.delete('/api/chats/:chatId', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const chatId = req.params.chatId;
-        
+
         // Forward the delete request to Python
         const pythonResponse = await axios.delete(`${PYTHON_SERVICE_URL}/internal/chats/${chatId}`);
-        
+
         res.json(pythonResponse.data);
     } catch (error: any) {
         console.error("Failed to delete chat:", error.message);
@@ -238,6 +238,18 @@ app.post('/api/checkin', async (req: AuthRequest, res: Response): Promise<void> 
         console.error("Failed to save check-in:", error.message);
         // Fallback response if Python isn't ready to receive it yet
         res.status(500).json({ error: "Could not save daily check-in to database." });
+    }
+});
+
+// Translate: GET /analysis
+app.get('/api/analysis', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/users/${userId}/analysis`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch analysis data:", error.message);
+        res.status(500).json({ error: "Could not load analysis data" });
     }
 });
 
