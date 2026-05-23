@@ -26,10 +26,10 @@ export default function Home(): JSX.Element {
 
     // Get today's date string for check-in comparison
     const getTodayString = () => new Date().toDateString();
-    
+
     // Zustand
     const { messages, chatId, addMessage, setChatId, setMessages, clearSession } = useChatStore();
-    
+
     // React Query
     const chatMutation = useChatMutation();
     const chatEndRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,7 @@ export default function Home(): JSX.Element {
         // If the user clicks anywhere on the document, close the dropdown
         const handleClickOutside = () => setOpenDropdownId(null);
         document.addEventListener('click', handleClickOutside);
-        
+
         // Cleanup the event listener
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
@@ -101,11 +101,11 @@ export default function Home(): JSX.Element {
     useEffect(() => {
         // 1. Check if they left a chat open before refreshing
         const savedChatId = localStorage.getItem('currentChatId');
-        
+
         if (savedChatId) {
             // 2. Convert it back to a number from a string
             const parsedId = parseInt(savedChatId, 10);
-            
+
             // 3. Automatically trigger the load function!
             if (!isNaN(parsedId)) {
                 handleLoadSession(parsedId);
@@ -120,7 +120,7 @@ export default function Home(): JSX.Element {
             const response = await axios.get(`http://localhost:3000/api/chats/${loadChatId}/messages`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             // Set the active ID and overwrite the screen with the history!
             setChatId(loadChatId);
             setMessages(response.data.messages);
@@ -192,10 +192,10 @@ export default function Home(): JSX.Element {
                         ]);
                     }
 
-                    addMessage({ 
-                        sender: 'bot', 
-                        text: data.response, 
-                        action: data.action 
+                    addMessage({
+                        sender: 'bot',
+                        text: data.response,
+                        action: data.action
                     });
                 },
                 onError: (error) => {
@@ -206,18 +206,36 @@ export default function Home(): JSX.Element {
         );
     };
 
-    const handleConfirmEnd = () => {
-        // 1. Wipe the chat from the screen (this automatically removes the buttons!)
-        clearSession(); 
+    const finishSession = async () => {
+        // 1. Log the end to the DB
+        try {
+            const token = localStorage.getItem('token');
+            if (chatId) {
+                await axios.post(`http://localhost:3000/api/chats/${chatId}/end`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                // Add it locally so UI updates instantly
+                addMessage({ sender: 'bot', text: '[Session Ended]', action: 'session_ended' });
+            }
+        } catch (e) {
+            console.error("Failed to end session in DB", e);
+        }
+
+        // Clear the session to return to new chat page
+        clearSession();
 
         // 2. Show the "Thank You" Modal
         openThankYouModal();
 
-        // 3. Wait 2 seconds, then Hide Thank You -> Show Feedback
+        // 3. Wait 2 seconds, then Hide Thank You
         setTimeout(() => {
             closeThankYouModal();
-            openFeedbackModal();
         }, 2000);
+    };
+
+    const handleConfirmEnd = () => {
+        // Show feedback modal FIRST, so we don't lose the chatId in Zustand!
+        openFeedbackModal();
     };
 
     const handleCancelEnd = () => {
@@ -226,7 +244,7 @@ export default function Home(): JSX.Element {
 
         // 2. Instantly add the bot's response locally, just like your JS snippet
         addMessage({ sender: 'bot', text: 'Okay, we can continue chatting.', action: 'none' });
-        
+
         // (Optional Pro-Tip: You could still fire chatMutation.mutate() here
         // if you want the Python backend to know the user decided to stay!)
     };
@@ -235,12 +253,32 @@ export default function Home(): JSX.Element {
         // Lock it in for the day
         localStorage.setItem('lastCheckInDate', getTodayString());
         setHasCheckedInToday(true);
-        setIsCheckinModalOpen(false); 
+        setIsCheckinModalOpen(false);
     };
 
-    const handleFeedbackSubmit = () => {
-        
+    const handleFeedbackSubmit = async (data: any) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post('http://localhost:3000/api/feedback', {
+                chatId,
+                ...data
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (err) {
+            console.error("Failed to submit feedback", err);
+        } finally {
+            closeFeedbackModal();
+            await finishSession(); // Clear session and show Thank You ONLY AFTER feedback finishes
+        }
     };
+
+    const handleFeedbackCancel = async () => {
+        closeFeedbackModal();
+        await finishSession(); // Still clear session even if they skip feedback
+    };
+
+    const isSessionEnded = messages.length > 0 && messages[messages.length - 1].text === '[Session Ended]';
 
     return (
         <>
@@ -300,6 +338,16 @@ export default function Home(): JSX.Element {
                     <div id="chat-box" className={styles['chat-container']}>
                         {/* 1. Loop through all saved messages and draw them */}
                         {(messages || []).map((m, index) => {
+                            if (m.text === '[Session Ended]') {
+                                return (
+                                    <div key={index} style={{ display: 'flex', alignItems: 'center', margin: '30px 0', color: 'var(--text-muted)' }}>
+                                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color, #e2e8f0)' }}></div>
+                                        <span style={{ padding: '0 15px', fontSize: '0.9rem', fontWeight: 500 }}>Session Ended</span>
+                                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color, #e2e8f0)' }}></div>
+                                    </div>
+                                );
+                            }
+
                             // Check if this is the very last message in the array
                             const isLastMessage = index === messages.length - 1;
 
@@ -311,14 +359,14 @@ export default function Home(): JSX.Element {
                                     {/* Conditionally render the Yes/No buttons ONLY on the last message */}
                                     {isLastMessage && m.action === "confirm_end" && (
                                         <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                                            <button 
-                                                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer', fontWeight: 'bold' }} 
+                                            <button
+                                                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
                                                 onClick={handleConfirmEnd}
                                             >
                                                 Yes
                                             </button>
-                                            <button 
-                                                style={{ padding: '8px 23px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-dark)', color: 'white', cursor: 'pointer', fontWeight: 'bold' }} 
+                                            <button
+                                                style={{ padding: '8px 23px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-dark)', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
                                                 onClick={handleCancelEnd}
                                             >
                                                 No
@@ -343,26 +391,28 @@ export default function Home(): JSX.Element {
                     </div>
                 )}
 
-                <div className={styles['input-wrapper']}>
-                    <textarea 
-                        id="user-input" 
-                        className={styles['chat-input']} 
-                        placeholder="Tell me what's on your mind today..."
+                <div className={styles['input-wrapper']} style={isSessionEnded ? { opacity: 0.6, pointerEvents: 'none' } : {}}>
+                    <textarea
+                        id="user-input"
+                        className={styles['chat-input']}
+                        placeholder={isSessionEnded ? "This session has ended. Start a new session from the sidebar." : "Tell me what's on your mind today..."}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => {
+                            if (isSessionEnded) return;
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault(); // Prevents adding a new line
                                 handleSendMessage(); // Fires your send function
                             }
                         }}
+                        disabled={isSessionEnded}
                     ></textarea>
                     <div className={styles['input-footer']}>
                         <div className={styles['attachments']}>
-                            <button className={styles['attach-btn']}><i className="fas fa-paperclip"></i> Attach</button>
-                            <button className={styles['attach-btn']}><i className="fas fa-microphone"></i> Voice Message</button>
+                            <button className={styles['attach-btn']} disabled={isSessionEnded}><i className="fas fa-paperclip"></i> Attach</button>
+                            <button className={styles['attach-btn']} disabled={isSessionEnded}><i className="fas fa-microphone"></i> Voice Message</button>
                         </div>
-                        <button className={styles['send-btn']} onClick={handleSendMessage}>
+                        <button className={styles['send-btn']} onClick={handleSendMessage} disabled={isSessionEnded}>
                             <i className="fas fa-paper-plane"></i>
                         </button>
                     </div>
@@ -381,9 +431,9 @@ export default function Home(): JSX.Element {
 
                 <div className={styles['search-wrapper']}>
                     <i className="fas fa-search"></i>
-                    <input 
-                        type="text" 
-                        placeholder="Search sessions..." 
+                    <input
+                        type="text"
+                        placeholder="Search sessions..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -393,9 +443,9 @@ export default function Home(): JSX.Element {
                     {/* Use filteredSessions instead of sessions */}
                     {filteredSessions && filteredSessions.length > 0 ? (
                         filteredSessions.map(session => (
-                            <li 
-                                key={session.id} 
-                                className={styles['history-item']} 
+                            <li
+                                key={session.id}
+                                className={styles['history-item']}
                                 onClick={() => handleLoadSession(session.id)}
                             >
                                 <div className={styles['history-icon']}><i className="far fa-comment-alt"></i></div>
@@ -405,7 +455,7 @@ export default function Home(): JSX.Element {
                                 </div>
                                 {/* 🌟 NEW: The Relative Wrapper */}
                                 <div style={{ position: 'relative', marginLeft: 'auto' }}>
-                                    
+
                                     {/* The Trigger Icon */}
                                     <i
                                         className="fas fa-ellipsis-h"
@@ -419,8 +469,8 @@ export default function Home(): JSX.Element {
                                     {/* The Dropdown Menu */}
                                     {openDropdownId === session.id && (
                                         <div className={styles['dropdown-menu']} onClick={(e) => e.stopPropagation()}>
-                                            <button 
-                                                className={styles['dropdown-item-danger']} 
+                                            <button
+                                                className={styles['dropdown-item-danger']}
                                                 onClick={(e) => handleDeleteSession(session.id, e)}
                                             >
                                                 <i className="fas fa-trash"></i> Delete Session
@@ -455,7 +505,7 @@ export default function Home(): JSX.Element {
             {showEmergency && <EmergencyModal onClose={closeEmergencyModal} />}
             {isCheckinModalOpen && (<CheckinModal onClose={closeCheckinModal} onSuccess={handleCheckinSuccess} />)}
             {showThankYou && <ThankYouModal onClose={closeThankYouModal} />}
-            {showFeedback && <FeedbackModal onClose={closeFeedbackModal} onSubmit={handleFeedbackSubmit} />}
+            {showFeedback && <FeedbackModal onClose={handleFeedbackCancel} onSubmit={handleFeedbackSubmit} />}
         </>
     );
 }

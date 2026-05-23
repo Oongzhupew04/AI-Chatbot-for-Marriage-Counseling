@@ -53,11 +53,11 @@ def create_vector_db():
         
     print("Splitting text into chunks...")
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=100 
+        chunk_size=2000,
+        chunk_overlap=200 
     )
     chunks = text_splitter.split_documents(documents)
-    print(f"📊 Split into {len(chunks)} searchable chunks.")
+    print(f"Split into {len(chunks)} searchable chunks.")
 
     # ==========================================
     # 3. CREATE VECTOR DATABASE IN OPENGAUSS
@@ -71,7 +71,7 @@ def create_vector_db():
 
     # 2. Configure openGauss Settings (HNSW is specified here)
     config = OpenGaussSettings(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
+        host=os.getenv("DB_HOST", "localhost"),
         port=int(os.getenv("DB_PORT", 5432)), 
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),

@@ -8,6 +8,7 @@ import logging
 from services.auth_service import AuthService
 from services.chat_service import ChatService
 from services.checkin_service import CheckinService
+from services.feedback_service import FeedbackService
 from repositories.chat_repo import ChatRepository
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -21,6 +22,7 @@ app = FastAPI(title="AI Compute Service", description="Internal AI Microservice"
 auth_service = AuthService()
 chat_service = ChatService()
 checkin_service = CheckinService()
+feedback_service = FeedbackService()
 chat_repository = ChatRepository()
 
 # ==========================================
@@ -73,6 +75,15 @@ class CheckinRequest(BaseModel):
     unmetNeeds: List[str]
     journalEntry: Optional[str] = ""
     timestamp: str
+
+class FeedbackRequest(BaseModel):
+    user_id: int
+    chatId: Optional[int] = None
+    rating: str
+    workedWell: List[str]
+    issues: List[str]
+    comments: str
+
 
 # ==========================================
 # --- INTERNAL API ROUTES (For Node.js) ---
@@ -190,6 +201,14 @@ async def delete_chat(chat_id: int):
         
     return {"success": True, "message": "Chat deleted successfully"}
 
+@app.post('/internal/chats/{chat_id}/end')
+async def end_chat_session(chat_id: int):
+    """Logs a system message indicating the session was ended by the user."""
+    success = chat_service.log_message(chat_id, "[Request End Session]", "[Session Ended]", 0)
+    if not success:
+         raise HTTPException(status_code=500, detail="Failed to log session end")
+    return {"success": True}
+
 @app.get('/internal/chats/{chat_id}/messages')
 async def get_messages(chat_id: int):
     messages = chat_service.chat_repo.get_chat_history(chat_id)
@@ -205,6 +224,19 @@ async def handle_checkin(data: CheckinRequest):
     except Exception as e:
         print(f"Check-in Processing Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to process check-in")
+
+@app.post('/internal/feedback')
+async def handle_feedback(data: FeedbackRequest):
+    try:
+        print(f"Received feedback from user {data.user_id} for chat {data.chatId}: {data.rating} stars")
+        result = feedback_service.process_feedback(data)
+        if not result:
+            raise HTTPException(status_code=500, detail="Failed to save feedback to database")
+        return {"success": True, "message": "Feedback saved successfully"}
+    except Exception as e:
+        print(f"Feedback Processing Error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process feedback")
+
 
 @app.get('/internal/users/{user_id}/analysis')
 async def get_analysis(user_id: int):

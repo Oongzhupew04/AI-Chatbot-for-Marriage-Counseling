@@ -207,6 +207,18 @@ app.delete('/api/chats/:chatId', async (req: AuthRequest, res: Response): Promis
     }
 });
 
+// Mark session as ended
+app.post('/api/chats/:chatId/end', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const chatId = req.params.chatId;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/chats/${chatId}/end`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to end chat:", error.message);
+        res.status(500).json({ error: "Could not end chat session" });
+    }
+});
+
 // Get message history for a specific session
 app.get('/api/chats/:chatId/messages', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -238,6 +250,27 @@ app.post('/api/checkin', async (req: AuthRequest, res: Response): Promise<void> 
         console.error("Failed to save check-in:", error.message);
         // Fallback response if Python isn't ready to receive it yet
         res.status(500).json({ error: "Could not save daily check-in to database." });
+    }
+});
+
+app.post('/api/feedback', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const chatId = req.body.chatId;
+        const feedbackData = req.body;
+
+        console.log(`Receiving Feedback from user ${userId}...`);
+
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/feedback`, {
+            user_id: userId,
+            chatId: chatId,
+            ...feedbackData
+        });
+
+        res.json({ success: true, data: pythonResponse.data });
+    } catch (error: any) {
+        console.error("Failed to save feedback:", error.message);
+        res.status(500).json({ error: "Could not save feedback." });
     }
 });
 

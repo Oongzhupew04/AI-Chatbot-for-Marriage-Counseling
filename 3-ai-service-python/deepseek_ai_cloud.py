@@ -3,7 +3,7 @@ import re
 
 # --- CONFIGURATION ---
 # The IP and Port of your Huawei Cloud ECS running Ollama
-OLLAMA_API_URL = "http://190.92.210.171:11434/api/chat"
+OLLAMA_API_URL = "http://127.0.0.1:11434/api/chat"
 MODEL_NAME = "deepseek-r1:1.5b"
 
 # --- CONSTANTS ---
@@ -113,7 +113,7 @@ def generate_response(messages):
         clean_response = re.sub(r'<think>.*?(?:</think>|$)', '', clean_response, flags=re.DOTALL | re.IGNORECASE)
 
         # Remove first 2 consecutive newlines
-        clean_response = re.sub(r'\n{2,}', '', clean_response, count=1)
+        # clean_response = re.sub(r'\n{1,}', '', clean_response, count=1)
         
         return clean_response
 
@@ -130,16 +130,19 @@ Retrieved Context:
 {retrieved_context}
 
 Instructions:
-1. Speak directly to the user in the first-person (using "I", "you", and "we").
+1. Speak directly to the user in the first-person (using "I", "you", "your", and "we"). Match the exact pronouns the user uses (e.g., husband/wife).
 2. Translate the Retrieved Context into a conversational, empathetic dialogue. Do NOT give the user a clinical checklist or tell them what "Action 1" is.
 3. Provide gentle, empathetic, actionable advice based strictly on the concepts provided in the context.
 4. Provide examples or metaphors to make your advice more relatable.
 5. Do NOT make up any information that is not in the retrieved context. If the context does not contain relevant information, respond with message that encourages the user to share more details about their situation.
 """
+
     messages = [
         {"role": "system", "content": system_msg},
         {"role": "user", "content": user_input}
     ]
+
+    # print(f"\n--- DEBUG: OUTGOING MESSAGES PAYLOAD ---\n{messages}\n----------------------------------------\n")
     
     # Call your actual DeepSeek/ECS API here using full_prompt
     return generate_response(messages)

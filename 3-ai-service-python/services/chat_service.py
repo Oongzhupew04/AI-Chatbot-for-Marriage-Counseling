@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv # Added to load your openGauss credentials
 from deepseek_ai_cloud import analyze_risk, detect_intent, generate_casual_response, is_casual_chat, generate_counseling_response, CRISIS_RESOURCES
 from langchain_huggingface import HuggingFaceEmbeddings
+import re
 
 # 1. Swap Chroma for OpenGauss
 from langchain_opengauss import OpenGauss, OpenGaussSettings
@@ -69,7 +70,7 @@ class ChatService:
         """Orchestrates the entire AI pipeline and returns a dictionary for the router."""
         
         # 1. Frontend Action Check
-        if "end session" in user_input.lower():
+        if re.search(r'\b(end session|end|bye bye|bye|thank you|thanks)\b', user_input.lower()):
             return {"response": "Are you sure you want to end this session?", "action": "confirm_end", "risk_level": 0}
 
         # 2. Risk Detection
