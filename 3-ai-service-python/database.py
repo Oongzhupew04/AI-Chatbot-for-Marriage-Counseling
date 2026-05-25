@@ -41,6 +41,10 @@ class DatabaseSingleton:
         username = os.getenv("DB_USER")
         password = os.getenv("DB_PASSWORD")
 
+        # FIX: Remove JAVA_TOOL_OPTIONS to prevent Unrecognized option errors with older JVMs
+        if "JAVA_TOOL_OPTIONS" in os.environ:
+            del os.environ["JAVA_TOOL_OPTIONS"]
+
         try:
             self._connection = jaydebeapi.connect(
                 jclassname=driver_class,

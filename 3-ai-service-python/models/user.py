@@ -17,6 +17,8 @@ class User:
         material_situation=None, 
         religious_affiliation=None, 
         religiousness=None,
+        dark_mode_enabled=False,
+        push_notifications_enabled=False,
         # **kwargs catches q13, q17, q19, q20, and the calculated marital_risk_percentage
         **kwargs
     ):
@@ -37,6 +39,10 @@ class User:
         self.material_situation = material_situation
         self.religious_affiliation = religious_affiliation
         self.religiousness = religiousness
+        
+        # Preferences
+        self.dark_mode_enabled = dark_mode_enabled
+        self.push_notifications_enabled = push_notifications_enabled
         
         # Dynamically attach Scale 1 variables (q13, q17, q19, q20) and calculated marital_risk_percentage
         for key, value in kwargs.items():

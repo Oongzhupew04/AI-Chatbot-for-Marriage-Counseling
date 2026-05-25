@@ -395,7 +395,7 @@ export default function Home(): JSX.Element {
                     <textarea
                         id="user-input"
                         className={styles['chat-input']}
-                        placeholder={isSessionEnded ? "This session has ended. Start a new session from the sidebar." : "Tell me what's on your mind today..."}
+                        placeholder={isSessionEnded ? "This session has ended. Navigate to Home to start a new session." : "Tell me what's on your mind today..."}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => {

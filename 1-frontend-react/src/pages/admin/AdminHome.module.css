@@ -15,7 +15,7 @@
         .header-actions { display: flex; gap: 16px; align-items: center; }
         .icon-btn {
             width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-light);
-            background: white; display: flex; align-items: center; justify-content: center;
+            background: var(--bg-white); display: flex; align-items: center; justify-content: center;
             color: var(--text-muted); cursor: pointer; position: relative;
         }
         .icon-btn .badge {
@@ -70,7 +70,7 @@
         }
         .card-config .card-title { color: white; }
         .config-btn {
-            background: white; color: var(--primary-sage); border: none;
+            background: var(--bg-white); color: var(--primary-sage); border: none;
             padding: 8px 16px; border-radius: 20px; font-weight: 600;
             cursor: pointer; align-self: flex-start; margin-top: 15px;
         }
@@ -123,7 +123,7 @@
         }
         
         .data-table td {
-            background: white; /* For row styling if needed separately */
+            background: var(--bg-white); /* For row styling if needed separately */
             padding: 16px;
             font-size: 0.9rem;
             color: var(--text-main);

@@ -6,6 +6,9 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Home from './pages/Home';
 import Analysis from './pages/Analysis';
+import Settings from './pages/Settings';
+import Help from './pages/Help';
+import Profile from './pages/Profile';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -100,6 +103,13 @@ const AdminLayout = () => {
 // ==========================================
 
 export default function App(): JSX.Element {
+  useEffect(() => {
+    const storedDarkMode = localStorage.getItem('dark_mode_enabled');
+    if (storedDarkMode === 'true') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  }, []);
+
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
@@ -114,6 +124,9 @@ export default function App(): JSX.Element {
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} /> {/* Added explicit /home path */}
           <Route path="/analysis" element={<Analysis />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* --- SECURE ZONE: ADMINS --- */}

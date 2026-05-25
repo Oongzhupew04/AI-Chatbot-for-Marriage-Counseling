@@ -10,15 +10,23 @@ from services.chat_service import ChatService
 from services.checkin_service import CheckinService
 from services.feedback_service import FeedbackService
 from repositories.chat_repo import ChatRepository
+from repositories.push_subscription_repo import PushSubscriptionRepository
+from repositories.user_repo import UserRepository
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from typing import List, Optional
+from scheduler import start_scheduler
 
 load_dotenv()
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
 app = FastAPI(title="AI Compute Service", description="Internal AI Microservice")
+
+@app.on_event("startup")
+def on_startup():
+    start_scheduler()
+
 auth_service = AuthService()
 chat_service = ChatService()
 checkin_service = CheckinService()
@@ -84,6 +92,20 @@ class FeedbackRequest(BaseModel):
     issues: List[str]
     comments: str
 
+class PushSubscriptionRequest(BaseModel):
+    user_id: int
+    endpoint: str
+    p256dh: str
+    auth: str
+
+class PushPreferenceRequest(BaseModel):
+    user_id: int
+    enabled: bool
+
+class DarkModePreferenceRequest(BaseModel):
+    user_id: int
+    enabled: bool
+
 
 # ==========================================
 # --- INTERNAL API ROUTES (For Node.js) ---
@@ -114,7 +136,8 @@ async def internal_login(login_data: LoginRequest):
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "role": user.role
+            "role": user.role,
+            "dark_mode_enabled": user.dark_mode_enabled
         }
     }
 
@@ -177,7 +200,7 @@ async def process_chat(chat_data: ChatRequest):
     chat_id = chat_data.chat_id
 
     # The service handles ALL the heavy lifting!
-    result = chat_service.process_user_message(chat_id, user_input)
+    result = chat_service.process_user_message(chat_data.user_id, chat_id, user_input)
     
     # We just return the Pydantic model
     return ChatResponse(
@@ -204,7 +227,7 @@ async def delete_chat(chat_id: int):
 @app.post('/internal/chats/{chat_id}/end')
 async def end_chat_session(chat_id: int):
     """Logs a system message indicating the session was ended by the user."""
-    success = chat_service.log_message(chat_id, "[Request End Session]", "[Session Ended]", 0)
+    success = chat_service.log_message(chat_id, "[Request End Session]", "[Session Ended]")
     if not success:
          raise HTTPException(status_code=500, detail="Failed to log session end")
     return {"success": True}
@@ -262,6 +285,38 @@ async def get_analysis(user_id: int):
         import traceback
         print(f"Error fetching analysis:\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Failed to fetch analysis data")
+
+@app.post('/internal/settings/push-subscription')
+async def save_push_subscription(data: PushSubscriptionRequest):
+    repo = PushSubscriptionRepository()
+    success = repo.save_subscription(data.user_id, data.endpoint, data.p256dh, data.auth)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to save push subscription")
+    return {"success": True}
+
+@app.delete('/internal/settings/push-subscription')
+async def delete_push_subscription(endpoint: str):
+    repo = PushSubscriptionRepository()
+    success = repo.delete_subscription(endpoint)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete push subscription")
+    return {"success": True}
+
+@app.put('/internal/settings/preferences')
+async def update_push_preferences(data: PushPreferenceRequest):
+    repo = UserRepository()
+    success = repo.update_push_preferences(data.user_id, data.enabled)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to update preferences")
+    return {"success": True}
+
+@app.put('/internal/settings/darkmode')
+async def update_dark_mode_preferences(data: DarkModePreferenceRequest):
+    repo = UserRepository()
+    success = repo.update_dark_mode_preference(data.user_id, data.enabled)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to update dark mode preferences")
+    return {"success": True}
 
 if __name__ == '__main__':
     # Run the internal service on port 8000

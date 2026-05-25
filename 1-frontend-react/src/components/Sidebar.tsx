@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Sidebar.module.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useChatStore } from '../store/chatStore';
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
@@ -8,6 +8,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
     const [userEmail, setUserEmail] = useState('');
     const [initials, setInitials] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
 
     const startNewChat = () => {
         // In React, you'd typically clear the local chat state or generate a new ID
@@ -60,26 +61,27 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className={styles['nav-menu']}>
-                    <a href="#" className={`${styles['nav-item']} ${styles['active']}`} id="newChatBtn" onClick={startNewChat}>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/' || location.pathname === '/home' ? styles['active'] : ''}`} id="newChatBtn" onClick={(e) => { e.preventDefault(); startNewChat(); }}>
                         <i className="fa-solid fa-house"></i> Home
                     </a>
-                    <a href="#" className={styles['nav-item']} onClick={() => navigate('/analysis')}>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/analysis' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/analysis'); }}>
                         <i className="fas fa-chart-pie"></i> Analysis
                     </a>
                     <div className={styles['divider']}></div>
-                    <a href="#" className={styles['nav-item']} onClick={() => navigate('/community')}>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/community' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/community'); }}>
                         <i className="fas fa-users"></i> Community <span className={styles['new-btn']}>NEW</span>
                     </a>
-                    <a href="#" className={styles['nav-item']} onClick={() => navigate('/settings')}>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/settings' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/settings'); }}>
                         <i className="fas fa-cog"></i> Settings
                     </a>
-                    <a href="#" className={styles['nav-item']} onClick={() => navigate('/help')}>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/help' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/help'); }}>
                         <i className="fas fa-question-circle"></i> Help
                     </a>
-                    <div style={{ flex: 1 }}></div> <a href="#" className={styles['nav-item']} onClick={() => navigate('/profile')}>
+                    <div style={{ flex: 1 }}></div> 
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/profile' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
                         <i className="fas fa-user-circle"></i> My Profile
                     </a>
-                    <a href="#" className={styles['nav-item']} style={{ color: 'var(--accent-alert)' }} onClick={handleLogout}>
+                    <a href="#" className={styles['nav-item']} style={{ color: 'var(--accent-alert)' }} onClick={(e) => { e.preventDefault(); handleLogout(); }}>
                         <i className="fas fa-sign-out-alt"></i> Log Out
                     </a>
                 </div>

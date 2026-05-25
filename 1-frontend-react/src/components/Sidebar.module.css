@@ -38,10 +38,10 @@
     transition: all 0.2s;
 }
 .nav-item.active {
-    background-color: #EBF3F1; /* Light Sage */
+    background-color: var(--bg-active); /* Dynamic active state */
     color: var(--primary-sage);
 }
-.nav-item:hover { background-color: #F7FAFC; color: var(--text-main); }
+.nav-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
 
 .divider { height: 1px; background: var(--border-light); margin: 10px 0; }
 

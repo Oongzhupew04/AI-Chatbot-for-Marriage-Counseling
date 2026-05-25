@@ -14,7 +14,7 @@
 
 /* The white popup box */
 .dishonesty-container {
-    background-color: #fff;
+    background-color: var(--bg-white);
     padding: 30px;
     border-radius: 12px;
     max-width: 400px;

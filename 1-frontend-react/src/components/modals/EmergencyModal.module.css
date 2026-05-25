@@ -14,7 +14,7 @@
 
 /* The modal box with the red alert border */
 .emergency-container {
-    background: white;
+    background: var(--bg-white);
     width: 90%;
     max-width: 500px;
     border-radius: 20px;
@@ -34,19 +34,19 @@
 
 .emergency-heading {
     font-family: 'Merriweather', serif;
-    color: #2D3748;
+    color: var(--text-main);
     margin-bottom: 10px;
 }
 
 .emergency-text {
-    color: #4A5568;
+    color: var(--text-muted);
     margin-bottom: 25px;
     line-height: 1.6;
 }
 
 /* Contacts Box area */
 .emergency-contacts-box {
-    background: #FFF5F5;
+    background: var(--bg-danger-light, #FFF5F5);
     border-radius: 12px;
     padding: 20px;
     text-align: left;
@@ -71,7 +71,7 @@
 
 .contact-name {
     display: block;
-    color: #2D3748;
+    color: var(--text-main);
 }
 
 .contact-number {

@@ -21,5 +21,9 @@ Example AI question for level2_safety_financial_ruin.md:
 My husband hid a $10,000 credit card bill from me.
 
 Example AI question for level4_esteem_stonewalling.md:
-
 Whenever we have the slightest disagreement, she completely shuts down. She will give me the silent treatment and refuse to look at me or speak to me for days at a time.
+
+
+
+Testing push notification:
+scheduler.add_job(notif_service.send_daily_reminders, 'interval', seconds=5)

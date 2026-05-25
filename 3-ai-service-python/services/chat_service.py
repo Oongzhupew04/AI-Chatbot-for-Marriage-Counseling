@@ -1,8 +1,9 @@
 # services/chat_service.py
 from repositories.chat_repo import ChatRepository
+from services.risk_alert_service import RiskAlertService
 import os
 from dotenv import load_dotenv # Added to load your openGauss credentials
-from deepseek_ai_cloud import analyze_risk, detect_intent, generate_casual_response, is_casual_chat, generate_counseling_response, CRISIS_RESOURCES
+from deepseek_ai_cloud import detect_intent, generate_casual_response, is_casual_chat, generate_counseling_response
 from langchain_huggingface import HuggingFaceEmbeddings
 import re
 
@@ -17,6 +18,7 @@ class ChatService:
     
     def __init__(self):
         self.chat_repo = ChatRepository()
+        self.risk_alert_service = RiskAlertService()
         print("Booting up RAG Database Engine (Takes ~10-15 seconds)...")
         
         self.embeddings = HuggingFaceEmbeddings(
@@ -54,9 +56,9 @@ class ChatService:
                 return chat.id
         return chat_id
     
-    def log_message(self, chat_id, user_msg, bot_msg, risk_level):
+    def log_message(self, chat_id, user_msg, bot_msg):
         """Log a conversation message."""
-        return self.chat_repo.log_message(chat_id, user_msg, bot_msg, risk_level)
+        return self.chat_repo.log_message(chat_id, user_msg, bot_msg)
     
     def get_chat_history(self, chat_id):
         """Retrieve chat history."""
@@ -66,7 +68,7 @@ class ChatService:
         """Deletes a specific chat session."""
         return self.chat_repo.delete_user_session(chat_id)
     
-    def process_user_message(self, chat_id: int, user_input: str):
+    def process_user_message(self, user_id: int, chat_id: int, user_input: str):
         """Orchestrates the entire AI pipeline and returns a dictionary for the router."""
         
         # 1. Frontend Action Check
@@ -74,20 +76,26 @@ class ChatService:
             return {"response": "Are you sure you want to end this session?", "action": "confirm_end", "risk_level": 0}
 
         # 2. Risk Detection
-        risk_level = analyze_risk(user_input)
-        if risk_level >= 1:
-            urgency = "high" if risk_level == 2 else "moderate"
-            bot_reply = f"I am hearing that you are in a very distressing and potentially unsafe situation. {CRISIS_RESOURCES}"
-            if urgency == "high":
-                bot_reply += "\n*Please* reach out to someone for physical support right now."
-            
-            self.log_message(chat_id, user_input, "[CRISIS INTERVENTION TRIGGERED]", risk_level)
-            return {"response": bot_reply, "action": "none", "risk_level": risk_level}
+        crisis_data = self.risk_alert_service.check_and_generate_crisis_response(user_input)
+        if crisis_data:
+            message_id = self.log_message(chat_id, user_input, crisis_data["response"])
+            if message_id:
+                self.risk_alert_service.process_risk_alert(
+                    user_id, message_id, crisis_data["risk_level"], crisis_data["trigger_keyword"]
+                )
+            return {
+                "response": crisis_data["response"], 
+                "action": crisis_data["action"], 
+                "risk_level": crisis_data["risk_level"]
+            }
+
+        # If no crisis, risk level is 0
+        risk_level = 0
 
         # 3. Intent Detection
         intent_response = detect_intent(user_input)
         if intent_response:
-            self.log_message(chat_id, user_input, intent_response, risk_level)
+            self.log_message(chat_id, user_input, intent_response)
             return {"response": intent_response, "action": "none", "risk_level": risk_level}
 
         # 4. Route the message: Casual Chat vs. Counseling Issue
@@ -143,6 +151,6 @@ class ChatService:
             ai_response = generate_counseling_response(user_input, retrieved_context)
 
         # 7. Log the interaction (Happens for BOTH casual and clinical paths)
-        self.log_message(chat_id, user_input, ai_response, risk_level)
+        self.log_message(chat_id, user_input, ai_response)
         
         return {"response": ai_response, "action": "none", "risk_level": risk_level}

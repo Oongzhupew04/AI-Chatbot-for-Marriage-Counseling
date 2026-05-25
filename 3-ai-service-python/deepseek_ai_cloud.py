@@ -23,7 +23,7 @@ KEYWORD_RESPONSES = {
 
 # Unsafe keywords (Self-harm and severe escalation)
 UNSAFE_PATTERNS = [
-    r"\bcut\b.*\byourself\b", r"\bself[\s-]?harm\b", r"\bkill\b.*\byourself\b",
+    r"\bcut\b.*\byourself\b", r"\bself[\s-]?harm\b", r"\bkill\b.*\byourself\b", r"\bdie\b",
     r"\boverdose\b", r"\bhang\b.*\byourself\b", r"\bend\b.*\blife\b",
     r"\bharm\b.*\byourself\b", r"\bpunish\b.*\byourself\b", r"\bhit\b.*\bme\b", r"\bbeat\b.*\bme\b"
 ]
@@ -62,15 +62,17 @@ def is_casual_chat(user_msg):
     return False
 
 def analyze_risk(text):
-    """Assess risk level (0-2) based on keywords and intensity."""
-    high_risk_phrases = ["suicide", "killing myself", "end it all", "don't want to live", "he hit me", "she hit me", "afraid for my life"]
+    """Assess risk level (0-2) based on keywords and intensity. Returns (risk_level, trigger_keyword)."""
+    high_risk_phrases = ["suicide", "killing myself", "end it all", "don't want to live", "he hit me", "she hit me", "afraid for my life", "kill", "die"]
     medium_risk_phrases = ["self-harm", "cutting", "can't take it anymore", "scared of him", "scared of her"]
 
-    if any(re.search(rf"\b{phrase}\b", text.lower()) for phrase in high_risk_phrases):
-        return 2  # High risk
-    elif any(re.search(rf"\b{phrase}\b", text.lower()) for phrase in medium_risk_phrases):
-        return 1  # Medium risk
-    return 0  # Low risk
+    for phrase in high_risk_phrases:
+        if re.search(rf"\b{phrase}\b", text.lower()):
+            return 2, phrase
+    for phrase in medium_risk_phrases:
+        if re.search(rf"\b{phrase}\b", text.lower()):
+            return 1, phrase
+    return 0, None
 
 def generate_response(messages):
     """Generate a response by calling the DeepSeek model on the ECS instance."""

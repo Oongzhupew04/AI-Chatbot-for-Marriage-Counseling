@@ -1,0 +1,63 @@
+from pywebpush import webpush, WebPushException
+import os
+import json
+from datetime import datetime
+from services.checkin_service import CheckinService
+from repositories.user_repo import UserRepository
+from repositories.push_subscription_repo import PushSubscriptionRepository
+
+# Read keys from .env or constants
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "xUvANKNNet0uoxU6E4YIjXVWgDWNo9serIROcv5gA6k")
+VAPID_CLAIMS = {
+    "sub": "mailto:vincentoong12345@gmail.com"
+}
+
+class NotificationService:
+    def __init__(self):
+        self.user_repo = UserRepository()
+        self.sub_repo = PushSubscriptionRepository()
+        self.checkin_service = CheckinService()
+
+    def send_daily_reminders(self):
+        print(f"[{datetime.now()}] Running daily push notification check...")
+        users = self.user_repo.get_users_with_push_enabled()
+        
+        for user_id in users:
+            # Check if they have a check-in today
+            checkins = self.checkin_service.repo.get_recent_checkins(user_id, limit=1)
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            
+            has_checked_in_today = False
+            for c in checkins:
+                if c['day'].startswith(today_str):
+                    has_checked_in_today = True
+                    break
+            
+            if not has_checked_in_today:
+                print(f"User {user_id} hasn't checked in today. Sending push...")
+                self._send_push_to_user(user_id, "Daily Reflection", "It's time for your daily check-in. Take a moment for yourself.")
+
+    def _send_push_to_user(self, user_id, title, body):
+        subs = self.sub_repo.get_subscriptions_by_user(user_id)
+        payload = json.dumps({"title": title, "body": body})
+        
+        for sub in subs:
+            subscription_info = {
+                "endpoint": sub.endpoint,
+                "keys": {
+                    "p256dh": sub.p256dh,
+                    "auth": sub.auth
+                }
+            }
+            try:
+                webpush(
+                    subscription_info=subscription_info,
+                    data=payload,
+                    vapid_private_key=VAPID_PRIVATE_KEY,
+                    vapid_claims=VAPID_CLAIMS
+                )
+            except WebPushException as ex:
+                print(f"Push failed for endpoint {sub.endpoint}: {ex}")
+                # If the subscription is no longer valid, delete it
+                if ex.response and ex.response.status_code in [404, 410]:
+                    self.sub_repo.delete_subscription(sub.endpoint)

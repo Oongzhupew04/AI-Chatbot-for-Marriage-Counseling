@@ -23,28 +23,30 @@ class ChatRepository:
             print(f"Error creating chat: {e}")
             return None
     
-    def log_message(self, chat_id, user_msg, bot_msg, risk_level):
-        """Log a message to an existing chat."""
+    def log_message(self, chat_id, user_msg, bot_msg):
+        """Log a message to an existing chat and return message_id."""
         conn = None
         try:
             conn = db.get_connection()
             cursor = conn.cursor()
             
             msg_query = """
-                INSERT INTO messages (chat_id, timestamp, user_message, bot_response, risk_level)
-                VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?)
+                INSERT INTO messages (chat_id, timestamp, user_message, bot_response)
+                VALUES (?, CURRENT_TIMESTAMP, ?, ?) RETURNING id
             """
-            cursor.execute(msg_query, (chat_id, user_msg, bot_msg, risk_level))
+            cursor.execute(msg_query, (chat_id, user_msg, bot_msg))
+            message_id = cursor.fetchone()[0]
             conn.commit()
             cursor.close()
             
-            return True
+            return message_id
         except Exception as e:
             if conn:
                 conn.rollback()
 
             print(f"Error logging message: {e}")
-            return False
+            return None
+
     
     def get_chat_history(self, chat_id: int):
         """Fetch all messages for a specific chat ID."""

@@ -20,12 +20,25 @@
     --radius-xl: 24px;
     --radius-lg: 20px;
     --radius-md: 12px;
-    --bg-overlay: rgba(45, 55, 72, 0.4); /* for pop-up */
-    --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.15); /* for pop-up */
-    --star-gold: #F59E0B; /* for pop-up */
+    --bg-overlay: rgba(45, 55, 72, 0.4);
+    /* for pop-up */
+    --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.15);
+    /* for pop-up */
+    --star-gold: #F59E0B;
+    /* for pop-up */
+    --bg-hover: #F8FAFC;
+    /* Hover background color */
+    --bg-active: #EBF3F1;
+    /* Active state background color */
+    --bg-danger-light: #FFF5F5;
+    /* Light red for emergency box */
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 /* 1. Style the global body here */
 body {
@@ -41,29 +54,65 @@ body {
 
 /* 2. Tell the React container to stretch to fill the body */
 #root {
-    flex: 1;        /* THIS IS THE KEY: Tells root to grow to 100% of body */
+    flex: 1;
+    /* THIS IS THE KEY: Tells root to grow to 100% of body */
     display: flex;
     flex-direction: row;
-    width: 100%;    /* Ensures it takes full width */
-    height: 100%;  /* Prevents flex items from overflowing strangely */
+    width: 100%;
+    /* Ensures it takes full width */
+    height: 100%;
+    /* Prevents flex items from overflowing strangely */
     justify-content: center;
     overflow-y: auto;
     background-color: var(--bg-body);
 }
 
 body[data-theme="admin"] #root {
-            --primary-sage: #7C9A92;
-            --primary-dark: #5e7a72;
-            --accent-alert: #E53E3E; /* Red for High Risk */
-            --accent-warning: #DD6B20; /* Orange for Config/System */
-            --accent-success: #38A169; /* Green for Active Users */
-            --bg-body: #F2F4F3;
-            --bg-white: #FFFFFF;
-            --text-main: #2D3748;
-            --text-muted: #718096;
-            --border-light: #E2E8F0;
-            --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.05);
-            --shadow-float: 0 10px 15px rgba(0, 0, 0, 0.08);
-            --radius-xl: 20px;
-            --radius-md: 12px;
-        }
+    --primary-sage: #7C9A92;
+    --primary-dark: #5e7a72;
+    --accent-alert: #E53E3E;
+    /* Red for High Risk */
+    --accent-warning: #DD6B20;
+    /* Orange for Config/System */
+    --accent-success: #38A169;
+    /* Green for Active Users */
+    --bg-body: #F2F4F3;
+    --bg-white: #FFFFFF;
+    --text-main: #2D3748;
+    --text-muted: #718096;
+    --border-light: #E2E8F0;
+    --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --shadow-float: 0 10px 15px rgba(0, 0, 0, 0.08);
+    --radius-xl: 20px;
+    --radius-md: 12px;
+}
+
+/* Dark Mode Variables */
+:root.dark-mode {
+    --bg-body: #1A202C;
+    /* Deep dark gray for main background */
+    --bg-white: #2D3748;
+    /* Lighter gray for cards and panels */
+    --text-main: #F7FAFC;
+    /* Bright near-white for primary text */
+    --text-muted: #A0AEC0;
+    /* Softer gray for secondary text */
+    --border-light: #4A5568;
+    /* Visible but subtle borders on dark */
+
+    /* Slightly lighten the primary color for better contrast on dark */
+    --primary-sage: #8BA8A0;
+
+    /* Intensify shadows since the background is dark */
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.2);
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-float: 0 15px 35px rgba(0, 0, 0, 0.4);
+    --bg-overlay: rgba(0, 0, 0, 0.7);
+    --bg-hover: #374151;
+    /* Darker hover background for dark mode */
+    --bg-active: #1A202C;
+    /* Dark sage for active state in dark mode */
+    --bg-danger-light: rgba(229, 62, 62, 0.15);
+    /* Faint red for dark mode */
+}

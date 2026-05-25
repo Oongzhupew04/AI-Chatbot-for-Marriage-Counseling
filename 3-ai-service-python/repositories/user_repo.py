@@ -55,7 +55,7 @@ class UserRepository:
                 id, username, email, password, role,
                 sex, age, years_married, children_count, children_raised,
                 education, material_situation, religious_affiliation, religiousness,
-                q13, q17, q19, q20, marital_risk_percentage
+                q13, q17, q19, q20, marital_risk_percentage, push_notifications_enabled, dark_mode_enabled
             FROM users 
             WHERE id = ?
         """
@@ -87,7 +87,47 @@ class UserRepository:
                 q17=row[15], 
                 q19=row[16], 
                 q20=row[17],
-                marital_risk_percentage=row[18]
+                marital_risk_percentage=row[18],
+                push_notifications_enabled=bool(row[19]) if len(row) > 19 and row[19] is not None else False,
+                dark_mode_enabled=bool(row[20]) if len(row) > 20 and row[20] is not None else False
             )
             
         return None
+
+    def update_push_preferences(self, user_id, enabled):
+        cursor = db.get_connection().cursor()
+        try:
+            cursor.execute("UPDATE users SET push_notifications_enabled = ? WHERE id = ?", (enabled, user_id))
+            db.get_connection().commit()
+            return True
+        except Exception as e:
+            db.get_connection().rollback()
+            print(f"Error updating push preferences: {e}")
+            return False
+        finally:
+            cursor.close()
+
+    def update_dark_mode_preference(self, user_id, enabled):
+        cursor = db.get_connection().cursor()
+        try:
+            cursor.execute("UPDATE users SET dark_mode_enabled = ? WHERE id = ?", (enabled, user_id))
+            db.get_connection().commit()
+            return True
+        except Exception as e:
+            db.get_connection().rollback()
+            print(f"Error updating dark mode preferences: {e}")
+            return False
+        finally:
+            cursor.close()
+
+    def get_users_with_push_enabled(self):
+        cursor = db.get_connection().cursor()
+        try:
+            cursor.execute("SELECT id FROM users WHERE push_notifications_enabled = TRUE;")
+            rows = cursor.fetchall()
+            return [row[0] for row in rows]
+        except Exception as e:
+            print(f"Error fetching users with push enabled: {e}")
+            return []
+        finally:
+            cursor.close()

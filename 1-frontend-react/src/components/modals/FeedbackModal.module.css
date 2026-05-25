@@ -97,7 +97,7 @@
 
 /* Step Badge */
 .step-num {
-    background: #F1F5F9; color: var(--text-muted); 
+    background: var(--bg-hover); color: var(--text-muted); 
     width: 24px; height: 24px; border-radius: 50%; 
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 0.8rem; font-weight: 700;
@@ -134,7 +134,7 @@
 .chip-input { display: none; }
 .chip-label {
     padding: 8px 16px;
-    background: #F8FAFC;
+    background: var(--bg-hover);
     border: 1px solid var(--border-light);
     border-radius: 20px;
     font-size: 0.85rem;
@@ -158,9 +158,9 @@
     resize: vertical;
     min-height: 100px;
     outline: none;
-    background: #F8FAFC;
+    background: var(--bg-hover);
 }
-.text-area:focus { border-color: var(--primary-sage); background: white; }
+.text-area:focus { border-color: var(--primary-sage); background: var(--bg-white); }
 
 .modal-footer {
     padding: 20px 32px;
@@ -182,7 +182,7 @@
     font-weight: 600;
     cursor: pointer;
 }
-.btn-outline:hover { background: #F8FAFC; }
+.btn-outline:hover { background: var(--bg-hover); }
 
 .btn-primary {
     background: var(--primary-sage);

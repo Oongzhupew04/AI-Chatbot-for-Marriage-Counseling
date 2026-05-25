@@ -103,7 +103,7 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
                 { expiresIn: '24h' }
             );
 
-            res.json({ role: user.role, id: user.id, username: user.username, email: user.email, token: token, message: "Login successful" });
+            res.json({ role: user.role, id: user.id, username: user.username, email: user.email, token: token, dark_mode_enabled: user.dark_mode_enabled, message: "Login successful" });
         }
     } catch (error: any) {
         // 3. Catch errors (Like Wrong Password or Database Offline)
@@ -283,6 +283,64 @@ app.get('/api/analysis', async (req: AuthRequest, res: Response): Promise<void> 
     } catch (error: any) {
         console.error("Failed to fetch analysis data:", error.message);
         res.status(500).json({ error: "Could not load analysis data" });
+    }
+});
+
+// Save Push Subscription
+app.post('/api/settings/push-subscription', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const subData = req.body;
+        
+        // Extract endpoints and keys
+        const endpoint = subData.endpoint;
+        const p256dh = subData.keys?.p256dh;
+        const auth = subData.keys?.auth;
+
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/settings/push-subscription`, {
+            user_id: userId,
+            endpoint: endpoint,
+            p256dh: p256dh,
+            auth: auth
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to save push subscription:", error.message);
+        res.status(500).json({ error: "Could not save subscription" });
+    }
+});
+
+// Update Push Preferences
+app.put('/api/settings/preferences', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { pushEnabled } = req.body;
+
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/settings/preferences`, {
+            user_id: userId,
+            enabled: pushEnabled
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to update preferences:", error.message);
+        res.status(500).json({ error: "Could not update preferences" });
+    }
+});
+
+// Update Dark Mode Preference
+app.put('/api/settings/darkmode', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { darkModeEnabled } = req.body;
+
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/settings/darkmode`, {
+            user_id: userId,
+            enabled: darkModeEnabled
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to update dark mode preferences:", error.message);
+        res.status(500).json({ error: "Could not update dark mode preferences" });
     }
 });
 

@@ -1,0 +1,130 @@
+.main-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    position: relative;
+    background-color: var(--bg-body);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-family: 'Merriweather', serif;
+    font-size: 1.8rem;
+    color: var(--text-main);
+}
+
+.help-container {
+    max-width: 800vh;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.help-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    animation: fadeIn 0.4s ease-out;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.faq-item {
+    background: var(--bg-hover);
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sage, #10B981);
+    transition: transform 0.2s;
+}
+
+.faq-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.faq-question {
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.faq-answer {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.contact-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.contact-info h4 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    margin-bottom: 5px;
+}
+
+.contact-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.contact-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--primary-sage, #10B981);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contact-btn:hover {
+    background: var(--primary-dark, #059669);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
