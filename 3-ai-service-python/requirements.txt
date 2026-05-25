@@ -14,3 +14,5 @@ unstructured
 markdown
 APScheduler
 pywebpush
+Werkzeug
+langchain-opengauss

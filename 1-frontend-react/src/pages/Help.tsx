@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import styles from './Help.module.css';
 
+interface FaqItem {
+    id: number;
+    question: string;
+    answer: string;
+}
+
 export default function Help(): JSX.Element {
+    const [faqs, setFaqs] = useState<FaqItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const location = useLocation();
+
+    const handleContactSupport = () => {
+        // Opens Gmail compose window in a new tab
+        const email = 'vincentoong12345@gmail.com';
+        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}`, '_blank', 'noopener,noreferrer');
+    };
+
+    useEffect(() => {
+        const fetchFaqs = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get('http://localhost:3000/api/faq');
+                if (response.data.success) {
+                    setFaqs(response.data.faqs);
+                }
+            } catch (err) {
+                console.error("Failed to fetch FAQs:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFaqs();
+    }, [location.key]);
     return (
         <main className={styles['main-content']}>
             <div className={styles['header']}>
@@ -16,35 +51,20 @@ export default function Help(): JSX.Element {
                     <div className={styles['card-title']}>
                         <i className="fas fa-question-circle" style={{ color: '#3B82F6' }}></i> Frequently Asked Questions
                     </div>
-                    
+
                     <div className={styles['faq-list']}>
-                        <div className={styles['faq-item']}>
-                            <div className={styles['faq-question']}>How do I start a new session?</div>
-                            <div className={styles['faq-answer']}>
-                                You can start a new session by navigating to the Home page and typing in the chat box at the bottom. The AI will automatically begin responding.
-                            </div>
-                        </div>
-
-                        <div className={styles['faq-item']}>
-                            <div className={styles['faq-question']}>Is my data private?</div>
-                            <div className={styles['faq-answer']}>
-                                Yes. All your conversations and check-in data are securely stored and strictly private. We do not share your information with any third parties.
-                            </div>
-                        </div>
-
-                        <div className={styles['faq-item']}>
-                            <div className={styles['faq-question']}>How is my relationship risk calculated?</div>
-                            <div className={styles['faq-answer']}>
-                                Our AI model analyzes your daily check-ins, the severity of unmet needs based on Maslow's hierarchy, and long-term behavioral trends to provide a reliable risk baseline.
-                            </div>
-                        </div>
-                        
-                        <div className={styles['faq-item']}>
-                            <div className={styles['faq-question']}>Can I export my chat history?</div>
-                            <div className={styles['faq-answer']}>
-                                Yes. You can navigate to Settings &gt; Privacy &amp; Security and click on the "Export" button to download a copy of your session data.
-                            </div>
-                        </div>
+                        {loading ? (
+                            <p style={{ color: 'var(--text-muted)' }}>Loading FAQs...</p>
+                        ) : faqs.length > 0 ? (
+                            faqs.map((faq) => (
+                                <div key={faq.id} className={styles['faq-item']}>
+                                    <div className={styles['faq-question']}>{faq.question}</div>
+                                    <div className={styles['faq-answer']}>{faq.answer}</div>
+                                </div>
+                            ))
+                        ) : (
+                            <p style={{ color: 'var(--text-muted)' }}>No FAQs available at the moment.</p>
+                        )}
                     </div>
                 </div>
 
@@ -54,7 +74,7 @@ export default function Help(): JSX.Element {
                             <h4>Need more help?</h4>
                             <p>Our support team is available 24/7 to assist you.</p>
                         </div>
-                        <button className={styles['contact-btn']}>
+                        <button className={styles['contact-btn']} onClick={handleContactSupport}>
                             <i className="fas fa-envelope"></i> Contact Support
                         </button>
                     </div>

@@ -9,6 +9,7 @@ import Analysis from './pages/Analysis';
 import Settings from './pages/Settings';
 import Help from './pages/Help';
 import Profile from './pages/Profile';
+import Resources from './pages/Resources';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -124,6 +125,7 @@ export default function App(): JSX.Element {
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} /> {/* Added explicit /home path */}
           <Route path="/analysis" element={<Analysis />} />
+          <Route path="/resources" element={<Resources />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/help" element={<Help />} />
           <Route path="/profile" element={<Profile />} />

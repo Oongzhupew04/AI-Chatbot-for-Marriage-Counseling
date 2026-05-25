@@ -3,6 +3,7 @@ import styles from './Register.module.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DishonestyModal from '../../components/modals/DishonestyModal';
+import RegistrationOtpModal from '../../components/modals/RegistrationOtpModal';
 
 export default function Register() {
     // Updated state to include Q1-Q9 from the questionnaire
@@ -29,6 +30,9 @@ export default function Register() {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [otpError, setOtpError] = useState('');
 
     useEffect(() => {
         validateForm();
@@ -85,8 +89,6 @@ export default function Register() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent standard HTML form submission
 
-        // if (!isValid) return; // Extra security check
-
         // Smoothly scroll to the top
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -94,23 +96,51 @@ export default function Register() {
             setIsSubmitting(true);
             setError(''); // Clear any previous UI errors
 
-            const response = await axios.post('http://localhost:3000/api/auth/register', formData);
+            const response = await axios.post('http://localhost:3000/api/auth/request-registration-otp', {
+                email: formData.email
+            });
 
             if (response.data.success) {
+                setShowOtpModal(true);
+            } else {
+                setError(response.data.message || "Failed to send OTP. Please try again.");
+            }
+        } catch (err: any) {
+            console.error("OTP request error:", err);
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError("Could not connect to the server. Please try again later.");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleVerifyAndRegister = async () => {
+        try {
+            setIsSubmitting(true);
+            setOtpError('');
+
+            const payload = { ...formData, otp };
+            const response = await axios.post('http://localhost:3000/api/auth/register', payload);
+
+            if (response.data.success) {
+                setShowOtpModal(false);
                 if (response.data.dishonesty_detected) {
                     setShowPopup(true);
                 } else {
                     navigate('/login');
                 }
             } else {
-                setError(response.data.message || "Registration failed. Please try again.");
+                setOtpError(response.data.message || "Registration failed. Invalid OTP.");
             }
         } catch (err: any) {
             console.error("Registration error:", err);
             if (err.response && err.response.data && err.response.data.error) {
-                setError(err.response.data.error);
+                setOtpError(err.response.data.error);
             } else {
-                setError("Could not connect to the server. Please try again later.");
+                setOtpError("Could not connect to the server. Please try again later.");
             }
         } finally {
             setIsSubmitting(false);
@@ -311,6 +341,18 @@ export default function Register() {
             {showPopup && (
                 <DishonestyModal onClose={() => { setShowPopup(false); navigate('/login'); }} />
             )}
+
+            {/* OTP Verification Modal */}
+            <RegistrationOtpModal 
+                isOpen={showOtpModal}
+                email={formData.email}
+                otp={otp}
+                setOtp={setOtp}
+                otpError={otpError}
+                isSubmitting={isSubmitting}
+                onClose={() => setShowOtpModal(false)}
+                onSubmit={handleVerifyAndRegister}
+            />
         </div>
     );
 }

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styles from './Sidebar.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useChatStore } from '../store/chatStore';
+import axios from 'axios';
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [initials, setInitials] = useState('');
+    const [profilePic, setProfilePic] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -29,27 +31,81 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
         navigate('/login');
     };
 
-    // 2. Use useEffect to load the data from localStorage when the sidebar mounts
+    // 2. Use useEffect to load the data from the database (or fallback to localStorage)
     useEffect(() => {
-        const storedName = localStorage.getItem('username');
-        const storedEmail = localStorage.getItem('email');
+        const loadProfileData = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await axios.get('http://localhost:3000/api/users/profile', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.data.success) {
+                        const { username, email, profile_pic } = response.data.profile;
+                        
+                        setUserName(username || '');
+                        setUserEmail(email || '');
+                        
+                        if (profile_pic) {
+                            setProfilePic(profile_pic);
+                            localStorage.setItem('profilePic', profile_pic);
+                        } else {
+                            setProfilePic(null);
+                            localStorage.removeItem('profilePic');
+                        }
+                        
+                        if (username) localStorage.setItem('username', username);
+                        if (email) localStorage.setItem('email', email);
 
-        if (storedName) {
-            setUserName(storedName);
+                        const derivedInitials = (username || 'U')
+                            .split(' ')
+                            .map((n: string) => n[0])
+                            .join('')
+                            .substring(0, 2)
+                            .toUpperCase();
+                        setInitials(derivedInitials);
+                        
+                        return; // Successfully loaded from DB, skip local storage fallback
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch latest profile for sidebar:", error);
+                }
+            }
 
-            // Optional: Create dynamic avatar initials (e.g., "Vincent Oong" -> "VO")
-            const derivedInitials = storedName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .substring(0, 2)
-                .toUpperCase();
-            setInitials(derivedInitials);
-        }
+            // Fallback to local storage if API fails or no token
+            const storedName = localStorage.getItem('username');
+            const storedEmail = localStorage.getItem('email');
 
-        if (storedEmail) {
-            setUserEmail(storedEmail);
-        }
+            if (storedName) {
+                setUserName(storedName);
+
+                // Optional: Create dynamic avatar initials (e.g., "Vincent Oong" -> "VO")
+                const derivedInitials = storedName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase();
+                setInitials(derivedInitials);
+            }
+
+            if (storedEmail) {
+                setUserEmail(storedEmail);
+            }
+
+            const storedPic = localStorage.getItem('profilePic');
+            if (storedPic) {
+                setProfilePic(storedPic);
+            } else {
+                setProfilePic(null);
+            }
+        };
+
+        loadProfileData();
+
+        window.addEventListener('profileUpdated', loadProfileData);
+        return () => window.removeEventListener('profileUpdated', loadProfileData);
     }, []);
 
     return (
@@ -67,10 +123,11 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/analysis' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/analysis'); }}>
                         <i className="fas fa-chart-pie"></i> Analysis
                     </a>
-                    <div className={styles['divider']}></div>
-                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/community' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/community'); }}>
-                        <i className="fas fa-users"></i> Community <span className={styles['new-btn']}>NEW</span>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/resources' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/resources'); }}>
+                        <i className="fas fa-book-open"></i> Resources
                     </a>
+                    <div className={styles['divider']}></div>
+
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/settings' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/settings'); }}>
                         <i className="fas fa-cog"></i> Settings
                     </a>
@@ -87,7 +144,11 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className={styles['user-profile']}>
-                    <div className={styles['avatar']}>{initials}</div>
+                    {profilePic ? (
+                        <img src={profilePic} alt="Profile" className={styles['avatar']} style={{ objectFit: 'cover', padding: 0 }} />
+                    ) : (
+                        <div className={styles['avatar']}>{initials}</div>
+                    )}
                     <div className={styles['user-info']}>
                         <h4>{userName}</h4>
                         <p>{userEmail}</p>

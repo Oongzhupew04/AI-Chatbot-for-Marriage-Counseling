@@ -195,7 +195,7 @@
             border-radius: 50%;
             border: 1px solid #ddd;
             background-color: var(--bg-white);
-            color: #333;
+            color: var(--text-muted);
             font-weight: normal;
             cursor: pointer;
             transition: all 0.2s ease;

@@ -307,10 +307,10 @@ export default function Home(): JSX.Element {
                                 <i className="fas fa-plus plus-icon"></i>
                             </div>
 
-                            <div className={styles['action-card']}>
+                            <div className={styles['action-card']} onClick={() => navigate('/resources')}>
                                 <div className={styles['card-content']}>
-                                    <div className={`${styles['icon-box']} ${styles['icon-blue']}`}><i className="fas fa-comments"></i></div>
-                                    <div className={styles['card-text']}>Start Session</div>
+                                    <div className={`${styles['icon-box']} ${styles['icon-blue']}`}><i className="fas fa-book-open"></i></div>
+                                    <div className={styles['card-text']}>Browse Resources</div>
                                 </div>
                                 <i className="fas fa-plus plus-icon"></i>
                             </div>
@@ -488,19 +488,11 @@ export default function Home(): JSX.Element {
                     )}
                 </ul>
 
-                <div className={styles['right-header']} style={{ marginTop: '40px' }}>
-                    <h3>Resources</h3>
+                <div className={styles['support-card']}>
+                    <i className="fas fa-hand-holding-heart"></i>
+                    <h4>You are not alone</h4>
+                    <p>Remember that every step forward is progress. We're here for you.</p>
                 </div>
-
-                <ul className={styles['history-list']}>
-                    <li className={styles['history-item']}>
-                        <div className={styles['history-icon']}><i className="fas fa-book-open"></i></div>
-                        <div className={styles['history-info']}>
-                            <h4>Love Languages</h4>
-                            <p>Understanding the basics...</p>
-                        </div>
-                    </li>
-                </ul>
             </aside>
             {showEmergency && <EmergencyModal onClose={closeEmergencyModal} />}
             {isCheckinModalOpen && (<CheckinModal onClose={closeCheckinModal} onSuccess={handleCheckinSuccess} />)}

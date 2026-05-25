@@ -1,11 +1,13 @@
 # services/auth_service.py
 from werkzeug.security import generate_password_hash, check_password_hash
 from repositories.user_repo import UserRepository
+from services.email_service import EmailService
 import math
 
 class AuthService:
     def __init__(self):
         self.user_repo = UserRepository()
+        self.email_service = EmailService()
 
     def login(self, email, password):
         user = self.user_repo.get_by_email(email)
@@ -16,6 +18,44 @@ class AuthService:
             return None, "Invalid email or password"
         
         return user, None
+
+    def generate_registration_otp(self, email: str):
+        if self.user_repo.get_by_email(email):
+            return False, "Email already registered"
+            
+        success = self.email_service.generate_and_send_otp(email, email)
+        if not success:
+            return False, "Failed to send OTP email"
+        return True, "OTP sent successfully"
+
+    def generate_otp(self, user_id):
+        user = self.user_repo.get_by_id(user_id)
+        if not user:
+            return False, "User not found"
+        
+        success = self.email_service.generate_and_send_otp(user_id, user.email)
+        if not success:
+            return False, "Failed to send OTP email"
+        return True, "OTP sent successfully"
+
+    def change_password(self, user_id, current_password, new_password, otp):
+        user = self.user_repo.get_by_id(user_id)
+        if not user:
+            return False, "User not found"
+        
+        if not check_password_hash(user.password_hash, current_password):
+            return False, "Incorrect current password"
+            
+        if not self.email_service.verify_otp(user_id, otp):
+            return False, "Invalid or expired OTP"
+            
+        hashed_pw = generate_password_hash(new_password)
+        success = self.user_repo.update_password(user_id, hashed_pw)
+        
+        if not success:
+            return False, "Failed to update password in database"
+            
+        return True, "Password updated successfully"
 
     def calculate_marital_risk(self, scale_1_data):
         """
@@ -57,9 +97,12 @@ class AuthService:
             print(f"Error calculating risk: {e}")
             return 0 # Default fallback
     
-    def register(self, username, email, password, demographics, scale_1):
+    def register(self, username, email, password, demographics, scale_1, otp):
         if self.user_repo.get_by_email(email):
             return None, "Email already registered"
+            
+        if not self.email_service.verify_otp(email, otp):
+            return None, "Invalid or expired OTP"
         
         hashed_pw = generate_password_hash(password)
         

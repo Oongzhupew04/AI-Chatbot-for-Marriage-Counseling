@@ -12,6 +12,7 @@ from services.feedback_service import FeedbackService
 from repositories.chat_repo import ChatRepository
 from repositories.push_subscription_repo import PushSubscriptionRepository
 from repositories.user_repo import UserRepository
+from repositories.faq_repo import FaqRepository
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from typing import List, Optional
@@ -26,12 +27,16 @@ app = FastAPI(title="AI Compute Service", description="Internal AI Microservice"
 @app.on_event("startup")
 def on_startup():
     start_scheduler()
+    
+
 
 auth_service = AuthService()
 chat_service = ChatService()
 checkin_service = CheckinService()
 feedback_service = FeedbackService()
 chat_repository = ChatRepository()
+
+
 
 # ==========================================
 # --- PYDANTIC MODELS (Data Validation) ---
@@ -41,10 +46,24 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+class ProfileUpdateRequest(BaseModel):
+    username: Optional[str] = None
+    sex: Optional[str] = None
+    age: Optional[int] = None
+    years_married: Optional[int] = None
+    children_count: Optional[int] = None
+    children_raised: Optional[int] = None
+    education: Optional[str] = None
+    religious_affiliation: Optional[str] = None
+
+class ProfilePicRequest(BaseModel):
+    profile_pic: str
+
 class RegisterRequest(BaseModel):
     username: str
     email: str
     password: str
+    otp: str
     sex: str
     age: int
     years_married: int
@@ -106,6 +125,18 @@ class DarkModePreferenceRequest(BaseModel):
     user_id: int
     enabled: bool
 
+class OTPRequest(BaseModel):
+    user_id: int
+
+class ChangePasswordRequest(BaseModel):
+    user_id: int
+    current_password: str
+    new_password: str
+    otp: str
+
+class RegistrationOTPRequest(BaseModel):
+    email: str
+
 
 # ==========================================
 # --- INTERNAL API ROUTES (For Node.js) ---
@@ -150,6 +181,7 @@ async def internal_register(reg_data: RegisterRequest):
             username=reg_data.username,
             email=reg_data.email,
             password=reg_data.password,
+            otp=reg_data.otp,
             demographics={
                 "sex": reg_data.sex,
                 "age": reg_data.age,
@@ -302,6 +334,19 @@ async def delete_push_subscription(endpoint: str):
         raise HTTPException(status_code=500, detail="Failed to delete push subscription")
     return {"success": True}
 
+@app.get('/internal/settings/preferences/{user_id}')
+async def get_preferences(user_id: int):
+    repo = UserRepository()
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "success": True,
+        "push_notifications_enabled": getattr(user, 'push_notifications_enabled', False),
+        "dark_mode_enabled": getattr(user, 'dark_mode_enabled', False)
+    }
+
 @app.put('/internal/settings/preferences')
 async def update_push_preferences(data: PushPreferenceRequest):
     repo = UserRepository()
@@ -317,6 +362,103 @@ async def update_dark_mode_preferences(data: DarkModePreferenceRequest):
     if not success:
         raise HTTPException(status_code=500, detail="Failed to update dark mode preferences")
     return {"success": True}
+
+@app.post('/internal/settings/request-otp')
+async def request_otp(data: OTPRequest):
+    success, message = auth_service.generate_otp(data.user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"success": True, "message": message}
+
+@app.post('/internal/request-registration-otp')
+async def request_registration_otp(data: RegistrationOTPRequest):
+    success, message = auth_service.generate_registration_otp(data.email)
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"success": True, "message": message}
+
+@app.put('/internal/settings/change-password')
+async def change_password(data: ChangePasswordRequest):
+    success, message = auth_service.change_password(
+        data.user_id, data.current_password, data.new_password, data.otp
+    )
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"success": True, "message": message}
+
+@app.get('/internal/faq')
+async def get_faqs():
+    repo = FaqRepository()
+    faqs = repo.get_all_faqs()
+    # Serialize objects to dict
+    faq_list = [{"id": f.id, "question": f.question, "answer": f.answer} for f in faqs]
+    return {"success": True, "faqs": faq_list}
+
+@app.get('/internal/users/{user_id}/profile')
+async def get_user_profile(user_id: int):
+    repo = UserRepository()
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    return {
+        "success": True,
+        "profile": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "sex": getattr(user, 'sex', None),
+            "age": getattr(user, 'age', None),
+            "years_married": getattr(user, 'years_married', None),
+            "children_count": getattr(user, 'children_count', None),
+            "children_raised": getattr(user, 'children_raised', None),
+            "education": getattr(user, 'education', None),
+            "religious_affiliation": getattr(user, 'religious_affiliation', None),
+            "profile_pic": getattr(user, 'profile_pic', None)
+        }
+    }
+
+@app.put('/internal/users/{user_id}/profile')
+async def update_user_profile(user_id: int, data: ProfileUpdateRequest):
+    repo = UserRepository()
+    # Ensure user exists
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    repo.update_profile(user_id, data.dict(exclude_unset=True))
+    return {"success": True}
+
+@app.put('/internal/users/{user_id}/profile-pic')
+async def update_user_profile_pic(user_id: int, data: ProfilePicRequest):
+    repo = UserRepository()
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    repo.update_profile_pic(user_id, data.profile_pic)
+    return {"success": True}
+
+@app.delete('/internal/users/{user_id}')
+async def delete_user_account(user_id: int):
+    repo = UserRepository()
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    success = repo.delete_user(user_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete user account")
+    
+    return {"success": True}
+
+@app.get('/internal/resources')
+async def get_resources():
+    from repositories.resource_repo import ResourceRepository
+    repo = ResourceRepository()
+    resources = repo.get_all_resources()
+    return {"success": True, "resources": [r.__dict__ for r in resources]}
 
 if __name__ == '__main__':
     # Run the internal service on port 8000

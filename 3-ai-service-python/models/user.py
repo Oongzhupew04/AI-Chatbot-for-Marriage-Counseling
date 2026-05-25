@@ -17,6 +17,7 @@ class User:
         material_situation=None, 
         religious_affiliation=None, 
         religiousness=None,
+        profile_pic=None,
         dark_mode_enabled=False,
         push_notifications_enabled=False,
         # **kwargs catches q13, q17, q19, q20, and the calculated marital_risk_percentage
@@ -39,6 +40,7 @@ class User:
         self.material_situation = material_situation
         self.religious_affiliation = religious_affiliation
         self.religiousness = religiousness
+        self.profile_pic = profile_pic
         
         # Preferences
         self.dark_mode_enabled = dark_mode_enabled

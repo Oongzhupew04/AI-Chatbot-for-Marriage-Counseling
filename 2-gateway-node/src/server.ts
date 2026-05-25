@@ -4,6 +4,9 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -11,6 +14,24 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev')); // helps see request logs in the terminal
+
+// Configure multer storage for profile pictures
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = 'uploads/profiles';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
+// Serve static files from 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 const PORT = process.env.PORT || 3000;
 // This points to your Python AI Service (FastAPI/Flask running on port 8000)
@@ -47,10 +68,23 @@ const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction):
 // --- AUTHENTICATION ROUTES (PUBLIC ROUTES) ---
 // ==========================================
 
+app.post('/api/auth/request-registration-otp', async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email } = req.body;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/request-registration-otp`, {
+            email: email
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to request registration OTP:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not request OTP" });
+    }
+});
+
 // Translate: @app.route('/register', methods=['POST'])
 app.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
     const {
-        username, email, password,
+        username, email, password, otp,
         sex, age, years_married, children_count,
         children_raised, education, material_situation,
         religious_affiliation, religiousness,
@@ -60,7 +94,7 @@ app.post('/api/auth/register', async (req: Request, res: Response): Promise<void
     try {
         // Forward the registration data to your Python backend to save in openGauss
         const response = await axios.post(`${PYTHON_SERVICE_URL}/internal/register`, {
-            username, email, password,
+            username, email, password, otp,
             sex,
             age: parseInt(age),
             years_married: parseInt(years_married),
@@ -76,8 +110,7 @@ app.post('/api/auth/register', async (req: Request, res: Response): Promise<void
         res.json(response.data);
     } catch (error: any) {
         console.error("Python DB Error:", error.message);
-        // Fallback for testing if Python isn't fully hooked up yet
-        res.json({ success: true, message: "Mock Registration Successful (Connect DB Later)" });
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Registration failed" });
     }
 });
 
@@ -118,11 +151,98 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
     }
 });
 
+// Get FAQs
+app.get('/api/faq', async (req: Request, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/faq`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch FAQs:", error.message);
+        res.status(500).json({ error: "Could not load FAQs" });
+    }
+});
+
 // ==========================================
 // --- THE SECURITY GATEWAY ---
 // ==========================================
 // Every route defined below this line will AUTOMATICALLY require a valid JWT token.
 app.use(authenticateToken);
+
+// ==========================================
+// --- USER ROUTES (PROTECTED ROUTES) ---
+// ==========================================
+
+// Get user profile
+app.get('/api/users/profile', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/users/${userId}/profile`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch user profile:", error.message);
+        res.status(error.response?.status || 500).json({ error: "Could not fetch profile" });
+    }
+});
+
+// Update user profile
+app.put('/api/users/profile', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/users/${userId}/profile`, req.body);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to update user profile:", error.message);
+        res.status(error.response?.status || 500).json({ error: "Could not update profile" });
+    }
+});
+
+// Upload user profile picture
+app.post('/api/users/profile-pic', upload.single('profile_pic'), async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        if (!req.file) {
+            res.status(400).json({ error: "No file uploaded" });
+            return;
+        }
+        
+        // Construct the URL to access the image
+        const picUrl = `http://localhost:3000/uploads/profiles/${req.file.filename}`;
+        
+        // Tell Python to save this URL
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/users/${userId}/profile-pic`, { profile_pic: picUrl });
+        
+        res.json({ success: true, profile_pic: picUrl });
+    } catch (error: any) {
+        console.error("Failed to upload profile picture:", error.message);
+        res.status(error.response?.status || 500).json({ error: "Could not upload profile picture" });
+    }
+});
+
+// Delete user account
+app.delete('/api/users/profile', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.delete(`${PYTHON_SERVICE_URL}/internal/users/${userId}`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to delete user account:", error.message);
+        res.status(error.response?.status || 500).json({ error: "Could not delete account" });
+    }
+});
+
+// ==========================================
+// --- RESOURCES ROUTES (PROTECTED) ---
+// ==========================================
+
+app.get('/api/resources', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/resources`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch resources:", error.message);
+        res.status(error.response?.status || 500).json({ error: "Could not fetch resources" });
+    }
+});
 
 // ==========================================
 // --- CHAT & AI ROUTES (PROTECTED ROUTES) ---
@@ -310,6 +430,18 @@ app.post('/api/settings/push-subscription', async (req: AuthRequest, res: Respon
     }
 });
 
+// Get user preferences
+app.get('/api/settings/preferences', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/settings/preferences/${userId}`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch preferences:", error.message);
+        res.status(error.response?.status || 500).json({ error: "Could not fetch preferences" });
+    }
+});
+
 // Update Push Preferences
 app.put('/api/settings/preferences', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -341,6 +473,39 @@ app.put('/api/settings/darkmode', async (req: AuthRequest, res: Response): Promi
     } catch (error: any) {
         console.error("Failed to update dark mode preferences:", error.message);
         res.status(500).json({ error: "Could not update dark mode preferences" });
+    }
+});
+
+// Request OTP for Password Change
+app.post('/api/settings/request-otp', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/settings/request-otp`, {
+            user_id: userId
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to request OTP:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not request OTP" });
+    }
+});
+
+// Change Password
+app.put('/api/settings/change-password', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { currentPassword, newPassword, otp } = req.body;
+
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/settings/change-password`, {
+            user_id: userId,
+            current_password: currentPassword,
+            new_password: newPassword,
+            otp: otp
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to change password:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not change password" });
     }
 });
 

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Settings.module.css';
+import ChangePasswordModal from '../components/modals/ChangePasswordModal';
+import DeleteAccountModal from '../components/modals/DeleteAccountModal';
+import { useNavigate } from 'react-router-dom';
 
 const VAPID_PUBLIC_KEY = 'BE4if7ko6g7qeFCfwGAI3jSMZrqcGpiIP2T4NxAyAhMVyFK1VXuNe_YWy-5qcqoZBPRBtEY5Z66sscaIfyVkk-c';
 
@@ -24,17 +27,53 @@ export default function Settings(): JSX.Element {
     const [notifications, setNotifications] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
 
-    // Normally we'd fetch the initial preferences from the DB on load
-    useEffect(() => {
-        // Mock fetch from local storage for now or if we had an endpoint
-        const storedPref = localStorage.getItem('push_notifications_enabled');
-        if (storedPref === 'true') setNotifications(true);
+    // Password Modal State
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    
+    // Delete Account Modal State
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const navigate = useNavigate();
 
-        const storedDarkMode = localStorage.getItem('dark_mode_enabled');
-        if (storedDarkMode === 'true') {
-            setDarkMode(true);
-            document.documentElement.classList.add('dark-mode');
-        }
+    useEffect(() => {
+        const fetchPreferences = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            try {
+                const response = await axios.get('http://localhost:3000/api/settings/preferences', config);
+                
+                if (response.data.success) {
+                    const { push_notifications_enabled, dark_mode_enabled } = response.data;
+                    
+                    setNotifications(push_notifications_enabled);
+                    localStorage.setItem('push_notifications_enabled', String(push_notifications_enabled));
+                    
+                    setDarkMode(dark_mode_enabled);
+                    localStorage.setItem('dark_mode_enabled', String(dark_mode_enabled));
+                    
+                    if (dark_mode_enabled) {
+                        document.documentElement.classList.add('dark-mode');
+                    } else {
+                        document.documentElement.classList.remove('dark-mode');
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch user preferences:", error);
+                
+                // Fallback to local storage if API fails
+                const storedPref = localStorage.getItem('push_notifications_enabled');
+                if (storedPref === 'true') setNotifications(true);
+
+                const storedDarkMode = localStorage.getItem('dark_mode_enabled');
+                if (storedDarkMode === 'true') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark-mode');
+                }
+            }
+        };
+
+        fetchPreferences();
     }, []);
 
     const handleNotificationToggle = async () => {
@@ -171,18 +210,38 @@ export default function Settings(): JSX.Element {
                             <h4>Change Password</h4>
                             <p>Update your account password</p>
                         </div>
-                        <button style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--bg-white)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 600 }}>Update</button>
+                        <button className={styles['action-btn']} onClick={() => setIsPasswordModalOpen(true)}>Update</button>
+                    </div>
+                </div>
+
+                <div className={styles['setting-card']} style={{ border: '1px solid #fca5a5' }}>
+                    <div className={styles['card-title']} style={{ color: '#ef4444' }}>
+                        <i className="fas fa-exclamation-triangle"></i> Danger Zone
                     </div>
 
                     <div className={styles['setting-row']}>
                         <div className={styles['setting-info']}>
-                            <h4>Data Export</h4>
-                            <p>Download a copy of your session data</p>
+                            <h4 style={{ color: '#ef4444' }}>Delete Account</h4>
+                            <p>Permanently remove your account and all associated data.</p>
                         </div>
-                        <button style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'var(--primary-sage)', color: 'white', cursor: 'pointer', fontWeight: 600 }}>Export</button>
+                        <button className={styles['danger-btn']} onClick={() => setIsDeleteModalOpen(true)}>Delete Account</button>
                     </div>
                 </div>
             </div>
+
+            <ChangePasswordModal 
+                isOpen={isPasswordModalOpen} 
+                onClose={() => setIsPasswordModalOpen(false)} 
+            />
+            {isDeleteModalOpen && (
+                <DeleteAccountModal 
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onSuccess={() => {
+                        localStorage.clear();
+                        window.location.href = '/login'; // Force full app reload to clear Zustand memory and ensure fresh state
+                    }}
+                />
+            )}
         </main>
     );
 }
