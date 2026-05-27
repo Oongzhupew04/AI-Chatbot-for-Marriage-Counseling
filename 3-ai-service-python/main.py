@@ -29,7 +29,6 @@ def on_startup():
     start_scheduler()
     
 
-
 auth_service = AuthService()
 chat_service = ChatService()
 checkin_service = CheckinService()
@@ -459,6 +458,111 @@ async def get_resources():
     repo = ResourceRepository()
     resources = repo.get_all_resources()
     return {"success": True, "resources": [r.__dict__ for r in resources]}
+
+# ==========================================
+# --- ADMIN ROUTES ---
+# ==========================================
+from services.admin_service import AdminService
+admin_service = AdminService()
+
+@app.get('/internal/admin/stats')
+async def get_admin_stats():
+    try:
+        stats = admin_service.get_dashboard_stats()
+        return {"success": True, "stats": stats}
+    except Exception as e:
+        print(f"Error fetching admin stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch admin stats")
+
+@app.get('/internal/admin/incidents')
+async def get_admin_incidents():
+    try:
+        incidents = admin_service.get_recent_incidents()
+        return {"success": True, "incidents": incidents}
+    except Exception as e:
+        print(f"Error fetching admin incidents: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch admin incidents")
+
+@app.get('/internal/admin/incidents/all')
+async def get_all_admin_incidents():
+    try:
+        incidents = admin_service.get_all_incidents()
+        return {"success": True, "incidents": incidents}
+    except Exception as e:
+        print(f"Error fetching all admin incidents: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch all admin incidents")
+
+@app.put('/internal/admin/incidents/{incident_id}/resolve')
+async def admin_resolve_incident(incident_id: int):
+    try:
+        success, message = admin_service.resolve_incident(incident_id)
+        if not success:
+            raise HTTPException(status_code=400, detail=message)
+        return {"success": True, "message": message}
+    except Exception as e:
+        print(f"Error resolving incident: {e}")
+        raise HTTPException(status_code=500, detail="Failed to resolve incident")
+
+
+class ContactUserRequest(BaseModel):
+    user_id: int
+    message: str
+
+@app.post('/internal/admin/incidents/{incident_id}/contact')
+async def admin_contact_user(incident_id: int, data: ContactUserRequest):
+    try:
+        success, message = admin_service.send_high_risk_email(data.user_id, data.message)
+        if not success:
+            raise HTTPException(status_code=400, detail=message)
+        return {"success": True, "message": message}
+    except Exception as e:
+        print(f"Error contacting user: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send email to user")
+
+@app.get('/internal/admin/users')
+async def get_admin_users():
+    try:
+        users = admin_service.get_user_management_data()
+        return {"success": True, "users": users}
+    except Exception as e:
+        print(f"Error fetching admin users: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch admin users")
+
+@app.put('/internal/admin/users/{user_id}/freeze')
+async def admin_freeze_user(user_id: int):
+    try:
+        success, message = admin_service.freeze_user(user_id)
+        if not success:
+            raise HTTPException(status_code=400, detail=message)
+        return {"success": True, "status": message}
+    except Exception as e:
+        print(f"Error freezing user: {e}")
+        raise HTTPException(status_code=500, detail="Failed to freeze/unfreeze user")
+
+@app.post('/internal/admin/users/{user_id}/reset-password')
+async def admin_reset_password(user_id: int):
+    try:
+        success, message = admin_service.reset_user_password(user_id)
+        if not success:
+            raise HTTPException(status_code=400, detail=message)
+        return {"success": True, "message": message}
+    except Exception as e:
+        print(f"Error resetting password: {e}")
+        raise HTTPException(status_code=500, detail="Failed to reset password")
+
+@app.delete('/internal/admin/users/{user_id}')
+async def admin_delete_user(user_id: int):
+    repo = UserRepository()
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    success = repo.delete_user(user_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete user account")
+    
+    return {"success": True}
+
 
 if __name__ == '__main__':
     # Run the internal service on port 8000

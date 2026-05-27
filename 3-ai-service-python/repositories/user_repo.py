@@ -5,12 +5,25 @@ from models.user import User
 class UserRepository:
     def get_by_email(self, email):
         cursor = db.get_connection().cursor()
-        cursor.execute("SELECT id, username, email, password, role FROM users WHERE email = ?", (email,))
+        cursor.execute("SELECT id, username, email, password, role, status FROM users WHERE email = ?", (email,))
         row = cursor.fetchone()
         cursor.close()
         if row:
-            return User(row[0], row[1], row[2], row[3], row[4])
+            return User(row[0], row[1], row[2], row[3], row[4], status=row[5] if len(row) > 5 else 'active')
         return None
+
+    def update_status(self, user_id, status):
+        cursor = db.get_connection().cursor()
+        try:
+            cursor.execute("UPDATE users SET status = ? WHERE id = ?", (status, user_id))
+            db.get_connection().commit()
+            return True
+        except Exception as e:
+            db.get_connection().rollback()
+            print(f"Error updating status: {e}")
+            return False
+        finally:
+            cursor.close()
 
     def create(self, username, email, password_hash, demographics, scale_1, marital_risk_percentage):
         cursor = db.get_connection().cursor()
@@ -55,7 +68,7 @@ class UserRepository:
                 id, username, email, password, role,
                 sex, age, years_married, children_count, children_raised,
                 education, material_situation, religious_affiliation, religiousness,
-                q13, q17, q19, q20, marital_risk_percentage, push_notifications_enabled, dark_mode_enabled, profile_pic
+                q13, q17, q19, q20, marital_risk_percentage, push_notifications_enabled, dark_mode_enabled, profile_pic, status
             FROM users 
             WHERE id = ?
         """
@@ -90,7 +103,8 @@ class UserRepository:
                 marital_risk_percentage=row[18],
                 push_notifications_enabled=bool(row[19]) if len(row) > 19 and row[19] is not None else False,
                 dark_mode_enabled=bool(row[20]) if len(row) > 20 and row[20] is not None else False,
-                profile_pic=row[21] if len(row) > 21 else None
+                profile_pic=row[21] if len(row) > 21 else None,
+                status=row[22] if len(row) > 22 else 'active'
             )
             
         return None
@@ -196,5 +210,50 @@ class UserRepository:
             db.get_connection().rollback()
             print(f"Error deleting user: {e}")
             return False
+        finally:
+            cursor.close()
+
+    def get_total_users_count(self):
+        cursor = db.get_connection().cursor()
+        try:
+            cursor.execute("SELECT COUNT(*) FROM users WHERE role != 'admin'")
+            count = cursor.fetchone()[0]
+            return count
+        except Exception as e:
+            print(f"Error fetching total users count: {e}")
+            return 0
+        finally:
+            cursor.close()
+
+    def get_recent_users(self, limit=10):
+        cursor = db.get_connection().cursor()
+        try:
+            # Note: The users table might not have a created_at column. We'll order by id DESC as a proxy for recent users.
+            query = """
+                SELECT u.id, u.username, u.email, u.role, u.profile_pic,
+                       (SELECT COUNT(*) FROM chats c WHERE c.user_id = u.id) as sessions_count, u.status, u.created_at
+                FROM users u
+                ORDER BY u.id DESC
+                LIMIT ?
+            """
+            cursor.execute(query, (limit,))
+            rows = cursor.fetchall()
+            
+            users = []
+            for row in rows:
+                users.append({
+                    "id": row[0],
+                    "username": row[1],
+                    "email": row[2],
+                    "role": row[3],
+                    "profile_pic": row[4],
+                    "sessions_count": row[5],
+                    "status": row[6] if len(row) > 6 else 'active',
+                    "created_at": str(row[7]) if len(row) > 7 and row[7] else 'N/A'
+                })
+            return users
+        except Exception as e:
+            print(f"Error fetching recent users: {e}")
+            return []
         finally:
             cursor.close()

@@ -14,6 +14,9 @@ class AuthService:
         if not user:
             return None, "Invalid email or password"
         
+        if getattr(user, 'status', 'active') == 'frozen':
+            return None, "Your account has been frozen by an administrator. Please contact support."
+            
         if not check_password_hash(user.password_hash, password):
             return None, "Invalid email or password"
         

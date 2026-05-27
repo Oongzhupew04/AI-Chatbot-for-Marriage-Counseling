@@ -24,13 +24,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
 
                 <ul className={styles['nav-menu']}>
-                    <a href="#" className={`${styles['nav-item']} ${styles['active']}`}>
+                    <a href="#" className={`${styles['nav-item']} ${styles['active']}`} onClick={(e) => { e.preventDefault(); navigate('/admin-home'); }}>
                         <i className="fas fa-th-large"></i> Dashboard
                     </a>
                     <a href="#" className={styles['nav-item']}>
                         <i className="fas fa-users-cog"></i> User Management
                     </a>
-                    <a href="#" className={styles['nav-item']}>
+                    <a href="#" className={styles['nav-item']} onClick={(e) => { e.preventDefault(); navigate('/admin-alerts'); }}>
                         <i className="fas fa-exclamation-triangle"></i> High-Risk Alerts
                         <span className={styles['nav-badge']}>3</span>
                     </a>

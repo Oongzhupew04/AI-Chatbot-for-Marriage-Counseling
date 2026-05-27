@@ -126,3 +126,68 @@ class ChatRepository:
                 conn.rollback() # Undo the deletion if something crashes
             print(f"Error deleting chat session: {e}")
             return False
+
+    def get_total_sessions_count(self):
+        """Fetch total count of all chat sessions."""
+        conn = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            query = "SELECT COUNT(*) FROM chats"
+            cursor.execute(query)
+            count = cursor.fetchone()[0]
+            cursor.close()
+            return count
+        except Exception as e:
+            print(f"Error getting total sessions count: {e}")
+            return 0
+
+    def get_weekly_sessions_data(self):
+        """Fetch total count of chat sessions grouped by week for the last 6 weeks."""
+        import datetime
+        conn = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            # Fetch data from DB from 5 weeks ago Monday up to now
+            query = """
+                SELECT DATE_TRUNC('week', updated_at) AS week_start, COUNT(*) AS count
+                FROM chats
+                WHERE updated_at >= DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '5 weeks'
+                GROUP BY week_start
+                ORDER BY week_start ASC
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cursor.close()
+            
+            # Map DB results by date string
+            db_results = {str(row[0])[:10]: row[1] for row in rows}
+            
+            # Generate the last 6 Mondays in Python to ensure 0s are filled
+            today = datetime.date.today()
+            current_monday = today - datetime.timedelta(days=today.weekday())
+            
+            weekly_data = []
+            for i in range(5, -1, -1):
+                monday = current_monday - datetime.timedelta(weeks=i)
+                monday_str = monday.strftime('%Y-%m-%d')
+                
+                # Check if this Monday exists in DB results
+                count = 0
+                for db_date, db_count in db_results.items():
+                    if db_date.startswith(monday_str):
+                        count = db_count
+                        break
+                        
+                weekly_data.append({
+                    "week": monday_str,
+                    "count": count
+                })
+                
+            return weekly_data
+        except Exception as e:
+            print(f"Error getting weekly sessions count: {e}")
+            return []

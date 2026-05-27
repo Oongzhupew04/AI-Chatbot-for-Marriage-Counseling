@@ -509,6 +509,118 @@ app.put('/api/settings/change-password', async (req: AuthRequest, res: Response)
     }
 });
 
+// ==========================================
+// --- ADMIN ROUTES ---
+// ==========================================
+
+// Ensure admin endpoints are only accessible by admin, though for now we just proxy
+const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        res.status(403).json({ error: "Access denied. Admin role required." });
+    }
+};
+
+app.get('/api/admin/stats', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/stats`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch admin stats:", error.message);
+        res.status(500).json({ error: "Could not fetch admin stats" });
+    }
+});
+
+app.get('/api/admin/incidents', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/incidents`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch admin incidents:", error.message);
+        res.status(500).json({ error: "Could not fetch admin incidents" });
+    }
+});
+
+app.get('/api/admin/incidents/all', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/incidents/all`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch all admin incidents:", error.message);
+        res.status(500).json({ error: "Could not fetch all admin incidents" });
+    }
+});
+
+app.put('/api/admin/incidents/:id/resolve', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const incidentId = req.params.id;
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/admin/incidents/${incidentId}/resolve`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to resolve incident:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not resolve incident" });
+    }
+});
+
+app.post('/api/admin/incidents/:id/contact', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const incidentId = req.params.id;
+        const { user_id, message } = req.body;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/admin/incidents/${incidentId}/contact`, {
+            user_id: user_id,
+            message: message
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to contact user:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not contact user" });
+    }
+});
+
+app.get('/api/admin/users', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/users`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch admin users:", error.message);
+        res.status(500).json({ error: "Could not fetch admin users" });
+    }
+});
+
+app.put('/api/admin/users/:id/freeze', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.params.id;
+        const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/admin/users/${userId}/freeze`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to freeze user:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not freeze user" });
+    }
+});
+
+app.post('/api/admin/users/:id/reset-password', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.params.id;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/admin/users/${userId}/reset-password`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to reset user password:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not reset password" });
+    }
+});
+
+app.delete('/api/admin/users/:id', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.params.id;
+        const pythonResponse = await axios.delete(`${PYTHON_SERVICE_URL}/internal/admin/users/${userId}`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to delete user account:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not delete user" });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`[TypeScript Node Gateway] running on http://localhost:${PORT}`);
     console.log(`Routing AI traffic to ${PYTHON_SERVICE_URL}`);

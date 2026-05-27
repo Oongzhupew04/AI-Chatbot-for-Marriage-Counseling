@@ -45,7 +45,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
 
         try {
             await axios.post('http://localhost:3000/api/settings/request-otp', {}, config);
-            setOtpSentMessage('OTP has been sent to your email (check console for mock).');
+            setOtpSentMessage('OTP has been sent to your email.');
         } catch (error: any) {
             setPasswordError(error.response?.data?.message || 'Failed to send OTP.');
         } finally {
@@ -98,27 +98,27 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div className={styles['form-group']}>
                         <label>Current Password</label>
-                        <input 
-                            type="password" 
-                            value={currentPassword} 
-                            onChange={(e) => setCurrentPassword(e.target.value)} 
-                            required 
+                        <input
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            required
                         />
                     </div>
                     <div className={styles['form-group']}>
                         <label>Verification Code (OTP)</label>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <input 
-                                type="text" 
-                                value={otp} 
-                                onChange={(e) => setOtp(e.target.value)} 
-                                required 
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                required
                                 style={{ flex: 1 }}
                                 placeholder="6-digit code"
                             />
-                            <button 
-                                type="button" 
-                                onClick={handleSendOtp} 
+                            <button
+                                type="button"
+                                onClick={handleSendOtp}
                                 disabled={isSendingOtp}
                                 style={{
                                     padding: '0 15px',
@@ -136,20 +136,20 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                     </div>
                     <div className={styles['form-group']}>
                         <label>New Password</label>
-                        <input 
-                            type="password" 
-                            value={newPassword} 
-                            onChange={(e) => setNewPassword(e.target.value)} 
-                            required 
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
                         />
                     </div>
                     <div className={styles['form-group']}>
                         <label>Confirm New Password</label>
-                        <input 
-                            type="password" 
-                            value={confirmPassword} 
-                            onChange={(e) => setConfirmPassword(e.target.value)} 
-                            required 
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
                         />
                     </div>
                     <div className={styles['modal-actions']}>

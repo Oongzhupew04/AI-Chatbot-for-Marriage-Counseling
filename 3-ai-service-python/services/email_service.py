@@ -41,6 +41,54 @@ class EmailService:
             print(f"Failed to send email: {e}")
             return False
 
+    def send_password_reset_email(self, user_email: str, temporary_password: str) -> bool:
+        smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+        smtp_port = int(os.getenv("SMTP_PORT", 587))
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        
+        try:
+            msg = EmailMessage()
+            msg.set_content(f"Your password has been reset by an administrator.\n\nYour temporary password is: {temporary_password}\n\nPlease log in and change this password immediately in your account settings.")
+            msg['Subject'] = 'Temporary Password Reset - AI Marriage Counseling'
+            msg['From'] = smtp_user
+            msg['To'] = user_email
+            
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+                
+            print(f"Successfully sent reset password email to {user_email}")
+            return True
+        except Exception as e:
+            print(f"Failed to send reset password email: {e}")
+            return False
+
+    def send_email(self, to_email: str, subject: str, body: str) -> bool:
+        smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+        smtp_port = int(os.getenv("SMTP_PORT", 587))
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        
+        try:
+            msg = EmailMessage()
+            msg.set_content(body)
+            msg['Subject'] = subject
+            msg['From'] = smtp_user
+            msg['To'] = to_email
+            
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+                
+            print(f"Successfully sent email to {to_email}")
+            return True
+        except Exception as e:
+            print(f"Failed to send email to {to_email}: {e}")
+            return False
+
     def verify_otp(self, user_identifier: str | int, otp_input: str) -> bool:
         uid = str(user_identifier)
         record = self.otp_store.get(uid)

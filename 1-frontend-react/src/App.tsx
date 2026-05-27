@@ -15,6 +15,7 @@ import Resources from './pages/Resources';
 import Sidebar from './components/Sidebar';
 import AdminSidebar from './components/admin/AdminSidebar';
 import AdminHome from './pages/admin/AdminHome';
+import HighRiskAlerts from './pages/admin/HighRiskAlerts';
 
 // ==========================================
 // --- TOKEN CHECK ---
@@ -135,8 +136,7 @@ export default function App(): JSX.Element {
         {/* Every route inside this block gets the AdminSidebar, Theme, and Admin Auth checks automatically */}
         <Route element={<AdminLayout />}>
           <Route path="/admin-home" element={<AdminHome />} />
-          {/* Example of adding future admin routes: */}
-          {/* <Route path="/admin-users" element={<AdminUsers />} /> */}
+          <Route path="/admin-alerts" element={<HighRiskAlerts />} />
         </Route>
 
         {/* --- Catch-All (If they type a random URL, send them to login) --- */}

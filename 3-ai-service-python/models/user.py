@@ -20,6 +20,7 @@ class User:
         profile_pic=None,
         dark_mode_enabled=False,
         push_notifications_enabled=False,
+        status='active',
         # **kwargs catches q13, q17, q19, q20, and the calculated marital_risk_percentage
         **kwargs
     ):
@@ -29,6 +30,7 @@ class User:
         self.email = email
         self.password_hash = password_hash
         self.role = role
+        self.status = status
         
         # Demographics
         self.sex = sex
