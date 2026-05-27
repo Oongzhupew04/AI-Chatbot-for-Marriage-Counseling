@@ -532,6 +532,16 @@ app.get('/api/admin/stats', requireAdmin, async (req: AuthRequest, res: Response
     }
 });
 
+app.get('/api/admin/feedbacks', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/feedbacks`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to fetch admin feedbacks:", error.message);
+        res.status(500).json({ error: "Could not fetch admin feedbacks" });
+    }
+});
+
 app.get('/api/admin/incidents', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/incidents`);

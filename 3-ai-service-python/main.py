@@ -462,13 +462,18 @@ async def get_resources():
 # ==========================================
 # --- ADMIN ROUTES ---
 # ==========================================
-from services.admin_service import AdminService
-admin_service = AdminService()
+from services.admin_dashboard_service import AdminDashboardService
+from services.admin_high_risk_service import AdminHighRiskService
+from services.admin_feedback_service import AdminFeedbackService
+
+admin_dashboard_service = AdminDashboardService()
+admin_high_risk_service = AdminHighRiskService()
+admin_feedback_service = AdminFeedbackService()
 
 @app.get('/internal/admin/stats')
 async def get_admin_stats():
     try:
-        stats = admin_service.get_dashboard_stats()
+        stats = admin_dashboard_service.get_dashboard_stats()
         return {"success": True, "stats": stats}
     except Exception as e:
         print(f"Error fetching admin stats: {e}")
@@ -477,16 +482,25 @@ async def get_admin_stats():
 @app.get('/internal/admin/incidents')
 async def get_admin_incidents():
     try:
-        incidents = admin_service.get_recent_incidents()
+        incidents = admin_high_risk_service.get_recent_incidents()
         return {"success": True, "incidents": incidents}
     except Exception as e:
         print(f"Error fetching admin incidents: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch admin incidents")
 
+@app.get('/internal/admin/feedbacks')
+async def get_admin_feedbacks():
+    try:
+        feedbacks = admin_feedback_service.get_all_feedback()
+        return {"success": True, "feedbacks": feedbacks}
+    except Exception as e:
+        print(f"Error fetching admin feedbacks: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch admin feedbacks")
+
 @app.get('/internal/admin/incidents/all')
 async def get_all_admin_incidents():
     try:
-        incidents = admin_service.get_all_incidents()
+        incidents = admin_high_risk_service.get_all_incidents()
         return {"success": True, "incidents": incidents}
     except Exception as e:
         print(f"Error fetching all admin incidents: {e}")
@@ -495,7 +509,7 @@ async def get_all_admin_incidents():
 @app.put('/internal/admin/incidents/{incident_id}/resolve')
 async def admin_resolve_incident(incident_id: int):
     try:
-        success, message = admin_service.resolve_incident(incident_id)
+        success, message = admin_high_risk_service.resolve_incident(incident_id)
         if not success:
             raise HTTPException(status_code=400, detail=message)
         return {"success": True, "message": message}
@@ -511,7 +525,7 @@ class ContactUserRequest(BaseModel):
 @app.post('/internal/admin/incidents/{incident_id}/contact')
 async def admin_contact_user(incident_id: int, data: ContactUserRequest):
     try:
-        success, message = admin_service.send_high_risk_email(data.user_id, data.message)
+        success, message = admin_high_risk_service.send_high_risk_email(data.user_id, data.message)
         if not success:
             raise HTTPException(status_code=400, detail=message)
         return {"success": True, "message": message}
@@ -522,7 +536,7 @@ async def admin_contact_user(incident_id: int, data: ContactUserRequest):
 @app.get('/internal/admin/users')
 async def get_admin_users():
     try:
-        users = admin_service.get_user_management_data()
+        users = admin_dashboard_service.get_user_management_data()
         return {"success": True, "users": users}
     except Exception as e:
         print(f"Error fetching admin users: {e}")
@@ -531,7 +545,7 @@ async def get_admin_users():
 @app.put('/internal/admin/users/{user_id}/freeze')
 async def admin_freeze_user(user_id: int):
     try:
-        success, message = admin_service.freeze_user(user_id)
+        success, message = admin_dashboard_service.freeze_user(user_id)
         if not success:
             raise HTTPException(status_code=400, detail=message)
         return {"success": True, "status": message}
@@ -542,7 +556,7 @@ async def admin_freeze_user(user_id: int):
 @app.post('/internal/admin/users/{user_id}/reset-password')
 async def admin_reset_password(user_id: int):
     try:
-        success, message = admin_service.reset_user_password(user_id)
+        success, message = admin_dashboard_service.reset_user_password(user_id)
         if not success:
             raise HTTPException(status_code=400, detail=message)
         return {"success": True, "message": message}

@@ -87,3 +87,54 @@ class FeedbackRepository:
         except Exception as e:
             print(f"Error calculating feedback distribution: {e}")
             return [0, 0, 0, 0, 0]
+
+    def get_all_feedback(self):
+        """Get all feedback with user details."""
+        conn = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT f.id, f.user_id, f.chat_id, f.rating, f.worked_well, f.issues, f.comments, f.timestamp, u.username, u.email
+                FROM feedback f
+                LEFT JOIN users u ON f.user_id = u.id
+                ORDER BY f.timestamp DESC
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cursor.close()
+            
+            feedbacks = []
+            for row in rows:
+                # The worked_well and issues might be json strings from DB, parsing if possible
+                try:
+                    worked_well = json.loads(row[4]) if row[4] else []
+                except:
+                    worked_well = row[4]
+                try:
+                    issues = json.loads(row[5]) if row[5] else []
+                except:
+                    issues = row[5]
+                
+                # If they are lists, join them for the frontend
+                ww_str = ", ".join(worked_well) if isinstance(worked_well, list) else str(worked_well)
+                issues_str = ", ".join(issues) if isinstance(issues, list) else str(issues)
+
+                feedbacks.append({
+                    "id": row[0],
+                    "user_id": row[1],
+                    "chat_id": row[2],
+                    "rating": int(row[3]) if row[3] else 0,
+                    "worked_well": ww_str,
+                    "issues": issues_str,
+                    "comments": row[6],
+                    "timestamp": str(row[7]) if row[7] else None,
+                    "username": row[8] or "Unknown",
+                    "email": row[9] or "Unknown"
+                })
+            return feedbacks
+        except Exception as e:
+            print(f"Error fetching all feedback: {e}")
+            return []
+

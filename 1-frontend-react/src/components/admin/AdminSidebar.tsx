@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <i className="fas fa-exclamation-triangle"></i> High-Risk Alerts
                         <span className={styles['nav-badge']}>3</span>
                     </a>
-                    <a href="#" className={styles['nav-item']}>
+                    <a href="#" className={styles['nav-item']} onClick={(e) => { e.preventDefault(); navigate('/admin-feedback'); }}>
                         <i className="fas fa-comment-alt"></i> User Feedback
                     </a>
                     <a href="#" className={styles['nav-item']}>
