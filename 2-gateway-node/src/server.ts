@@ -30,6 +30,21 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Configure multer storage for resources
+const resourceStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = 'uploads/resources';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const uploadResource = multer({ storage: resourceStorage });
+
 // Serve static files from 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -588,6 +603,61 @@ app.post('/api/admin/incidents/:id/contact', requireAdmin, async (req: AuthReque
     }
 });
 
+app.post('/api/admin/resources', requireAdmin, uploadResource.single('file'), async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { title, description, category, url } = req.body;
+        
+        let finalUrl = url;
+        // If a file was uploaded, construct its local URL
+        if (req.file) {
+            finalUrl = `http://localhost:3000/uploads/resources/${req.file.filename}`;
+        }
+        
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/admin/resources`, {
+            title: title,
+            description: description,
+            category: category,
+            url: finalUrl || '#'
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to add resource:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not add resource" });
+    }
+});
+
+app.delete('/api/admin/resources/:id', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const resourceId = req.params.id;
+        
+        // Fetch resource to get the URL for local deletion
+        try {
+            const getRes = await axios.get(`${PYTHON_SERVICE_URL}/internal/resources`);
+            if (getRes.data.success) {
+                const resource = getRes.data.resources.find((r: any) => r.id == resourceId);
+                if (resource && resource.url && resource.url.includes('/uploads/resources/')) {
+                    const filename = resource.url.split('/').pop();
+                    if (filename) {
+                        const filePath = path.join(__dirname, '..', 'uploads', 'resources', filename);
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                            console.log(`Deleted local resource file: ${filename}`);
+                        }
+                    }
+                }
+            }
+        } catch (fetchErr) {
+            console.error("Failed to fetch resource for file deletion. Continuing with DB deletion.", fetchErr);
+        }
+
+        const pythonResponse = await axios.delete(`${PYTHON_SERVICE_URL}/internal/admin/resources/${resourceId}`);
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to delete resource:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not delete resource" });
+    }
+});
+
 app.get('/api/admin/users', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const pythonResponse = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/users`);
@@ -623,6 +693,27 @@ app.post('/api/admin/users/:id/reset-password', requireAdmin, async (req: AuthRe
 app.delete('/api/admin/users/:id', requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.params.id;
+        
+        // Fetch user to get profile picture URL for local deletion
+        try {
+            const getRes = await axios.get(`${PYTHON_SERVICE_URL}/internal/admin/users`);
+            if (getRes.data.success) {
+                const user = getRes.data.users.find((u: any) => u.id == userId);
+                if (user && user.profile_picture && user.profile_picture.includes('/uploads/profiles/')) {
+                    const filename = user.profile_picture.split('/').pop();
+                    if (filename) {
+                        const filePath = path.join(__dirname, '..', 'uploads', 'profiles', filename);
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                            console.log(`Deleted local profile picture: ${filename}`);
+                        }
+                    }
+                }
+            }
+        } catch (fetchErr) {
+            console.error("Failed to fetch user for file deletion. Continuing with DB deletion.", fetchErr);
+        }
+
         const pythonResponse = await axios.delete(`${PYTHON_SERVICE_URL}/internal/admin/users/${userId}`);
         res.json(pythonResponse.data);
     } catch (error: any) {

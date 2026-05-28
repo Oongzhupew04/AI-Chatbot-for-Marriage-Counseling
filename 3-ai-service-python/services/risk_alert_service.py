@@ -30,4 +30,13 @@ class RiskAlertService:
         Currently logs to DB, but can be extended to send emails, notify admins, etc.
         """
         print(f"[Risk Alert] Detected risk level {risk_level} for user {user_id}. Keyword: {trigger_keyword}")
-        return self.repo.log_risk_alert(user_id, message_id, risk_level, trigger_keyword)
+        result = self.repo.log_risk_alert(user_id, message_id, risk_level, trigger_keyword)
+        
+        try:
+            from services.notification_service import NotificationService
+            notification_service = NotificationService()
+            notification_service.notify_admins_of_high_risk(risk_level, trigger_keyword, user_id)
+        except Exception as e:
+            print(f"Failed to send admin push notification: {e}")
+            
+        return result

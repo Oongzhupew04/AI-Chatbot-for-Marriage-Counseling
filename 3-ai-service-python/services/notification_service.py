@@ -37,6 +37,19 @@ class NotificationService:
                 print(f"User {user_id} hasn't checked in today. Sending push...")
                 self._send_push_to_user(user_id, "Daily Reflection", "It's time for your daily check-in. Take a moment for yourself.")
 
+    def notify_admins_of_high_risk(self, risk_level, trigger_keyword, user_id):
+        print(f"[{datetime.now()}] Notifying admins of high risk alert...")
+        admins = self.user_repo.get_admins_with_push_enabled()
+        
+        user = self.user_repo.get_by_id(user_id)
+        username = user.username if user else f"User {user_id}"
+
+        title = "High Risk Alert Detected!"
+        body = f"Risk level {risk_level} detected for {username}. Trigger keyword: '{trigger_keyword}'"
+        
+        for admin_id in admins:
+            self._send_push_to_user(admin_id, title, body)
+
     def _send_push_to_user(self, user_id, title, body):
         subs = self.sub_repo.get_subscriptions_by_user(user_id)
         payload = json.dumps({"title": title, "body": body})

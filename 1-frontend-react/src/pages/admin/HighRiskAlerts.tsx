@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './HighRiskAlerts.module.css';
+import AdminChatHistoryModal from '../../components/modals/AdminChatHistoryModal';
+import ContactUserModal from '../../components/modals/ContactUserModal';
 
 interface Incident {
     id: number;
@@ -180,56 +182,22 @@ export default function HighRiskAlerts() {
             )}
 
             {/* Chat Modal */}
-            {isChatModalOpen && (
-                <div className={styles['modal-overlay']}>
-                    <div className={styles['modal-content']}>
-                        <div className={styles['modal-header']}>
-                            <h2>Conversation History</h2>
-                            <button className={styles['close-btn']} onClick={() => setIsChatModalOpen(false)}>&times;</button>
-                        </div>
-                        <div className={styles['chat-history']}>
-                            {selectedChat && selectedChat.length > 0 ? (
-                                selectedChat.map((msg, idx) => (
-                                    <div key={idx} className={`${styles.message} ${msg.sender === 'user' ? styles.user : styles.bot}`}>
-                                        {msg.text}
-                                    </div>
-                                ))
-                            ) : (
-                                <div>No messages found.</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+            <AdminChatHistoryModal 
+                isOpen={isChatModalOpen} 
+                onClose={() => setIsChatModalOpen(false)} 
+                chatHistory={selectedChat} 
+            />
 
             {/* Email Modal */}
-            {isEmailModalOpen && selectedUserForEmail && (
-                <div className={styles['modal-overlay']}>
-                    <div className={styles['modal-content']} style={{ height: 'auto', maxWidth: '500px' }}>
-                        <div className={styles['modal-header']}>
-                            <h2>Contact {selectedUserForEmail.username}</h2>
-                            <button className={styles['close-btn']} onClick={() => setIsEmailModalOpen(false)}>&times;</button>
-                        </div>
-                        <div className={styles['email-form']}>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                This will send an email directly to <strong>{selectedUserForEmail.email}</strong>.
-                            </p>
-                            <textarea 
-                                placeholder="Type your check-in message here..."
-                                value={emailMessage}
-                                onChange={(e) => setEmailMessage(e.target.value)}
-                            />
-                            <button 
-                                className={styles['submit-btn']} 
-                                onClick={handleSendEmail}
-                                disabled={emailSending || !emailMessage.trim()}
-                            >
-                                {emailSending ? 'Sending...' : 'Send Email'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ContactUserModal 
+                isOpen={isEmailModalOpen} 
+                onClose={() => setIsEmailModalOpen(false)} 
+                user={selectedUserForEmail} 
+                emailMessage={emailMessage} 
+                setEmailMessage={setEmailMessage} 
+                handleSendEmail={handleSendEmail} 
+                emailSending={emailSending} 
+            />
         </main>
     );
 }

@@ -23,7 +23,7 @@ KEYWORD_RESPONSES = {
 
 # Unsafe keywords (Self-harm and severe escalation)
 UNSAFE_PATTERNS = [
-    r"\bcut\b.*\byourself\b", r"\bself[\s-]?harm\b", r"\bkill\b.*\byourself\b", r"\bdie\b",
+    r"\bcut\b.*\byourself\b", r"\bself[\s-]?harm\b", r"\bkill\b.*\byourself\b", r"\bdie\b", r"\bsuicide\b",
     r"\boverdose\b", r"\bhang\b.*\byourself\b", r"\bend\b.*\blife\b",
     r"\bharm\b.*\byourself\b", r"\bpunish\b.*\byourself\b", r"\bhit\b.*\bme\b", r"\bbeat\b.*\bme\b"
 ]

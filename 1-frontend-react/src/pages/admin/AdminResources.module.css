@@ -1,0 +1,203 @@
+/* --- MAIN CONTENT (Admin Resources) --- */
+.main-content {
+    flex: 1;
+    padding: 30px 40px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.dashboard-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 30px;
+}
+.dashboard-header h1 { font-family: 'Merriweather', serif; font-size: 1.8rem; }
+
+.header-actions { display: flex; gap: 16px; align-items: center; }
+.icon-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-light);
+    background: var(--bg-white); display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); cursor: pointer; position: relative;
+}
+
+/* --- WIDGET GRID --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    position: relative;
+    transition: transform 0.2s;
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 180px;
+}
+
+.upload-card {
+    grid-column: span 3;
+}
+
+.card-header-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.card-title { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+
+/* --- FORM STYLES --- */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-input, .form-select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    outline: none;
+    background: var(--bg-white);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.submit-btn {
+    background: var(--primary-dark);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.submit-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* --- MIDDLE SECTION --- */
+.section-header { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    margin-bottom: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.resources-header {
+    margin-top: 30px;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    padding: 8px 10px 8px 30px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    outline: none;
+}
+
+/* --- TABLE STYLES --- */
+.table-container {
+    background: var(--bg-white);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.data-table th {
+    text-align: left; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+    padding: 0 16px 8px 16px;
+    position: sticky;
+    top: -24px;
+    background: var(--bg-white);
+    z-index: 10;
+}
+
+.data-table td {
+    background: var(--bg-white);
+    padding: 16px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.data-table tr td:first-child { border-left: 1px solid var(--border-light); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.data-table tr td:last-child { border-right: 1px solid var(--border-light); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+.category-cell {
+    text-transform: capitalize;
+}
+
+.category-pill {
+    background: var(--bg-light);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.action-btn {
+    border: 1px solid var(--border-light); background: transparent;
+    padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.action-btn:hover { border-color: var(--text-main); color: var(--text-main); }
+
+.delete-btn {
+    color: #E53E3E;
+    background: #FFF5F5;
+    margin-right: 10px;
+    border-color: #FEB2B2;
+}
+
+.delete-btn:hover {
+    color: #C53030;
+    border-color: #E53E3E;
+}
+
+.center-text {
+    text-align: center;
+    padding: 20px;
+}

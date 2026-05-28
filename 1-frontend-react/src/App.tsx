@@ -17,6 +17,8 @@ import AdminSidebar from './components/admin/AdminSidebar';
 import AdminHome from './pages/admin/AdminHome';
 import HighRiskAlerts from './pages/admin/HighRiskAlerts';
 import UserFeedback from './pages/admin/UserFeedback';
+import AdminResources from './pages/admin/AdminResources';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // ==========================================
 // --- TOKEN CHECK ---
@@ -139,6 +141,8 @@ export default function App(): JSX.Element {
           <Route path="/admin-home" element={<AdminHome />} />
           <Route path="/admin-alerts" element={<HighRiskAlerts />} />
           <Route path="/admin-feedback" element={<UserFeedback />} />
+          <Route path="/admin-resources" element={<AdminResources />} />
+          <Route path="/admin-profile" element={<AdminSettings />} />
         </Route>
 
         {/* --- Catch-All (If they type a random URL, send them to login) --- */}

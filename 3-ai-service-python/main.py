@@ -136,6 +136,12 @@ class ChangePasswordRequest(BaseModel):
 class RegistrationOTPRequest(BaseModel):
     email: str
 
+class NewResourceRequest(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    category: str
+    url: str
+
 
 # ==========================================
 # --- INTERNAL API ROUTES (For Node.js) ---
@@ -576,6 +582,34 @@ async def admin_delete_user(user_id: int):
         raise HTTPException(status_code=500, detail="Failed to delete user account")
     
     return {"success": True}
+
+@app.post('/internal/admin/resources')
+async def admin_add_resource(data: NewResourceRequest):
+    from repositories.resource_repo import ResourceRepository
+    repo = ResourceRepository()
+    
+    # Auto-generate icon based on category
+    icon_map = {
+        "article": "fas fa-newspaper",
+        "pdf": "fas fa-file-pdf",
+        "video": "fas fa-video",
+    }
+    icon = icon_map.get(data.category, "fas fa-link")
+    description = data.description if data.description else "No description provided."
+    
+    success, message = repo.add_resource(data.title, description, data.category, data.url, icon)
+    if not success:
+        raise HTTPException(status_code=500, detail=message)
+    return {"success": True, "message": message}
+
+@app.delete('/internal/admin/resources/{resource_id}')
+async def admin_delete_resource(resource_id: int):
+    from repositories.resource_repo import ResourceRepository
+    repo = ResourceRepository()
+    success, message = repo.delete_resource(resource_id)
+    if not success:
+        raise HTTPException(status_code=500, detail=message)
+    return {"success": True, "message": message}
 
 
 if __name__ == '__main__':

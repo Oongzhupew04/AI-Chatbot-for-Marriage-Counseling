@@ -178,6 +178,18 @@ class UserRepository:
         finally:
             cursor.close()
 
+    def get_admins_with_push_enabled(self):
+        cursor = db.get_connection().cursor()
+        try:
+            cursor.execute("SELECT id FROM users WHERE push_notifications_enabled = TRUE AND role = 'admin';")
+            rows = cursor.fetchall()
+            return [row[0] for row in rows]
+        except Exception as e:
+            print(f"Error fetching admins with push enabled: {e}")
+            return []
+        finally:
+            cursor.close()
+
     def update_password(self, user_id, password_hash):
         cursor = db.get_connection().cursor()
         try:

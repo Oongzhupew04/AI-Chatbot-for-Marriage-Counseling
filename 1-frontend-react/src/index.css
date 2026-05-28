@@ -116,3 +116,15 @@ body[data-theme="admin"] #root {
     --bg-danger-light: rgba(229, 62, 62, 0.15);
     /* Faint red for dark mode */
 }
+
+/* Admin Dark Mode Overrides */
+:root.dark-mode body[data-theme="admin"] #root {
+    --bg-body: #1A202C;
+    --bg-white: #2D3748;
+    --text-main: #F7FAFC;
+    --text-muted: #A0AEC0;
+    --border-light: #4A5568;
+    --primary-sage: #8BA8A0;
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-float: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
