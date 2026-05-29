@@ -37,6 +37,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/admin-resources' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/admin-resources'); }}>
                         <i className="fas fa-file-upload"></i> Upload Resources
                     </a>
+                    <a href="#" className={`${styles['nav-item']} ${location.pathname === '/admin-upload-faq' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/admin-upload-faq'); }}>
+                        <i className="fas fa-question-circle"></i> Upload FAQs
+                    </a>
                     <div style={{ flex: 1 }}></div>
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/admin-profile' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/admin-profile'); }}>
                         <i className="fas fa-cog"></i> Settings

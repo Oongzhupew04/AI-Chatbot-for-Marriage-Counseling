@@ -60,6 +60,30 @@ class AuthService:
             
         return True, "Password updated successfully"
 
+    def request_password_reset_otp(self, email: str):
+        # Deliberately do not check if email exists to prevent enumeration
+        success = self.email_service.generate_and_send_otp(email, email)
+        if not success:
+            return False, "Failed to send OTP email"
+        return True, "If an account exists, an OTP has been sent."
+
+    def reset_password_via_otp(self, email, otp, new_password):
+        user = self.user_repo.get_by_email(email)
+        if not user:
+            # Mask the exact reason to prevent enumeration
+            return False, "User not found or invalid OTP"
+            
+        if not self.email_service.verify_otp(email, otp):
+            return False, "Invalid or expired OTP"
+            
+        hashed_pw = generate_password_hash(new_password)
+        success = self.user_repo.update_password(user.id, hashed_pw)
+        
+        if not success:
+            return False, "Failed to update password in database"
+            
+        return True, "Password updated successfully"
+
     def calculate_marital_risk(self, scale_1_data):
         """
         Calculates calibrated marital risk probability based on q13, q17, and q19.

@@ -136,6 +136,18 @@ class ChangePasswordRequest(BaseModel):
 class RegistrationOTPRequest(BaseModel):
     email: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+
+class NewFaqRequest(BaseModel):
+    question: str
+    answer: str
+
 class NewResourceRequest(BaseModel):
     title: str
     description: Optional[str] = ""
@@ -382,6 +394,20 @@ async def request_registration_otp(data: RegistrationOTPRequest):
         raise HTTPException(status_code=400, detail=message)
     return {"success": True, "message": message}
 
+@app.post('/internal/forgot-password')
+async def forgot_password(data: ForgotPasswordRequest):
+    success, message = auth_service.request_password_reset_otp(data.email)
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"success": True, "message": message}
+
+@app.post('/internal/reset-password')
+async def reset_password(data: ResetPasswordRequest):
+    success, message = auth_service.reset_password_via_otp(data.email, data.otp, data.new_password)
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"success": True, "message": message}
+
 @app.put('/internal/settings/change-password')
 async def change_password(data: ChangePasswordRequest):
     success, message = auth_service.change_password(
@@ -611,6 +637,13 @@ async def admin_delete_resource(resource_id: int):
         raise HTTPException(status_code=500, detail=message)
     return {"success": True, "message": message}
 
+@app.post('/internal/admin/faqs')
+async def admin_add_faq(data: NewFaqRequest):
+    repo = FaqRepository()
+    success, message = repo.add_faq(data.question, data.answer)
+    if not success:
+        raise HTTPException(status_code=500, detail=message)
+    return {"success": True, "message": message}
 
 if __name__ == '__main__':
     # Run the internal service on port 8000

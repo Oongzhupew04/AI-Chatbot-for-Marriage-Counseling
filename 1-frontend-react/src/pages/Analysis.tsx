@@ -223,9 +223,6 @@ export default function Analysis(): JSX.Element {
                         <h1>Relationship Analysis</h1>
                         <p style={{ color: 'var(--text-muted)' }}>Insights based on your last 7 daily check-ins</p>
                     </div>
-                    <button className={styles['date-picker']}>
-                        Past 7 Days <i className="fas fa-chevron-down" style={{ marginLeft: '8px' }}></i>
-                    </button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '60px 20px', background: 'var(--bg-white)', borderRadius: '16px', border: '1px solid var(--border-light)', marginBottom: '50px' }}>
@@ -268,9 +265,6 @@ export default function Analysis(): JSX.Element {
                     <h1>Relationship Analysis</h1>
                     <p style={{ color: 'var(--text-muted)' }}>Insights based on your last 7 daily check-ins</p>
                 </div>
-                <button className={styles['date-picker']}>
-                    Past 7 Days <i className="fas fa-chevron-down" style={{ marginLeft: '8px' }}></i>
-                </button>
             </div>
             <div className={styles['analysis-grid']}>
                 {/* 1. SATISFACTION TREND */}

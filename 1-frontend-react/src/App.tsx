@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 // Pages
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import Home from './pages/Home';
 import Analysis from './pages/Analysis';
 import Settings from './pages/Settings';
@@ -19,6 +21,7 @@ import HighRiskAlerts from './pages/admin/HighRiskAlerts';
 import UserFeedback from './pages/admin/UserFeedback';
 import AdminResources from './pages/admin/AdminResources';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminUploadFAQ from './pages/admin/AdminUploadFAQ';
 
 // ==========================================
 // --- TOKEN CHECK ---
@@ -122,6 +125,8 @@ export default function App(): JSX.Element {
         {/* --- Public Routes (Anyone can see these) --- */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* --- SECURE ZONE: USERS --- */}
         {/* Every route inside this block gets the Sidebar and User Auth checks automatically */}
@@ -142,6 +147,7 @@ export default function App(): JSX.Element {
           <Route path="/admin-alerts" element={<HighRiskAlerts />} />
           <Route path="/admin-feedback" element={<UserFeedback />} />
           <Route path="/admin-resources" element={<AdminResources />} />
+          <Route path="/admin-upload-faq" element={<AdminUploadFAQ />} />
           <Route path="/admin-profile" element={<AdminSettings />} />
         </Route>
 

@@ -89,7 +89,7 @@ export default function Login() {
                 </form>
                 <div className={styles['footer-links']}>
                     <p>Don't have an account? <Link to="/register">Create free account</Link></p>
-                    <p style={{ marginTop: '8px' }}><a href="#" style={{ fontWeight: 500, color: 'var(--text-muted)', fontSize: '0.85rem' }}>Forgot password?</a></p>
+                    <p style={{ marginTop: '8px' }}><Link to="/forgot-password" style={{ fontWeight: 500, color: 'var(--text-muted)', fontSize: '0.85rem' }}>Forgot password?</Link></p>
                 </div>
             </div>
         </div>

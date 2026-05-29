@@ -45,7 +45,7 @@ export default function AdminResources() {
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!title) return alert('Please enter a title');
-        
+
         // Strict logic check: System will not accept if admin uploads a PDF AND pastes a URL
         if (file && url) return alert('System Error: You cannot upload a PDF file and paste a URL link at the same time. Please provide only one.');
         if (!file && !url) return alert('Please provide either a PDF file or a URL link.');
@@ -64,7 +64,7 @@ export default function AdminResources() {
             }
 
             const response = await axios.post('http://localhost:3000/api/admin/resources', formData, {
-                headers: { 
+                headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
                 }
@@ -101,8 +101,8 @@ export default function AdminResources() {
         }
     };
 
-    const filteredResources = resources.filter(r => 
-        r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filteredResources = resources.filter(r =>
+        r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -110,11 +110,6 @@ export default function AdminResources() {
         <main className={styles['main-content']}>
             <div className={styles['dashboard-header']}>
                 <h1>Resource Management</h1>
-                <div className={styles['header-actions']}>
-                    <div className={styles['icon-btn']} title="Notifications">
-                        <i className="far fa-bell"></i>
-                    </div>
-                </div>
             </div>
 
             <div className={styles['stats-grid']}>

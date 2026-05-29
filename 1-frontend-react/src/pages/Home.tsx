@@ -284,12 +284,7 @@ export default function Home(): JSX.Element {
         <>
             <main className={styles['main-content']}>
                 <div style={{ position: 'absolute', top: '24px', left: '40px', fontWeight: 600, fontSize: '1.1rem' }}>AI Chat</div>
-                <div style={{ position: 'absolute', top: '24px', right: '40px', display: 'flex', gap: '15px' }}>
-                    <button className={styles['upgrade-pill']}>
-                        <i className="fas fa-bolt"></i> Upgrade Plan
-                    </button>
-                    <i className="far fa-bell" style={{ fontSize: '1.2rem', color: 'var(--text-muted)', cursor: 'pointer', alignSelf: 'center' }}></i>
-                </div>
+
 
                 {messages.length === 0 && (
                     <div id="welcome-section">
@@ -409,8 +404,6 @@ export default function Home(): JSX.Element {
                     ></textarea>
                     <div className={styles['input-footer']}>
                         <div className={styles['attachments']}>
-                            <button className={styles['attach-btn']} disabled={isSessionEnded}><i className="fas fa-paperclip"></i> Attach</button>
-                            <button className={styles['attach-btn']} disabled={isSessionEnded}><i className="fas fa-microphone"></i> Voice Message</button>
                         </div>
                         <button className={styles['send-btn']} onClick={handleSendMessage} disabled={isSessionEnded}>
                             <i className="fas fa-paper-plane"></i>

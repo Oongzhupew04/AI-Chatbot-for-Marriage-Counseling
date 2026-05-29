@@ -25,3 +25,21 @@ class FaqRepository:
         finally:
             if cursor:
                 cursor.close()
+
+    def add_faq(self, question: str, answer: str):
+        connection = None
+        cursor = None
+        try:
+            connection = db.get_connection()
+            cursor = connection.cursor()
+            cursor.execute("INSERT INTO faq (question, answer) VALUES (?, ?)", (question, answer))
+            connection.commit()
+            return True, "FAQ uploaded successfully"
+        except Exception as e:
+            print(f"Error adding FAQ: {e}")
+            if connection:
+                connection.rollback()
+            return False, "Failed to add FAQ to database"
+        finally:
+            if cursor:
+                cursor.close()

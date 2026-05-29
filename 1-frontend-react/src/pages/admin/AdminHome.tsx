@@ -37,26 +37,26 @@ export default function AdminHome() {
         fetchAdminData();
     }, []);
 
-    const filteredUsers = users.filter(u => 
-        u.role !== 'admin' && 
+    const filteredUsers = users.filter(u =>
+        u.role !== 'admin' &&
         (u.username.toLowerCase().includes(searchQuery.toLowerCase()) || u.email.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const handleAction = async (actionType: 'freeze' | 'reset-password' | 'delete') => {
         if (!selectedUser) return;
-        
-        const confirmMsg = actionType === 'delete' 
-            ? 'Are you sure you want to permanently delete this user?' 
+
+        const confirmMsg = actionType === 'delete'
+            ? 'Are you sure you want to permanently delete this user?'
             : `Are you sure you want to ${actionType} this user?`;
-            
+
         if (!window.confirm(confirmMsg)) return;
-        
+
         setActionLoading(true);
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
             const userId = selectedUser.id;
-            
+
             if (actionType === 'freeze') {
                 const res = await axios.put(`http://localhost:3000/api/admin/users/${userId}/freeze`, {}, config);
                 if (res.data.success) {
@@ -86,15 +86,6 @@ export default function AdminHome() {
         <main className={styles['main-content']}>
             <div className={styles['dashboard-header']}>
                 <h1>Analytics & Overview</h1>
-                <div className={styles['header-actions']}>
-                    <div className={styles['icon-btn']} title="Notifications">
-                        <i className="far fa-bell"></i>
-                        <div className={styles['badge']}></div>
-                    </div>
-                    <button style={{ background: 'var(--text-main)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '20px', fontWeight: 600, cursor: 'pointer' }}>
-                        <i className="fas fa-plus" style={{ marginRight: '8px' }}></i> Generate Report
-                    </button>
-                </div>
             </div>
 
             {loading ? (
@@ -238,7 +229,6 @@ export default function AdminHome() {
 
                     <div className={styles['section-header']}>
                         <span>Recent High-Risk Incidents</span>
-                        <button className={styles['action-btn']}>View All</button>
                     </div>
 
                     <div className={styles['incident-list']}>
@@ -308,8 +298,8 @@ export default function AdminHome() {
                                         <td>{user.created_at !== 'N/A' && user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Recent'}</td>
                                         <td>{user.sessions_count}</td>
                                         <td>
-                                            <button 
-                                                className={styles['action-btn']} 
+                                            <button
+                                                className={styles['action-btn']}
                                                 onClick={() => { setSelectedUser(user); setIsModalOpen(true); }}
                                             >
                                                 Details
@@ -328,7 +318,7 @@ export default function AdminHome() {
                 </>
             )}
 
-            <UserDetailsModal 
+            <UserDetailsModal
                 isOpen={isModalOpen}
                 user={selectedUser}
                 onClose={() => setIsModalOpen(false)}

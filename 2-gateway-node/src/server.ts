@@ -166,6 +166,34 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
     }
 });
 
+app.post('/api/auth/forgot-password', async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email } = req.body;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/forgot-password`, {
+            email: email
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to request forgot password OTP:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not request OTP" });
+    }
+});
+
+app.post('/api/auth/reset-password', async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/reset-password`, {
+            email: email,
+            otp: otp,
+            new_password: newPassword
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to reset password:", error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not reset password" });
+    }
+});
+
 // Get FAQs
 app.get('/api/faq', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -719,6 +747,21 @@ app.delete('/api/admin/users/:id', requireAdmin, async (req: AuthRequest, res: R
     } catch (error: any) {
         console.error("Failed to delete user account:", error.message);
         res.status(error.response?.status || 500).json({ error: error.response?.data?.detail || "Could not delete user" });
+    }
+});
+
+// Admin Add FAQ
+app.post('/api/admin/faqs', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { question, answer } = req.body;
+        const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/admin/faqs`, {
+            question,
+            answer
+        });
+        res.json(pythonResponse.data);
+    } catch (error: any) {
+        console.error("Failed to add FAQ:", error.message);
+        res.status(500).json({ error: "Could not add FAQ" });
     }
 });
 
