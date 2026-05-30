@@ -10,6 +10,12 @@ npx ts-node src/server.ts
 cd 1-frontend-react
 npm run dev
 
+(To run mobile application)
+cd 1-frontend-mobile
+npx expo start
+
+npx expo start -c
+
 admin@gmail.com
 admin123
 

@@ -1,0 +1,304 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRouter, Link } from 'expo-router';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
+import { FontAwesome6, Ionicons } from '@expo/vector-icons';
+import { API_BASE_URL } from '../../constants/Config';
+import DishonestyModal from '../../components/modals/DishonestyModal';
+import RegistrationOtpModal from '../../components/modals/RegistrationOtpModal';
+import { LinearGradient } from 'expo-linear-gradient';
+
+export default function RegisterScreen() {
+    const [formData, setFormData] = useState({
+        username: '', email: '', password: '', confirm_password: '',
+        sex: '', age: '', years_married: '', children_count: '',
+        children_raised: '', education: '', material_situation: '',
+        religious_affiliation: '', religiousness: '',
+        q13: '', q17: '', q19: '', q20: '',
+        privacy_policy: false, ai_consent: false
+    });
+    
+    const [error, setError] = useState('');
+    const [isValid, setIsValid] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [otpError, setOtpError] = useState('');
+    const router = useRouter();
+
+    useEffect(() => {
+        validateForm();
+    }, [formData]);
+
+    const validateForm = () => {
+        const { email, password, confirm_password, privacy_policy, ai_consent } = formData;
+        let errorMessage = "";
+        let valid = true;
+
+        if (email && !email.includes('@')) { errorMessage = "Email Address must contain an '@' symbol."; valid = false; }
+        else if (password.length > 0) {
+            if (password.length < 8) { errorMessage = "Password must be at least 8 characters."; valid = false; }
+            else if (!/[A-Z]/.test(password)) { errorMessage = "Password must contain an uppercase letter."; valid = false; }
+            else if (!/[a-z]/.test(password)) { errorMessage = "Password must contain a lowercase letter."; valid = false; }
+            else if (!/[0-9]/.test(password)) { errorMessage = "Password must contain a number."; valid = false; }
+        } else { valid = false; }
+
+        if (confirm_password.length > 0 && password !== confirm_password) {
+            errorMessage = "Passwords do not match!";
+            valid = false;
+        }
+
+        const requiredFields = [
+            'sex', 'age', 'years_married', 'children_count',
+            'children_raised', 'education', 'material_situation', 'religious_affiliation',
+            'religiousness', 'q13', 'q17', 'q19', 'q20'
+        ];
+        const hasEmptyFields = requiredFields.some(field => (formData as any)[field] === '');
+
+        if (valid && hasEmptyFields) {
+            errorMessage = "Please complete ALL Personal Information and Relationship Assessment.";
+            valid = false;
+        }
+
+        if (valid && password === confirm_password && (!privacy_policy || !ai_consent)) {
+            errorMessage = "You must accept the terms and AI consent.";
+            valid = false;
+        }
+
+        setError(errorMessage);
+        setIsValid(valid && password === confirm_password && privacy_policy && ai_consent);
+    };
+
+    const handleChange = (name: string, value: string | boolean) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async () => {
+        if (!isValid) return;
+
+        try {
+            setIsSubmitting(true);
+            setError('');
+            const response = await axios.post(`${API_BASE_URL}/api/auth/request-registration-otp`, { email: formData.email });
+            if (response.data.success) setShowOtpModal(true);
+            else setError(response.data.message || "Failed to send OTP.");
+        } catch (err: any) {
+            setError(err.response?.data?.error || "Could not connect to server.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleVerifyAndRegister = async () => {
+        try {
+            setIsSubmitting(true);
+            setOtpError('');
+            const response = await axios.post(`${API_BASE_URL}/api/auth/register`, { ...formData, otp });
+            if (response.data.success) {
+                setShowOtpModal(false);
+                if (response.data.dishonesty_detected) setShowPopup(true);
+                else Alert.alert("Success", "Account created successfully!", [{ text: "OK", onPress: () => router.replace('/auth/login') }]);
+            } else setOtpError(response.data.message || "Registration failed.");
+        } catch (err: any) {
+            setOtpError(err.response?.data?.error || "Could not connect to server.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const renderPicker = (label: string, name: keyof typeof formData, options: {label: string, value: string}[]) => (
+        <View style={styles.formGroup}>
+            <Text style={styles.label}>{label}</Text>
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={(formData as any)[name]}
+                    onValueChange={(val) => handleChange(name, val)}
+                    style={styles.picker}
+                >
+                    <Picker.Item label="Select..." value="" color="#A0AEC0" />
+                    {options.map((opt, i) => <Picker.Item key={i} label={opt.label} value={opt.value} />)}
+                </Picker>
+            </View>
+        </View>
+    );
+
+    const scale1Options = [
+        { label: "1 - Yes", value: "1" }, { label: "2 - Rather yes", value: "2" },
+        { label: "3 - Neither yes nor no", value: "3" }, { label: "4 - Rather not", value: "4" }, { label: "5 - No", value: "5" }
+    ];
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <LinearGradient colors={['#EBF3F1', '#dae8e4']} style={styles.bgBlob} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+            
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                    
+                    <View style={styles.card}>
+                        <View style={styles.brandContainer}>
+                            <FontAwesome6 name="heart-pulse" size={22} color="#7C9A92" />
+                            <Text style={styles.brandText}>Counselor.AI</Text>
+                        </View>
+                        <View style={styles.header}>
+                            <Text style={styles.headerTitle}>Create your account</Text>
+                            <Text style={styles.headerSubtitle}>Start your journey towards a healthier relationship.</Text>
+                        </View>
+
+                        {/* Account Basics */}
+                        <View style={styles.formGroup}>
+                            <Text style={styles.label}>Username / Full Name</Text>
+                            <TextInput style={styles.input} value={formData.username} onChangeText={(val) => handleChange('username', val)} />
+                        </View>
+                        <View style={styles.formGroup}>
+                            <Text style={styles.label}>Email Address</Text>
+                            <TextInput style={styles.input} value={formData.email} onChangeText={(val) => handleChange('email', val)} keyboardType="email-address" autoCapitalize="none" />
+                        </View>
+
+                        <View style={styles.formRow}>
+                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                                <Text style={styles.label}>Password</Text>
+                                <TextInput style={styles.input} value={formData.password} onChangeText={(val) => handleChange('password', val)} secureTextEntry />
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                                <Text style={styles.label}>Confirm Password</Text>
+                                <TextInput style={styles.input} value={formData.confirm_password} onChangeText={(val) => handleChange('confirm_password', val)} secureTextEntry />
+                            </View>
+                        </View>
+
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.sectionTitle}>Personal Information</Text>
+
+                        <View style={styles.formRow}>
+                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                                {renderPicker("Sex", "sex", [{label: "Male", value: "Male"}, {label: "Female", value: "Female"}])}
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1, marginHorizontal: 4 }]}>
+                                <Text style={styles.label}>Age</Text>
+                                <TextInput style={styles.input} value={formData.age} onChangeText={(val) => handleChange('age', val)} keyboardType="number-pad" />
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                                <Text style={styles.label}>Years Married</Text>
+                                <TextInput style={styles.input} value={formData.years_married} onChangeText={(val) => handleChange('years_married', val)} keyboardType="number-pad" />
+                            </View>
+                        </View>
+
+                        <View style={styles.formRow}>
+                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                                <Text style={styles.label}>Children (Total)</Text>
+                                <TextInput style={styles.input} value={formData.children_count} onChangeText={(val) => handleChange('children_count', val)} keyboardType="number-pad" />
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                                <Text style={styles.label}>Children Raised Presently</Text>
+                                <TextInput style={styles.input} value={formData.children_raised} onChangeText={(val) => handleChange('children_raised', val)} keyboardType="number-pad" />
+                            </View>
+                        </View>
+
+                        <View style={styles.formRow}>
+                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                                {renderPicker("Education", "education", [
+                                    {label: "No formal education", value: "No formal education"}, {label: "Primary school", value: "Primary school"},
+                                    {label: "Secondary school", value: "Secondary school"}, {label: "High school/college", value: "High school or technical college"},
+                                    {label: "Bachelor/Masters", value: "Bachelor or masters degree"}
+                                ])}
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                                {renderPicker("Material Situation (vs Average)", "material_situation", [
+                                    {label: "Much better", value: "Much better"}, {label: "Better", value: "Better"},
+                                    {label: "Similar", value: "Similar"}, {label: "Worse", value: "Worse"}, {label: "Much worse", value: "Much worse"}
+                                ])}
+                            </View>
+                        </View>
+
+                        <View style={styles.formRow}>
+                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                                {renderPicker("Religious Affiliation", "religious_affiliation", [
+                                    {label: "Protestant", value: "Protestant"}, {label: "Catholic", value: "Catholic"},
+                                    {label: "Jewish", value: "Jewish"}, {label: "Muslim", value: "Muslim"},
+                                    {label: "Buddhist", value: "Buddhist"}, {label: "None", value: "None"},
+                                    {label: "Other", value: "Other"}
+                                ])}
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                                {renderPicker("Religiousness (1-7)", "religiousness", [
+                                    {label: "1 - Not at all", value: "1"}, {label: "2", value: "2"}, {label: "3", value: "3"},
+                                    {label: "4 - Moderately", value: "4"}, {label: "5", value: "5"}, {label: "6", value: "6"}, {label: "7 - Extremely", value: "7"}
+                                ])}
+                            </View>
+                        </View>
+
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.sectionTitle}>Relationship Assessment</Text>
+
+                        {renderPicker("Do you find your spouse attractive?", "q13", scale1Options)}
+                        {renderPicker("Are you proud of your spouse?", "q17", scale1Options)}
+                        {renderPicker("Do you love your spouse?", "q19", scale1Options)}
+                        {renderPicker("Overall, how satisfied are you with your marriage?", "q20", [
+                            {label: "1 - Very dissatisfied", value: "1"}, {label: "2", value: "2"},
+                            {label: "3", value: "3"}, {label: "4", value: "4"}, {label: "5 - Very satisfied", value: "5"}
+                        ])}
+
+                        <View style={styles.dividerLine} />
+
+                        <TouchableOpacity style={styles.checkboxRow} onPress={() => handleChange('privacy_policy', !formData.privacy_policy)}>
+                            <Ionicons name={formData.privacy_policy ? "checkbox" : "square-outline"} size={22} color={formData.privacy_policy ? "#7C9A92" : "#718096"} />
+                            <Text style={styles.checkboxLabel}>I agree to the Privacy Policy.</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.checkboxRow} onPress={() => handleChange('ai_consent', !formData.ai_consent)}>
+                            <Ionicons name={formData.ai_consent ? "checkbox" : "square-outline"} size={22} color={formData.ai_consent ? "#7C9A92" : "#718096"} />
+                            <Text style={styles.checkboxLabel}>I consent to AI-assisted emotional support.</Text>
+                        </TouchableOpacity>
+
+                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+                        <TouchableOpacity style={[styles.submitBtn, !isValid && styles.submitBtnDisabled]} onPress={handleSubmit} disabled={!isValid || isSubmitting}>
+                            {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitBtnText}>Create Account</Text>}
+                        </TouchableOpacity>
+
+                        <View style={styles.footerLinks}>
+                            <Text style={styles.footerText}>Already have an account? </Text>
+                            <Link href="/auth/login" asChild>
+                                <TouchableOpacity><Text style={styles.linkText}>Sign in</Text></TouchableOpacity>
+                            </Link>
+                        </View>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+            {showPopup && <DishonestyModal onClose={() => { setShowPopup(false); router.replace('/auth/login'); }} />}
+            <RegistrationOtpModal isOpen={showOtpModal} email={formData.email} otp={otp} setOtp={setOtp} otpError={otpError} isSubmitting={isSubmitting} onClose={() => setShowOtpModal(false)} onSubmit={handleVerifyAndRegister} />
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: '#F2F4F3', position: 'relative' },
+    bgBlob: { position: 'absolute', width: 700, height: 700, borderRadius: 350, bottom: -200, left: -150, opacity: 0.6 },
+    scrollContent: { padding: 20, paddingTop: 60, paddingBottom: 60, alignItems: 'center' },
+    card: {
+        backgroundColor: '#FFFFFF', borderRadius: 20, padding: 30, width: '100%', maxWidth: 520,
+        shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 40, elevation: 10
+    },
+    brandContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 24, gap: 10 },
+    brandText: { fontFamily: 'Merriweather_700Bold', fontSize: 22.4, color: '#2D3748' },
+    header: { alignItems: 'center', marginBottom: 24 },
+    headerTitle: { fontFamily: 'Merriweather_700Bold', fontSize: 28, color: '#2D3748', marginBottom: 8, textAlign: 'center' },
+    headerSubtitle: { fontFamily: 'Inter_400Regular', fontSize: 15.2, color: '#718096', textAlign: 'center' },
+    sectionTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 17.6, color: '#2D3748', marginBottom: 15 },
+    formRow: { flexDirection: 'row', width: '100%' },
+    formGroup: { marginBottom: 16, width: '100%' },
+    label: { fontFamily: 'Inter_600SemiBold', fontSize: 13.6, color: '#2D3748', marginBottom: 8 },
+    input: { fontFamily: 'Inter_400Regular', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#2D3748' },
+    pickerContainer: { backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, overflow: 'hidden' },
+    picker: { height: 50, width: '100%' },
+    dividerLine: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 20 },
+    checkboxRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
+    checkboxLabel: { fontFamily: 'Inter_400Regular', marginLeft: 12, fontSize: 13.6, color: '#718096', flex: 1, marginTop: 2, lineHeight: 18 },
+    errorText: { fontFamily: 'Inter_600SemiBold', color: '#E53E3E', fontSize: 14.4, textAlign: 'center', marginVertical: 10 },
+    submitBtn: { width: '100%', backgroundColor: '#7C9A92', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 10, marginBottom: 24 },
+    submitBtnDisabled: { opacity: 0.5 },
+    submitBtnText: { fontFamily: 'Inter_600SemiBold', color: '#FFFFFF', fontSize: 16 },
+    footerLinks: { flexDirection: 'row', justifyContent: 'center' },
+    footerText: { fontFamily: 'Inter_400Regular', color: '#718096', fontSize: 14.4 },
+    linkText: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92', fontSize: 14.4 }
+});
