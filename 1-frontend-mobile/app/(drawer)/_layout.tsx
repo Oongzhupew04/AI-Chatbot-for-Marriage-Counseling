@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { useRouter, usePathname } from 'expo-router';
+import { useRouter, usePathname, Redirect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { API_BASE_URL } from '../../constants/Config';
 
 function CustomDrawerContent(props: any) {
     const [userName, setUserName] = useState('');
@@ -16,9 +18,59 @@ function CustomDrawerContent(props: any) {
 
     useEffect(() => {
         const loadProfileData = async () => {
+            const token = await AsyncStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await axios.get(`${API_BASE_URL}/api/users/profile`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.data.success) {
+                        const { username, email, profile_pic } = response.data.profile;
+                        
+                        setUserName(username || '');
+                        setUserEmail(email || '');
+                        
+                        let finalPicUrl = profile_pic;
+                        if (finalPicUrl) {
+                            if (finalPicUrl.startsWith('http://localhost:3000')) {
+                                finalPicUrl = finalPicUrl.replace('http://localhost:3000', API_BASE_URL);
+                            } else if (finalPicUrl.startsWith('/')) {
+                                finalPicUrl = `${API_BASE_URL}${finalPicUrl}`;
+                            }
+                        }
+
+                        if (finalPicUrl) {
+                            setProfilePic(finalPicUrl);
+                            await AsyncStorage.setItem('profilePic', finalPicUrl);
+                        } else {
+                            setProfilePic(null);
+                            await AsyncStorage.removeItem('profilePic');
+                        }
+                        
+                        if (username) await AsyncStorage.setItem('username', username);
+                        if (email) await AsyncStorage.setItem('email', email);
+
+                        const derivedInitials = (username || 'U')
+                            .split(' ')
+                            .map((n: string) => n[0])
+                            .join('')
+                            .substring(0, 2)
+                            .toUpperCase();
+                        setInitials(derivedInitials);
+                        
+                        return; // Successfully loaded from DB, skip local storage fallback
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch latest profile for drawer:", error);
+                }
+            }
+
+            // Fallback to local storage if API fails or no token
             const storedName = await AsyncStorage.getItem('username');
             const storedEmail = await AsyncStorage.getItem('email');
-            
+            const storedPic = await AsyncStorage.getItem('profilePic');
+
             if (storedName) {
                 setUserName(storedName);
                 const derivedInitials = storedName
@@ -31,6 +83,11 @@ function CustomDrawerContent(props: any) {
             }
             if (storedEmail) {
                 setUserEmail(storedEmail);
+            }
+            if (storedPic) {
+                setProfilePic(storedPic);
+            } else {
+                setProfilePic(null);
             }
         };
 
@@ -57,20 +114,6 @@ function CustomDrawerContent(props: any) {
 
                 <View style={styles.divider} />
 
-                {/* Recent Sessions header inside drawer */}
-                <Text style={styles.sectionHeader}>Recent Sessions</Text>
-                
-                {/* Note: In a full app, you would map over fetched sessions here */}
-                <TouchableOpacity style={styles.historyItem}>
-                    <View style={styles.historyIcon}><FontAwesome6 name="comment-dots" size={14} color="#718096" /></View>
-                    <View style={styles.historyInfo}>
-                        <Text style={styles.historyTitle}>New Chat</Text>
-                        <Text style={styles.historyDate}>Today</Text>
-                    </View>
-                </TouchableOpacity>
-
-                <View style={styles.divider} />
-
                 {/* Settings / Help */}
                 <TouchableOpacity style={styles.navItem}>
                     <FontAwesome6 name="gear" size={16} color="#718096" style={{ width: 24 }} />
@@ -80,6 +123,10 @@ function CustomDrawerContent(props: any) {
                     <FontAwesome6 name="circle-question" size={16} color="#718096" style={{ width: 24 }} />
                     <Text style={styles.navText}>Help</Text>
                 </TouchableOpacity>
+
+            </DrawerContentScrollView>
+
+            <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
                 <TouchableOpacity style={styles.navItem}>
                     <FontAwesome6 name="circle-user" size={16} color="#718096" style={{ width: 24 }} />
                     <Text style={styles.navText}>My Profile</Text>
@@ -89,19 +136,20 @@ function CustomDrawerContent(props: any) {
                     <Text style={[styles.navText, { color: '#E53E3E' }]}>Log Out</Text>
                 </TouchableOpacity>
 
-            </DrawerContentScrollView>
+                <View style={[styles.divider, { marginBottom: 16, marginTop: 8 }]} />
 
-            <View style={styles.userProfile}>
-                {profilePic ? (
-                    <Image source={{ uri: profilePic }} style={styles.avatar} />
-                ) : (
-                    <View style={styles.avatarFallback}>
-                        <Text style={styles.avatarText}>{initials || 'U'}</Text>
+                <View style={[styles.userProfile, { padding: 0, borderTopWidth: 0 }]}>
+                    {profilePic ? (
+                        <Image source={{ uri: profilePic }} style={styles.avatar} />
+                    ) : (
+                        <View style={styles.avatarFallback}>
+                            <Text style={styles.avatarText}>{initials || 'U'}</Text>
+                        </View>
+                    )}
+                    <View style={styles.userInfo}>
+                        <Text style={styles.userName} numberOfLines={1}>{userName || 'User'}</Text>
+                        <Text style={styles.userEmail} numberOfLines={1}>{userEmail || 'user@example.com'}</Text>
                     </View>
-                )}
-                <View style={styles.userInfo}>
-                    <Text style={styles.userName} numberOfLines={1}>{userName || 'User'}</Text>
-                    <Text style={styles.userEmail} numberOfLines={1}>{userEmail || 'user@example.com'}</Text>
                 </View>
             </View>
         </View>
@@ -109,6 +157,28 @@ function CustomDrawerContent(props: any) {
 }
 
 export default function DrawerLayout() {
+    const [isChecking, setIsChecking] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = await AsyncStorage.getItem('token');
+            if (token) {
+                setIsAuthenticated(true);
+            }
+            setIsChecking(false);
+        };
+        checkAuth();
+    }, []);
+
+    if (isChecking) {
+        return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
+    }
+
+    if (!isAuthenticated) {
+        return <Redirect href="/auth/login" />;
+    }
+
     return (
         <Drawer
             drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -123,12 +193,17 @@ export default function DrawerLayout() {
                 drawerLabelStyle: {
                     fontFamily: 'Inter_500Medium',
                     fontSize: 15,
-                    marginLeft: -15,
+                    marginLeft: -5,
                 }
             }}
         >
             <Drawer.Screen
                 name="index" // This matches app/(drawer)/index.tsx
+                listeners={{
+                    drawerItemPress: () => {
+                        DeviceEventEmitter.emit('startNewChat');
+                    }
+                }}
                 options={{
                     drawerLabel: 'Home',
                     title: 'Home',
@@ -137,7 +212,26 @@ export default function DrawerLayout() {
                     ),
                 }}
             />
-            {/* You can add more screens like analysis.tsx, resources.tsx here */}
+            <Drawer.Screen
+                name="analysis"
+                options={{
+                    drawerLabel: 'Analysis',
+                    title: 'Analysis',
+                    drawerIcon: ({ color }) => (
+                        <FontAwesome6 name="chart-pie" size={16} color={color} style={{ width: 20 }} />
+                    ),
+                }}
+            />
+            <Drawer.Screen
+                name="resources"
+                options={{
+                    drawerLabel: 'Resources',
+                    title: 'Resources',
+                    drawerIcon: ({ color }) => (
+                        <FontAwesome6 name="book-open" size={16} color={color} style={{ width: 20 }} />
+                    ),
+                }}
+            />
         </Drawer>
     );
 }

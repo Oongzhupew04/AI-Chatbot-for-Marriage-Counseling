@@ -343,7 +343,7 @@ export default function Register() {
             )}
 
             {/* OTP Verification Modal */}
-            <RegistrationOtpModal 
+            <RegistrationOtpModal
                 isOpen={showOtpModal}
                 email={formData.email}
                 otp={otp}

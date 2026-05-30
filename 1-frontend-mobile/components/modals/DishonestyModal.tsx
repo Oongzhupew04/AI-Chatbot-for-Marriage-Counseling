@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 interface DishonestyModalProps {
     onClose: () => void;
@@ -9,23 +9,20 @@ interface DishonestyModalProps {
 export default function DishonestyModal({ onClose }: DishonestyModalProps) {
     return (
         <Modal transparent={true} animationType="fade" visible={true} onRequestClose={onClose}>
-            <View style={styles.overlay}>
-                <View style={styles.modalCard}>
-                    <View style={styles.header}>
-                        <Ionicons name="warning" size={24} color="#f59e0b" style={styles.icon} />
-                        <Text style={styles.title}>Registration Successful</Text>
+            <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
+                <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={() => {}}>
+                    <View style={styles.iconCircle}>
+                        <FontAwesome5 name="info" size={24} color="#FFFFFF" />
                     </View>
-                    <Text style={styles.message}>
-                        Thank you for registering. However, based on your responses, our system has identified potential inconsistencies or signs of dishonest answers in your relationship assessment.
-                    </Text>
-                    <Text style={styles.message}>
-                        For AI-assisted counseling to be effective, honesty is crucial. We encourage you to reflect on your answers. You may proceed to login.
+                    <Text style={styles.heading}>Notice</Text>
+                    <Text style={styles.text}>
+                        Please be honest with us after this as we detected some dishonesty in the relationship assessment for better experience.
                     </Text>
                     <TouchableOpacity style={styles.button} onPress={onClose}>
-                        <Text style={styles.buttonText}>Acknowledge & Login</Text>
+                        <Text style={styles.buttonText}>I Understand</Text>
                     </TouchableOpacity>
-                </View>
-            </View>
+                </TouchableOpacity>
+            </TouchableOpacity>
         </Modal>
     );
 }
@@ -36,48 +33,56 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
     },
-    modalCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 24,
-        width: '100%',
-        maxWidth: 400,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    header: {
-        flexDirection: 'row',
+    modalContainer: {
+        backgroundColor: '#FFFFFF',
+        paddingVertical: 32,
+        paddingHorizontal: 24,
+        borderRadius: 16,
+        width: '85%',
+        maxWidth: 380,
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    iconCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: '#7C9A92',
+        alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 16,
     },
-    icon: {
-        marginRight: 8,
-    },
-    title: {
-        fontSize: 18,
+    heading: {
+        fontSize: 20,
         fontWeight: 'bold',
-        color: '#1f2937',
+        color: '#1F2937',
+        marginBottom: 12,
+        fontFamily: 'Inter_600SemiBold',
     },
-    message: {
-        fontSize: 14,
-        color: '#4b5563',
-        marginBottom: 16,
-        lineHeight: 20,
+    text: {
+        fontSize: 15,
+        color: '#6B7280',
+        marginBottom: 28,
+        lineHeight: 22,
+        textAlign: 'center',
+        fontFamily: 'Inter_400Regular',
     },
     button: {
-        backgroundColor: '#000',
-        paddingVertical: 12,
+        backgroundColor: '#7C9A92',
+        paddingVertical: 14,
         borderRadius: 8,
+        width: '100%',
         alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontWeight: '600',
+        fontSize: 15,
+        fontFamily: 'Inter_600SemiBold',
     },
 });

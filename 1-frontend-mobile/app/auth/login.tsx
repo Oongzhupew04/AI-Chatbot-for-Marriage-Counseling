@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, StatusBar, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -30,16 +30,16 @@ export default function LoginScreen() {
                 email,
                 password
             });
-            
+
             const data = response.data;
-            
+
             if (data.token) {
                 await AsyncStorage.setItem('token', data.token);
                 await AsyncStorage.setItem('userID', String(data.id));
                 await AsyncStorage.setItem('username', data.username);
                 await AsyncStorage.setItem('email', data.email);
                 await AsyncStorage.removeItem('currentChatId');
-                
+
                 if (data.role) {
                     await AsyncStorage.setItem('userRole', data.role);
                 }
@@ -64,23 +64,19 @@ export default function LoginScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <LinearGradient
-                colors={['#EBF3F1', '#dae8e4']}
-                style={styles.bgBlob}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-            />
-            
-            <KeyboardAvoidingView 
+            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+
+            <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
             >
-                <View style={styles.card}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.card}>
                     <View style={styles.brandContainer}>
                         <FontAwesome6 name="heart-pulse" size={24} color="#7C9A92" />
                         <Text style={styles.brandText}>Counselor.AI</Text>
                     </View>
-                    
+
                     <View style={styles.header}>
                         <Text style={styles.headerTitle}>Welcome Back</Text>
                         <Text style={styles.headerSubtitle}>Please enter your details to sign in.</Text>
@@ -123,14 +119,14 @@ export default function LoginScreen() {
                     </View>
 
                     <View style={styles.disclaimerBox}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.checkboxContainer}
                             onPress={() => setConsent(!consent)}
                         >
-                            <Ionicons 
-                                name={consent ? "checkbox" : "square-outline"} 
-                                size={20} 
-                                color={consent ? "#7C9A92" : "#718096"} 
+                            <Ionicons
+                                name={consent ? "checkbox" : "square-outline"}
+                                size={20}
+                                color={consent ? "#7C9A92" : "#718096"}
                                 style={styles.checkboxIcon}
                             />
                         </TouchableOpacity>
@@ -139,8 +135,8 @@ export default function LoginScreen() {
                         </Text>
                     </View>
 
-                    <TouchableOpacity 
-                        style={styles.submitBtn} 
+                    <TouchableOpacity
+                        style={styles.submitBtn}
                         onPress={handleLogin}
                         disabled={isLoading}
                     >
@@ -164,7 +160,8 @@ export default function LoginScreen() {
                             <Text style={styles.forgotPasswordText}>Forgot password?</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                    </View>
+                </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -173,7 +170,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F2F4F3', // var(--bg-body)
+        backgroundColor: '#FFFFFF',
         position: 'relative',
     },
     bgBlob: {
@@ -187,19 +184,15 @@ const styles = StyleSheet.create({
     },
     keyboardView: {
         flex: 1,
-        justifyContent: 'center',
-        padding: 20,
     },
     card: {
-        backgroundColor: '#FFFFFF', // var(--bg-white)
-        borderRadius: 20, // var(--radius-lg)
-        padding: 30, // Adjusted for mobile screen size vs web 48px
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.08,
-        shadowRadius: 40,
-        elevation: 10,
-        alignItems: 'center', // Center content horizontally
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 24,
+        paddingTop: 40,
+        paddingBottom: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     brandContainer: {
         flexDirection: 'row',
@@ -336,10 +329,12 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         color: '#7C9A92', // var(--primary-sage)
         fontSize: 14.4,
+        textDecorationLine: 'underline',
     },
     forgotPasswordText: {
         fontFamily: 'Inter_500Medium',
         color: '#718096',
         fontSize: 13.6, // 0.85rem
+        textDecorationLine: 'underline',
     }
 });

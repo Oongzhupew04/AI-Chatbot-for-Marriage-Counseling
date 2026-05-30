@@ -25,45 +25,45 @@ export default function RegistrationOtpModal({
     if (!isOpen) return null;
 
     return (
-        <Modal transparent={true} animationType="slide" visible={isOpen} onRequestClose={onClose}>
-            <View style={styles.overlay}>
-                <View style={styles.modalCard}>
-                    <Text style={styles.title}>Email Verification</Text>
-                    <Text style={styles.subtitle}>
-                        We've sent a 6-digit one-time password to:
+        <Modal transparent={true} animationType="fade" visible={isOpen} onRequestClose={onClose}>
+            <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                    <Text style={styles.heading}>Verify Your Email</Text>
+                    <Text style={styles.emailText}>
+                        We sent a 6-digit verification code to{"\n"}
+                        {email}.
                     </Text>
-                    <Text style={styles.emailText}>{email}</Text>
-                    
+
+                    {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
+
                     <TextInput
-                        style={styles.input}
-                        placeholder="Enter 6-digit OTP"
-                        placeholderTextColor="#9ca3af"
+                        style={styles.otpInput}
+                        placeholder="123456"
+                        placeholderTextColor="#9CA3AF"
                         value={otp}
                         onChangeText={setOtp}
                         keyboardType="number-pad"
                         maxLength={6}
                     />
-                    
-                    {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
-                    
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
-                            style={[styles.button, styles.cancelButton]} 
+
+                    <View style={styles.modalActions}>
+                        <TouchableOpacity
+                            style={styles.btnCancel}
                             onPress={onClose}
                             disabled={isSubmitting}
                         >
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                            <Text style={styles.btnCancelText}>Cancel</Text>
                         </TouchableOpacity>
-                        
-                        <TouchableOpacity 
-                            style={[styles.button, styles.submitButton]} 
+
+                        <TouchableOpacity
+                            style={[styles.btnSubmit, (isSubmitting || otp.length < 6) && styles.btnSubmitDisabled]}
                             onPress={onSubmit}
                             disabled={isSubmitting || otp.length < 6}
                         >
                             {isSubmitting ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.submitButtonText}>Verify & Register</Text>
+                                <Text style={styles.btnSubmitText}>Verify & Register</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -74,89 +74,97 @@ export default function RegistrationOtpModal({
 }
 
 const styles = StyleSheet.create({
-    overlay: {
+    modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
     },
-    modalCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 24,
-        width: '100%',
-        maxWidth: 400,
-        elevation: 5,
+    modalContent: {
+        backgroundColor: '#FFFFFF',
+        paddingVertical: 32,
+        paddingHorizontal: 24,
+        borderRadius: 16,
+        width: '85%',
+        maxWidth: 380,
+        alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
     },
-    title: {
+    heading: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#1f2937',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    subtitle: {
-        fontSize: 14,
-        color: '#4b5563',
-        textAlign: 'center',
+        color: '#1F2937',
+        marginBottom: 12,
+        fontFamily: 'Inter_600SemiBold',
     },
     emailText: {
         fontSize: 15,
-        fontWeight: 'bold',
-        color: '#111827',
+        color: '#6B7280',
+        marginBottom: 24,
+        lineHeight: 22,
         textAlign: 'center',
-        marginBottom: 20,
-        marginTop: 4,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#d1d5db',
-        borderRadius: 8,
-        padding: 12,
-        fontSize: 18,
-        textAlign: 'center',
-        letterSpacing: 4,
-        marginBottom: 8,
-        color: '#111827',
+        fontFamily: 'Inter_400Regular',
     },
     errorText: {
-        color: '#ef4444',
-        fontSize: 13,
+        color: '#EF4444',
+        fontSize: 14,
         marginBottom: 16,
         textAlign: 'center',
+        fontFamily: 'Inter_400Regular',
     },
-    buttonContainer: {
+    otpInput: {
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 8,
+        paddingVertical: 16,
+        fontSize: 24,
+        textAlign: 'center',
+        letterSpacing: 8,
+        marginBottom: 24,
+        width: '100%',
+        color: '#374151',
+        fontWeight: 'bold',
+        fontFamily: 'Inter_600SemiBold',
+    },
+    modalActions: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 16,
+        width: '100%',
         gap: 12,
     },
-    button: {
+    btnCancel: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 14,
         borderRadius: 8,
+        backgroundColor: '#F3F4F6',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    cancelButton: {
-        backgroundColor: '#f3f4f6',
-    },
-    cancelButtonText: {
-        color: '#374151',
+    btnCancelText: {
+        color: '#111827',
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 14,
+        fontFamily: 'Inter_600SemiBold',
     },
-    submitButton: {
-        backgroundColor: '#657e65', // var(--primary-sage) from web app roughly
+    btnSubmit: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 8,
+        backgroundColor: '#7C9A92',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    submitButtonText: {
+    btnSubmitDisabled: {
+        opacity: 0.7,
+    },
+    btnSubmitText: {
         color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontWeight: '600',
+        fontSize: 14,
+        fontFamily: 'Inter_600SemiBold',
     },
 });

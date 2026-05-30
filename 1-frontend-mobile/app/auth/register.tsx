@@ -1,13 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, StatusBar, Modal, FlatList } from 'react-native';
 import { useRouter, Link } from 'expo-router';
-import { Picker } from '@react-native-picker/picker';
+// Custom dropdown avoids iOS wheel
 import axios from 'axios';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { API_BASE_URL } from '../../constants/Config';
-import DishonestyModal from '../../components/modals/DishonestyModal';
-import RegistrationOtpModal from '../../components/modals/RegistrationOtpModal';
+import DishonestyModal from '../../components/modals/dishonestyModal';
+import RegistrationOtpModal from '../../components/modals/registrationOtpModal';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const CustomDropdown = ({ label, value, options, onSelect, style }: { label: string, value: string, options: { label: string, value: string }[], onSelect: (val: string) => void, style?: any }) => {
+    const [visible, setVisible] = useState(false);
+    const selectedLabel = options.find(o => o.value === value)?.label || 'Select...';
+
+    return (
+        <View style={[styles.formGroup, style]}>
+            <Text style={styles.label}>{label}</Text>
+            <TouchableOpacity style={styles.dropdownInput} onPress={() => setVisible(true)}>
+                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: value ? '#2D3748' : '#A0AEC0' }}>{selectedLabel}</Text>
+                <Ionicons name="chevron-down" size={20} color="#718096" />
+            </TouchableOpacity>
+
+            <Modal visible={visible} transparent animationType="slide">
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setVisible(false)}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>{label}</Text>
+                        </View>
+                        <FlatList
+                            data={options}
+                            keyExtractor={item => item.value}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[styles.dropdownItem, value === item.value && styles.dropdownItemSelected]}
+                                    onPress={() => { onSelect(item.value); setVisible(false); }}
+                                >
+                                    <Text style={[styles.dropdownItemText, value === item.value && styles.dropdownItemTextSelected]}>{item.label}</Text>
+                                    {value === item.value && <Ionicons name="checkmark" size={20} color="#7C9A92" />}
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+        </View>
+    );
+};
 
 export default function RegisterScreen() {
     const [formData, setFormData] = useState({
@@ -18,7 +56,7 @@ export default function RegisterScreen() {
         q13: '', q17: '', q19: '', q20: '',
         privacy_policy: false, ai_consent: false
     });
-    
+
     const [error, setError] = useState('');
     const [isValid, setIsValid] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,20 +146,14 @@ export default function RegisterScreen() {
         }
     };
 
-    const renderPicker = (label: string, name: keyof typeof formData, options: {label: string, value: string}[]) => (
-        <View style={styles.formGroup}>
-            <Text style={styles.label}>{label}</Text>
-            <View style={styles.pickerContainer}>
-                <Picker
-                    selectedValue={(formData as any)[name]}
-                    onValueChange={(val) => handleChange(name, val)}
-                    style={styles.picker}
-                >
-                    <Picker.Item label="Select..." value="" color="#A0AEC0" />
-                    {options.map((opt, i) => <Picker.Item key={i} label={opt.label} value={opt.value} />)}
-                </Picker>
-            </View>
-        </View>
+    const renderPicker = (label: string, name: keyof typeof formData, options: { label: string, value: string }[], style?: any) => (
+        <CustomDropdown
+            label={label}
+            value={(formData as any)[name] as string}
+            options={options}
+            onSelect={(val) => handleChange(name, val)}
+            style={style}
+        />
     );
 
     const scale1Options = [
@@ -131,11 +163,11 @@ export default function RegisterScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <LinearGradient colors={['#EBF3F1', '#dae8e4']} style={styles.bgBlob} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-            
+            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-                    
+
                     <View style={styles.card}>
                         <View style={styles.brandContainer}>
                             <FontAwesome6 name="heart-pulse" size={22} color="#7C9A92" />
@@ -157,11 +189,11 @@ export default function RegisterScreen() {
                         </View>
 
                         <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                            <View style={[styles.formGroup, { width: '48%' }]}>
                                 <Text style={styles.label}>Password</Text>
                                 <TextInput style={styles.input} value={formData.password} onChangeText={(val) => handleChange('password', val)} secureTextEntry />
                             </View>
-                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                            <View style={[styles.formGroup, { width: '48%' }]}>
                                 <Text style={styles.label}>Confirm Password</Text>
                                 <TextInput style={styles.input} value={formData.confirm_password} onChangeText={(val) => handleChange('confirm_password', val)} secureTextEntry />
                             </View>
@@ -171,62 +203,48 @@ export default function RegisterScreen() {
                         <Text style={styles.sectionTitle}>Personal Information</Text>
 
                         <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-                                {renderPicker("Sex", "sex", [{label: "Male", value: "Male"}, {label: "Female", value: "Female"}])}
-                            </View>
-                            <View style={[styles.formGroup, { flex: 1, marginHorizontal: 4 }]}>
+                            {renderPicker("Sex", "sex", [{ label: "Male", value: "Male" }, { label: "Female", value: "Female" }], { width: '48%' })}
+                            <View style={[styles.formGroup, { width: '48%' }]}>
                                 <Text style={styles.label}>Age</Text>
                                 <TextInput style={styles.input} value={formData.age} onChangeText={(val) => handleChange('age', val)} keyboardType="number-pad" />
                             </View>
-                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-                                <Text style={styles.label}>Years Married</Text>
-                                <TextInput style={styles.input} value={formData.years_married} onChangeText={(val) => handleChange('years_married', val)} keyboardType="number-pad" />
-                            </View>
+                        </View>
+
+                        <View style={styles.formGroup}>
+                            <Text style={styles.label}>Years Married</Text>
+                            <TextInput style={styles.input} value={formData.years_married} onChangeText={(val) => handleChange('years_married', val)} keyboardType="number-pad" />
                         </View>
 
                         <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                            <View style={[styles.formGroup, { width: '48%', marginTop: 18 }]}>
                                 <Text style={styles.label}>Children (Total)</Text>
                                 <TextInput style={styles.input} value={formData.children_count} onChangeText={(val) => handleChange('children_count', val)} keyboardType="number-pad" />
                             </View>
-                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                            <View style={[styles.formGroup, { width: '48%' }]}>
                                 <Text style={styles.label}>Children Raised Presently</Text>
                                 <TextInput style={styles.input} value={formData.children_raised} onChangeText={(val) => handleChange('children_raised', val)} keyboardType="number-pad" />
                             </View>
                         </View>
 
-                        <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-                                {renderPicker("Education", "education", [
-                                    {label: "No formal education", value: "No formal education"}, {label: "Primary school", value: "Primary school"},
-                                    {label: "Secondary school", value: "Secondary school"}, {label: "High school/college", value: "High school or technical college"},
-                                    {label: "Bachelor/Masters", value: "Bachelor or masters degree"}
-                                ])}
-                            </View>
-                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-                                {renderPicker("Material Situation (vs Average)", "material_situation", [
-                                    {label: "Much better", value: "Much better"}, {label: "Better", value: "Better"},
-                                    {label: "Similar", value: "Similar"}, {label: "Worse", value: "Worse"}, {label: "Much worse", value: "Much worse"}
-                                ])}
-                            </View>
-                        </View>
-
-                        <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-                                {renderPicker("Religious Affiliation", "religious_affiliation", [
-                                    {label: "Protestant", value: "Protestant"}, {label: "Catholic", value: "Catholic"},
-                                    {label: "Jewish", value: "Jewish"}, {label: "Muslim", value: "Muslim"},
-                                    {label: "Buddhist", value: "Buddhist"}, {label: "None", value: "None"},
-                                    {label: "Other", value: "Other"}
-                                ])}
-                            </View>
-                            <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-                                {renderPicker("Religiousness (1-7)", "religiousness", [
-                                    {label: "1 - Not at all", value: "1"}, {label: "2", value: "2"}, {label: "3", value: "3"},
-                                    {label: "4 - Moderately", value: "4"}, {label: "5", value: "5"}, {label: "6", value: "6"}, {label: "7 - Extremely", value: "7"}
-                                ])}
-                            </View>
-                        </View>
+                        {renderPicker("Education", "education", [
+                            { label: "No formal education", value: "No formal education" }, { label: "Primary school", value: "Primary school" },
+                            { label: "Secondary school", value: "Secondary school" }, { label: "High school/college", value: "High school or technical college" },
+                            { label: "Bachelor/Masters", value: "Bachelor or masters degree" }
+                        ])}
+                        {renderPicker("Material Situation (compared to Average People)", "material_situation", [
+                            { label: "Much better", value: "Much better" }, { label: "Better", value: "Better" },
+                            { label: "Similar", value: "Similar" }, { label: "Worse", value: "Worse" }, { label: "Much worse", value: "Much worse" }
+                        ])}
+                        {renderPicker("Religious Affiliation", "religious_affiliation", [
+                            { label: "Protestant", value: "Protestant" }, { label: "Catholic", value: "Catholic" },
+                            { label: "Jewish", value: "Jewish" }, { label: "Muslim", value: "Muslim" },
+                            { label: "Buddhist", value: "Buddhist" }, { label: "None", value: "None" },
+                            { label: "Other", value: "Other" }
+                        ])}
+                        {renderPicker("Religiousness (1-7)", "religiousness", [
+                            { label: "1 - Not at all", value: "1" }, { label: "2", value: "2" }, { label: "3", value: "3" },
+                            { label: "4 - Moderately", value: "4" }, { label: "5", value: "5" }, { label: "6", value: "6" }, { label: "7 - Extremely", value: "7" }
+                        ])}
 
                         <View style={styles.dividerLine} />
                         <Text style={styles.sectionTitle}>Relationship Assessment</Text>
@@ -235,8 +253,8 @@ export default function RegisterScreen() {
                         {renderPicker("Are you proud of your spouse?", "q17", scale1Options)}
                         {renderPicker("Do you love your spouse?", "q19", scale1Options)}
                         {renderPicker("Overall, how satisfied are you with your marriage?", "q20", [
-                            {label: "1 - Very dissatisfied", value: "1"}, {label: "2", value: "2"},
-                            {label: "3", value: "3"}, {label: "4", value: "4"}, {label: "5 - Very satisfied", value: "5"}
+                            { label: "1 - Very dissatisfied", value: "1" }, { label: "2", value: "2" },
+                            { label: "3", value: "3" }, { label: "4", value: "4" }, { label: "5 - Very satisfied", value: "5" }
                         ])}
 
                         <View style={styles.dividerLine} />
@@ -272,12 +290,11 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F2F4F3', position: 'relative' },
+    container: { flex: 1, backgroundColor: '#FFFFFF', position: 'relative' },
     bgBlob: { position: 'absolute', width: 700, height: 700, borderRadius: 350, bottom: -200, left: -150, opacity: 0.6 },
-    scrollContent: { padding: 20, paddingTop: 60, paddingBottom: 60, alignItems: 'center' },
+    scrollContent: { paddingTop: 20, paddingBottom: 20, alignItems: 'center' },
     card: {
-        backgroundColor: '#FFFFFF', borderRadius: 20, padding: 30, width: '100%', maxWidth: 520,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 40, elevation: 10
+        backgroundColor: '#FFFFFF', paddingHorizontal: 24, width: '100%', maxWidth: 520,
     },
     brandContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 24, gap: 10 },
     brandText: { fontFamily: 'Merriweather_700Bold', fontSize: 22.4, color: '#2D3748' },
@@ -285,12 +302,19 @@ const styles = StyleSheet.create({
     headerTitle: { fontFamily: 'Merriweather_700Bold', fontSize: 28, color: '#2D3748', marginBottom: 8, textAlign: 'center' },
     headerSubtitle: { fontFamily: 'Inter_400Regular', fontSize: 15.2, color: '#718096', textAlign: 'center' },
     sectionTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 17.6, color: '#2D3748', marginBottom: 15 },
-    formRow: { flexDirection: 'row', width: '100%' },
-    formGroup: { marginBottom: 16, width: '100%' },
+    formRow: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
+    formGroup: { marginBottom: 16 },
     label: { fontFamily: 'Inter_600SemiBold', fontSize: 13.6, color: '#2D3748', marginBottom: 8 },
     input: { fontFamily: 'Inter_400Regular', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#2D3748' },
-    pickerContainer: { backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, overflow: 'hidden' },
-    picker: { height: 50, width: '100%' },
+    dropdownInput: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20, paddingBottom: 40, maxHeight: '80%', borderWidth: 2, borderColor: '#E2E8F0' },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', marginBottom: 8 },
+    modalTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18, color: '#2D3748' },
+    dropdownItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F7FAFC' },
+    dropdownItemSelected: { backgroundColor: '#F0F5F4', borderRadius: 8, paddingHorizontal: 12 },
+    dropdownItemText: { fontFamily: 'Inter_400Regular', fontSize: 16, color: '#4A5568' },
+    dropdownItemTextSelected: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92' },
     dividerLine: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 20 },
     checkboxRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
     checkboxLabel: { fontFamily: 'Inter_400Regular', marginLeft: 12, fontSize: 13.6, color: '#718096', flex: 1, marginTop: 2, lineHeight: 18 },
@@ -300,5 +324,5 @@ const styles = StyleSheet.create({
     submitBtnText: { fontFamily: 'Inter_600SemiBold', color: '#FFFFFF', fontSize: 16 },
     footerLinks: { flexDirection: 'row', justifyContent: 'center' },
     footerText: { fontFamily: 'Inter_400Regular', color: '#718096', fontSize: 14.4 },
-    linkText: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92', fontSize: 14.4 }
+    linkText: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92', fontSize: 14.4, textDecorationLine: 'underline', }
 });
