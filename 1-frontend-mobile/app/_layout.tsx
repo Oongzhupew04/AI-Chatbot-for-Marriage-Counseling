@@ -5,7 +5,7 @@ import 'react-native-reanimated';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
+import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { Merriweather_700Bold } from '@expo-google-fonts/merriweather';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -22,6 +22,7 @@ export default function RootLayout() {
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
+    Inter_700Bold,
     Merriweather_700Bold,
   });
 

@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../../constants/Config';
 import DishonestyModal from '../../components/modals/dishonestyModal';
 import RegistrationOtpModal from '../../components/modals/registrationOtpModal';
 import { LinearGradient } from 'expo-linear-gradient';
+import { styles } from './register.styles';
 
 const CustomDropdown = ({ label, value, options, onSelect, style }: { label: string, value: string, options: { label: string, value: string }[], onSelect: (val: string) => void, style?: any }) => {
     const [visible, setVisible] = useState(false);
@@ -289,40 +290,4 @@ export default function RegisterScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#FFFFFF', position: 'relative' },
-    bgBlob: { position: 'absolute', width: 700, height: 700, borderRadius: 350, bottom: -200, left: -150, opacity: 0.6 },
-    scrollContent: { paddingTop: 20, paddingBottom: 20, alignItems: 'center' },
-    card: {
-        backgroundColor: '#FFFFFF', paddingHorizontal: 24, width: '100%', maxWidth: 520,
-    },
-    brandContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 24, gap: 10 },
-    brandText: { fontFamily: 'Merriweather_700Bold', fontSize: 22.4, color: '#2D3748' },
-    header: { alignItems: 'center', marginBottom: 24 },
-    headerTitle: { fontFamily: 'Merriweather_700Bold', fontSize: 28, color: '#2D3748', marginBottom: 8, textAlign: 'center' },
-    headerSubtitle: { fontFamily: 'Inter_400Regular', fontSize: 15.2, color: '#718096', textAlign: 'center' },
-    sectionTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 17.6, color: '#2D3748', marginBottom: 15 },
-    formRow: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
-    formGroup: { marginBottom: 16 },
-    label: { fontFamily: 'Inter_600SemiBold', fontSize: 13.6, color: '#2D3748', marginBottom: 8 },
-    input: { fontFamily: 'Inter_400Regular', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#2D3748' },
-    dropdownInput: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0)', justifyContent: 'flex-end' },
-    modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20, paddingBottom: 40, maxHeight: '80%', borderWidth: 2, borderColor: '#E2E8F0' },
-    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', marginBottom: 8 },
-    modalTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18, color: '#2D3748' },
-    dropdownItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F7FAFC' },
-    dropdownItemSelected: { backgroundColor: '#F0F5F4', borderRadius: 8, paddingHorizontal: 12 },
-    dropdownItemText: { fontFamily: 'Inter_400Regular', fontSize: 16, color: '#4A5568' },
-    dropdownItemTextSelected: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92' },
-    dividerLine: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 20 },
-    checkboxRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
-    checkboxLabel: { fontFamily: 'Inter_400Regular', marginLeft: 12, fontSize: 13.6, color: '#718096', flex: 1, marginTop: 2, lineHeight: 18 },
-    errorText: { fontFamily: 'Inter_600SemiBold', color: '#E53E3E', fontSize: 14.4, textAlign: 'center', marginVertical: 10 },
-    submitBtn: { width: '100%', backgroundColor: '#7C9A92', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 10, marginBottom: 24 },
-    submitBtnDisabled: { opacity: 0.5 },
-    submitBtnText: { fontFamily: 'Inter_600SemiBold', color: '#FFFFFF', fontSize: 16 },
-    footerLinks: { flexDirection: 'row', justifyContent: 'center' },
-    footerText: { fontFamily: 'Inter_400Regular', color: '#718096', fontSize: 14.4 },
-    linkText: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92', fontSize: 14.4, textDecorationLine: 'underline', }
-});
+

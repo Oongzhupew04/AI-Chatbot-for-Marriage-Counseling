@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { styles } from './registrationOtpModal.styles';
 
 interface RegistrationOtpModalProps {
     isOpen: boolean;
@@ -73,98 +74,4 @@ export default function RegistrationOtpModal({
     );
 }
 
-const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        backgroundColor: '#FFFFFF',
-        paddingVertical: 32,
-        paddingHorizontal: 24,
-        borderRadius: 16,
-        width: '85%',
-        maxWidth: 380,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    heading: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#1F2937',
-        marginBottom: 12,
-        fontFamily: 'Inter_600SemiBold',
-    },
-    emailText: {
-        fontSize: 15,
-        color: '#6B7280',
-        marginBottom: 24,
-        lineHeight: 22,
-        textAlign: 'center',
-        fontFamily: 'Inter_400Regular',
-    },
-    errorText: {
-        color: '#EF4444',
-        fontSize: 14,
-        marginBottom: 16,
-        textAlign: 'center',
-        fontFamily: 'Inter_400Regular',
-    },
-    otpInput: {
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        borderRadius: 8,
-        paddingVertical: 16,
-        fontSize: 24,
-        textAlign: 'center',
-        letterSpacing: 8,
-        marginBottom: 24,
-        width: '100%',
-        color: '#374151',
-        fontWeight: 'bold',
-        fontFamily: 'Inter_600SemiBold',
-    },
-    modalActions: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        gap: 12,
-    },
-    btnCancel: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: '#F3F4F6',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    btnCancelText: {
-        color: '#111827',
-        fontWeight: '600',
-        fontSize: 14,
-        fontFamily: 'Inter_600SemiBold',
-    },
-    btnSubmit: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: '#7C9A92',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    btnSubmitDisabled: {
-        opacity: 0.7,
-    },
-    btnSubmitText: {
-        color: '#fff',
-        fontWeight: '600',
-        fontSize: 14,
-        fontFamily: 'Inter_600SemiBold',
-    },
-});
+

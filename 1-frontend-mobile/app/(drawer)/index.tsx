@@ -2,11 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, SafeAreaView, StatusBar, Keyboard, TouchableWithoutFeedback, Animated, Dimensions, Pressable, DeviceEventEmitter } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
-import { DrawerToggleButton } from '@react-navigation/drawer';
-import { useNavigation } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../constants/Config';
+import { styles } from './index.styles';
+import EmergencyModal from '../../components/modals/emergencyModal';
+import CheckinModal from '../../components/modals/checkinModal';
+import FeedbackModal from '../../components/modals/feedbackModal';
+import ThankYouModal from '../../components/modals/thankYouModal';
 
 interface Message {
     sender: 'user' | 'bot';
@@ -67,12 +71,57 @@ const TypingIndicator = () => {
     );
 };
 
+const getTodayString = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+};
+
+let hasSeenCheckinModalThisSession = false;
+
 export default function HomeScreen() {
+    const router = useRouter();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isInputFocused, setIsInputFocused] = useState(false);
+    const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+    const [isCheckinModalOpen, setIsCheckinModalOpen] = useState(false);
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+    const [isThankYouModalOpen, setIsThankYouModalOpen] = useState(false);
+    const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
     const navigation = useNavigation();
+
+    // AUTO-TRIGGER CHECKIN MODAL: Runs exactly once when the page loads
+    useEffect(() => {
+        const checkAutoTrigger = async () => {
+            try {
+                const today = getTodayString();
+                const lastCheckIn = await AsyncStorage.getItem('lastCheckInDate');
+
+                if (lastCheckIn === today) {
+                    setHasCheckedInToday(true);
+                } else if (!hasSeenCheckinModalThisSession) {
+                    setHasCheckedInToday(false);
+                    setIsCheckinModalOpen(true);
+                    hasSeenCheckinModalThisSession = true;
+                }
+            } catch (error) {
+                console.error('Error auto-triggering checkin modal:', error);
+            }
+        };
+
+        checkAutoTrigger();
+    }, []);
+
+    const handleCheckinSuccess = async () => {
+        try {
+            await AsyncStorage.setItem('lastCheckInDate', getTodayString());
+            setHasCheckedInToday(true);
+            setIsCheckinModalOpen(false);
+        } catch (error) {
+            console.error('Error saving checkin date:', error);
+        }
+    };
 
     // Chat Logic State
     const [chatId, setChatId] = useState<number | null>(null);
@@ -100,6 +149,13 @@ export default function HomeScreen() {
             useNativeDriver: true,
         }).start();
     }, [isRightDrawerOpen]);
+
+    useEffect(() => {
+        const sub = DeviceEventEmitter.addListener('openRightDrawer', () => {
+            setIsRightDrawerOpen(true);
+        });
+        return () => sub.remove();
+    }, []);
 
     const fetchSessions = async () => {
         try {
@@ -175,6 +231,12 @@ export default function HomeScreen() {
         const text = input.trim();
         if (!text) return;
 
+        // Frontend Safety Override
+        const unsafeWords = ["suicide", "killing", "die", "kill"];
+        if (unsafeWords.some(word => text.toLowerCase().includes(word))) {
+            setIsEmergencyModalOpen(true);
+        }
+
         Keyboard.dismiss();
 
         setMessages(prev => [...prev, { sender: 'user', text } as Message]);
@@ -221,10 +283,17 @@ export default function HomeScreen() {
             console.error("Failed to end session in DB", e);
         }
         setChatId(null);
+        setMessages([]);
+
+        setIsThankYouModalOpen(true);
+        setTimeout(() => {
+            setIsThankYouModalOpen(false);
+        }, 2000);
     };
 
     const handleConfirmEnd = () => {
-        finishSession();
+        // Show feedback modal FIRST, so we don't lose the chatId
+        setIsFeedbackModalOpen(true);
     };
 
     const handleCancelEnd = () => {
@@ -245,14 +314,6 @@ export default function HomeScreen() {
                 enabled={!isRightDrawerOpen}
             >
                 <View style={styles.mainContent}>
-                    <View style={styles.customHeader}>
-                        <DrawerToggleButton tintColor="#2D3748" />
-                        <FontAwesome6 name="heart-pulse" size={20} color="#7C9A92" />
-                        <Text style={styles.homebrandText}>Counselor.AI</Text>
-                        <TouchableOpacity style={styles.headerRightIcon} onPress={() => setIsRightDrawerOpen(true)}>
-                            <FontAwesome6 name="clock-rotate-left" size={20} color="#718096" />
-                        </TouchableOpacity>
-                    </View>
                     {messages.length === 0 ? (
                         <ScrollView contentContainerStyle={styles.welcomeSection}>
                             <View style={styles.welcomeHeader}>
@@ -261,7 +322,7 @@ export default function HomeScreen() {
                             </View>
 
                             <View style={styles.actionGrid}>
-                                <TouchableOpacity style={styles.actionCard}>
+                                <TouchableOpacity style={styles.actionCard} onPress={() => setIsCheckinModalOpen(true)}>
                                     <View style={styles.cardContent}>
                                         <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
                                             <FontAwesome6 name="clipboard-check" size={16} color="#D97706" />
@@ -271,7 +332,7 @@ export default function HomeScreen() {
                                     <FontAwesome6 name="plus" size={14} color="#718096" />
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.actionCard}>
+                                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/resources')}>
                                     <View style={styles.cardContent}>
                                         <View style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}>
                                             <FontAwesome6 name="book-open" size={16} color="#2563EB" />
@@ -281,7 +342,7 @@ export default function HomeScreen() {
                                     <FontAwesome6 name="plus" size={14} color="#718096" />
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.actionCard}>
+                                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/analysis')}>
                                     <View style={styles.cardContent}>
                                         <View style={[styles.iconBox, { backgroundColor: '#D1FAE5' }]}>
                                             <FontAwesome6 name="chart-line" size={16} color="#059669" />
@@ -291,7 +352,7 @@ export default function HomeScreen() {
                                     <FontAwesome6 name="plus" size={14} color="#718096" />
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.actionCard}>
+                                <TouchableOpacity style={styles.actionCard} onPress={() => setIsEmergencyModalOpen(true)}>
                                     <View style={styles.cardContent}>
                                         <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
                                             <FontAwesome6 name="phone-volume" size={16} color="#DC2626" />
@@ -377,9 +438,7 @@ export default function HomeScreen() {
                         />
                         <View style={styles.inputFooter}>
                             <View style={styles.attachments}>
-                                <TouchableOpacity style={styles.attachBtn} disabled={isSessionEnded}>
-                                    <FontAwesome6 name="paperclip" size={16} color={isSessionEnded ? "#CBD5E0" : "#718096"} />
-                                </TouchableOpacity>
+
                             </View>
                             <TouchableOpacity
                                 style={[styles.sendBtn, isSessionEnded && { backgroundColor: '#CBD5E0' }]}
@@ -486,352 +545,24 @@ export default function HomeScreen() {
                 </Pressable>
             </Animated.View>
 
+            <EmergencyModal isOpen={isEmergencyModalOpen} onClose={() => setIsEmergencyModalOpen(false)} />
+            <CheckinModal
+                isOpen={isCheckinModalOpen}
+                onClose={() => setIsCheckinModalOpen(false)}
+                onSuccess={handleCheckinSuccess}
+            />
+            <FeedbackModal
+                isOpen={isFeedbackModalOpen}
+                chatId={chatId}
+                onClose={() => setIsFeedbackModalOpen(false)}
+                onSuccess={finishSession}
+            />
+            <ThankYouModal
+                isOpen={isThankYouModalOpen}
+                onClose={() => setIsThankYouModalOpen(false)}
+            />
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-    },
-    keyboardView: {
-        flex: 1,
-    },
-    mainContent: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.03,
-        shadowRadius: 20,
-        elevation: 3,
-        position: 'relative',
-        overflow: 'hidden',
-    },
-    customHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
-    },
-    headerTitle: {
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 18,
-        color: '#2D3748',
-    },
-    homebrandText: {
-        fontFamily: 'Merriweather_700Bold',
-        fontSize: 19.2, // 1.2rem
-        color: '#2D3748',
-        marginLeft: 12,
-    },
-    welcomeSection: {
-        padding: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexGrow: 1,
-        paddingBottom: 120, // space for input wrapper
-    },
-    welcomeHeader: {
-        alignItems: 'center',
-        marginBottom: 40,
-    },
-    welcomeTitle: {
-        fontFamily: 'Merriweather_700Bold',
-        fontSize: 28,
-        color: '#2D3748',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    welcomeSubtitle: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 15,
-        color: '#718096',
-        textAlign: 'center',
-    },
-    actionGrid: {
-        width: '100%',
-        gap: 12,
-    },
-    actionCard: {
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-        borderRadius: 12,
-        padding: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    cardContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    iconBox: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    cardText: {
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 15,
-        color: '#2D3748',
-    },
-    chatContainer: {
-        flex: 1,
-        marginBottom: 150, // space for input
-    },
-    messageBubble: {
-        maxWidth: '85%',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 12,
-        marginBottom: 15,
-    },
-    userMsg: {
-        alignSelf: 'flex-end',
-        backgroundColor: '#7C9A92',
-        borderBottomRightRadius: 2,
-    },
-    botMsg: {
-        alignSelf: 'flex-start',
-        backgroundColor: '#EBF3F1',
-        borderBottomLeftRadius: 2,
-    },
-    messageText: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 15.2,
-        lineHeight: 22,
-    },
-    inputWrapper: {
-        position: 'absolute',
-        bottom: 40,
-        left: 16,
-        right: 16,
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.08,
-        shadowRadius: 30,
-        elevation: 5,
-    },
-    chatInput: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 16,
-        color: '#2D3748',
-        maxHeight: 100,
-        minHeight: 24,
-        marginBottom: 12,
-    },
-    inputFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderTopWidth: 1,
-        borderTopColor: '#F1F5F9',
-        paddingTop: 12,
-    },
-    attachments: {
-        flexDirection: 'row',
-    },
-    attachBtn: {
-        padding: 4,
-    },
-    sendBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: '#7C9A92',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    disclaimer: {
-        position: 'absolute',
-        bottom: 8,
-        left: 16,
-        right: 16,
-        textAlign: 'center',
-        fontFamily: 'Inter_400Regular',
-        fontSize: 10,
-        color: '#A0AEC0',
-    },
-    headerRightIcon: {
-        width: 48,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginLeft: 'auto',
-    },
-    rightDrawer: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        width: 320,
-        backgroundColor: '#FFFFFF',
-        zIndex: 101,
-        padding: 20,
-        paddingTop: Platform.OS === 'ios' ? 50 : 20,
-        shadowColor: '#000',
-        shadowOffset: { width: -5, height: 0 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 10,
-    },
-    rightHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    rightHeaderTitle: {
-        fontFamily: 'Merriweather_700Bold',
-        fontSize: 18,
-        color: '#2D3748',
-    },
-    searchWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F8FAFC',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-    },
-    searchInput: {
-        flex: 1,
-        height: 40,
-        marginLeft: 8,
-        fontFamily: 'Inter_400Regular',
-        fontSize: 14,
-        color: '#2D3748',
-    },
-    historyList: {
-        flex: 1,
-    },
-    historyItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 12,
-        backgroundColor: '#F8FAFC',
-        borderRadius: 8,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    historyIcon: {
-        width: 32,
-        height: 32,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-    },
-    historyInfo: {
-        flex: 1,
-    },
-    historyTitle: {
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 14,
-        color: '#2D3748',
-        marginBottom: 4,
-    },
-    historyDate: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 12,
-        color: '#718096',
-    },
-    dropdownMenu: {
-        position: 'absolute',
-        top: 30,
-        right: 0,
-        backgroundColor: '#FFF5F5',
-        borderWidth: 1,
-        borderColor: '#FED7D7',
-        borderRadius: 8,
-        padding: 12,
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: 105,
-        zIndex: 1000,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    dropdownDanger: {
-        fontFamily: 'Inter_500Medium',
-        fontSize: 14,
-        color: '#E53E3E',
-    },
-    noSessions: {
-        alignItems: 'center',
-        marginTop: 40,
-    },
-    noSessionsText: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 14,
-        color: '#A0AEC0',
-    },
-    sessionEndedContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 30,
-    },
-    sessionEndedLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: '#E2E8F0',
-    },
-    sessionEndedText: {
-        paddingHorizontal: 15,
-        fontSize: 14,
-        fontFamily: 'Inter_500Medium',
-        color: '#718096',
-    },
-    confirmActionContainer: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 15,
-    },
-    btnYes: {
-        paddingVertical: 8,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-        backgroundColor: '#EF4444',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    btnYesText: {
-        color: '#FFFFFF',
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 14,
-    },
-    btnNo: {
-        paddingVertical: 8,
-        paddingHorizontal: 23,
-        borderRadius: 8,
-        backgroundColor: '#2D3748',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    btnNoText: {
-        color: '#FFFFFF',
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 14,
-    }
-});
+

@@ -1,12 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
+import { styles } from './_layout.styles';
 import { Drawer } from 'expo-router/drawer';
-import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItemList, DrawerToggleButton } from '@react-navigation/drawer';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter, usePathname, Redirect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants/Config';
+
+const isTokenValid = (token: string | null): boolean => {
+    if (!token) return false;
+
+    try {
+        const payloadBase64 = token.split('.')[1];
+        // Standardize base64 string
+        const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+
+        // Decode base64 to utf-8 safely
+        const decodedJson = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        const decodedToken = JSON.parse(decodedJson);
+
+        const expirationTimeInMilliseconds = decodedToken.exp * 1000;
+        return Date.now() < expirationTimeInMilliseconds;
+    } catch (error) {
+        console.error("Failed to decode token");
+        return false;
+    }
+};
 
 function CustomDrawerContent(props: any) {
     const [userName, setUserName] = useState('');
@@ -24,13 +50,13 @@ function CustomDrawerContent(props: any) {
                     const response = await axios.get(`${API_BASE_URL}/api/users/profile`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    
+
                     if (response.data.success) {
                         const { username, email, profile_pic } = response.data.profile;
-                        
+
                         setUserName(username || '');
                         setUserEmail(email || '');
-                        
+
                         let finalPicUrl = profile_pic;
                         if (finalPicUrl) {
                             if (finalPicUrl.startsWith('http://localhost:3000')) {
@@ -47,7 +73,7 @@ function CustomDrawerContent(props: any) {
                             setProfilePic(null);
                             await AsyncStorage.removeItem('profilePic');
                         }
-                        
+
                         if (username) await AsyncStorage.setItem('username', username);
                         if (email) await AsyncStorage.setItem('email', email);
 
@@ -58,7 +84,7 @@ function CustomDrawerContent(props: any) {
                             .substring(0, 2)
                             .toUpperCase();
                         setInitials(derivedInitials);
-                        
+
                         return; // Successfully loaded from DB, skip local storage fallback
                     }
                 } catch (error) {
@@ -119,7 +145,7 @@ function CustomDrawerContent(props: any) {
                     <FontAwesome6 name="gear" size={16} color="#718096" style={{ width: 24 }} />
                     <Text style={styles.navText}>Settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.navItem}>
+                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/help')}>
                     <FontAwesome6 name="circle-question" size={16} color="#718096" style={{ width: 24 }} />
                     <Text style={styles.navText}>Help</Text>
                 </TouchableOpacity>
@@ -127,7 +153,7 @@ function CustomDrawerContent(props: any) {
             </DrawerContentScrollView>
 
             <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
-                <TouchableOpacity style={styles.navItem}>
+                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
                     <FontAwesome6 name="circle-user" size={16} color="#718096" style={{ width: 24 }} />
                     <Text style={styles.navText}>My Profile</Text>
                 </TouchableOpacity>
@@ -159,15 +185,27 @@ function CustomDrawerContent(props: any) {
 export default function DrawerLayout() {
     const [isChecking, setIsChecking] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         const checkAuth = async () => {
             const token = await AsyncStorage.getItem('token');
-            if (token) {
+            const isValid = isTokenValid(token);
+
+            if (isValid) {
                 setIsAuthenticated(true);
+            } else {
+                // If there's an invalid/expired token in storage, wipe it
+                if (token) {
+                    await AsyncStorage.removeItem('token');
+                    await AsyncStorage.removeItem('userRole');
+                    await AsyncStorage.removeItem('currentChatId');
+                }
+                setIsAuthenticated(false);
             }
             setIsChecking(false);
         };
+
         checkAuth();
     }, []);
 
@@ -183,7 +221,21 @@ export default function DrawerLayout() {
         <Drawer
             drawerContent={(props) => <CustomDrawerContent {...props} />}
             screenOptions={{
-                headerShown: false,
+                headerShown: true,
+                header: () => (
+                    <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
+                        <View style={styles.customHeader}>
+                            <DrawerToggleButton tintColor="#2D3748" />
+                            <FontAwesome6 name="heart-pulse" size={20} color="#7C9A92" />
+                            <Text style={styles.homebrandText}>Counselor.AI</Text>
+                            {pathname === '/' && (
+                                <TouchableOpacity style={styles.headerRightIcon} onPress={() => DeviceEventEmitter.emit('openRightDrawer')}>
+                                    <FontAwesome6 name="clock-rotate-left" size={20} color="#718096" />
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </SafeAreaView>
+                ),
                 drawerStyle: {
                     width: 280,
                 },
@@ -232,111 +284,22 @@ export default function DrawerLayout() {
                     ),
                 }}
             />
+            <Drawer.Screen
+                name="help"
+                options={{
+                    drawerItemStyle: { display: 'none' },
+                    title: 'Help'
+                }}
+            />
+            <Drawer.Screen
+                name="profile"
+                options={{
+                    drawerItemStyle: { display: 'none' },
+                    title: 'My Profile'
+                }}
+            />
         </Drawer>
     );
 }
 
-const styles = StyleSheet.create({
-    homebrand: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 30,
-    },
-    homebrandText: {
-        fontFamily: 'Merriweather_700Bold',
-        fontSize: 19.2, // 1.2rem
-        color: '#2D3748',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#E2E8F0',
-        marginVertical: 15,
-    },
-    sectionHeader: {
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 14,
-        color: '#718096',
-        marginBottom: 10,
-        marginLeft: 10,
-    },
-    historyItem: {
-        flexDirection: 'row',
-        gap: 12,
-        padding: 10,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    historyIcon: {
-        width: 32,
-        height: 32,
-        backgroundColor: '#F8FAFC',
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    historyInfo: {
-        flex: 1,
-    },
-    historyTitle: {
-        fontFamily: 'Inter_500Medium',
-        fontSize: 13.6,
-        color: '#2D3748',
-    },
-    historyDate: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 12,
-        color: '#718096',
-    },
-    navItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-        borderRadius: 12,
-    },
-    navText: {
-        fontFamily: 'Inter_500Medium',
-        fontSize: 15,
-        color: '#718096',
-    },
-    userProfile: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        padding: 24,
-        borderTopWidth: 1,
-        borderTopColor: '#E2E8F0',
-    },
-    avatar: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-    },
-    avatarFallback: {
-        width: 36,
-        height: 36,
-        backgroundColor: '#6B7C93',
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    avatarText: {
-        color: '#FFFFFF',
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 14.4,
-    },
-    userInfo: {
-        flex: 1,
-    },
-    userName: {
-        fontFamily: 'Inter_600SemiBold',
-        fontSize: 14.4,
-        color: '#2D3748',
-    },
-    userEmail: {
-        fontFamily: 'Inter_400Regular',
-        fontSize: 12,
-        color: '#718096',
-    }
-});
+
