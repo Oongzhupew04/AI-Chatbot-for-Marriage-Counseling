@@ -6,9 +6,12 @@ import axios from 'axios';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { API_BASE_URL } from '../../constants/Config';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './login.styles';
+import { getStyles } from './login.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function LoginScreen() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [consent, setConsent] = useState(false);
@@ -46,9 +49,9 @@ export default function LoginScreen() {
                 }
 
                 if (data.role && String(data.role).toLowerCase() === 'admin') {
-                    router.replace('/');
+                    router.replace('/' as any);
                 } else {
-                    router.replace('/');
+                    router.replace('/' as any);
                 }
             }
         } catch (error: any) {
@@ -65,7 +68,7 @@ export default function LoginScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+            <StatusBar barStyle="dark-content" backgroundColor={theme.card} />
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -84,7 +87,7 @@ export default function LoginScreen() {
                     </View>
 
                     <TouchableOpacity style={styles.googleBtn}>
-                        <FontAwesome6 name="google" size={18} color="#2D3748" style={{ marginRight: 10 }} />
+                        <FontAwesome6 name="google" size={18} color={theme.text} style={{ marginRight: 10 }} />
                         <Text style={styles.googleBtnText}>Sign in with Google</Text>
                     </TouchableOpacity>
 
@@ -157,9 +160,11 @@ export default function LoginScreen() {
                         </Link>
                     </View>
                     <View style={[styles.footerLinks, { marginTop: 8 }]}>
-                        <TouchableOpacity>
-                            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-                        </TouchableOpacity>
+                        <Link href="/auth/forgot-password" asChild>
+                            <TouchableOpacity>
+                                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                            </TouchableOpacity>
+                        </Link>
                     </View>
                     </View>
                 </TouchableWithoutFeedback>

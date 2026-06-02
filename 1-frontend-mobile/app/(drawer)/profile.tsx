@@ -6,8 +6,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { styles } from './profile.styles';
+import { getStyles } from './profile.styles';
 import { API_BASE_URL } from '../../constants/Config';
+import { useTheme } from '../../context/ThemeContext';
 
 interface UserProfile {
     id: number;
@@ -25,14 +26,16 @@ interface UserProfile {
 }
 
 const CustomDropdown = ({ label, value, options, onSelect, style }: { label: string, value: string, options: { label: string, value: string }[], onSelect: (val: string) => void, style?: any }) => {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [visible, setVisible] = useState(false);
     const selectedLabel = options.find(o => o.value === value)?.label || 'Select...';
 
     return (
         <View style={[style]}>
             <TouchableOpacity style={styles.dropdownInput} onPress={() => setVisible(true)}>
-                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: value ? '#2D3748' : '#A0AEC0' }}>{selectedLabel}</Text>
-                <Ionicons name="chevron-down" size={20} color="#718096" />
+                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: value ? theme.text : theme.textSecondary }}>{selectedLabel}</Text>
+                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
             </TouchableOpacity>
 
             <Modal visible={visible} transparent animationType="slide">
@@ -62,6 +65,8 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
 };
 
 export default function ProfileScreen() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -242,7 +247,7 @@ export default function ProfileScreen() {
                                 contentFit="cover"
                             />
                         ) : (
-                            <FontAwesome5 name="user" size={40} color="#10B981" />
+                            <FontAwesome5 name="user" size={40} color={theme.primary} />
                         )}
                         <TouchableOpacity style={styles.editAvatarBtn} onPress={handleImageUpload} activeOpacity={0.8}>
                             <FontAwesome5 name="camera" size={14} color="#FFFFFF" />
@@ -267,7 +272,7 @@ export default function ProfileScreen() {
 
                         {!isEditing ? (
                             <TouchableOpacity style={styles.editBtn} onPress={handleEditClick}>
-                                <FontAwesome5 name="pen" size={12} color="#2D3748" />
+                                <FontAwesome5 name="pen" size={12} color={theme.text} />
                                 <Text style={styles.editBtnText}>Edit</Text>
                             </TouchableOpacity>
                         ) : (

@@ -4,8 +4,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './resources.styles';
+import { getStyles } from './resources.styles';
 import { API_BASE_URL } from '../../constants/Config';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Resource {
     id: number;
@@ -17,6 +18,8 @@ interface Resource {
 }
 
 export default function ResourcesScreen() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [resources, setResources] = useState<Resource[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');

@@ -1,13 +1,16 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { styles } from './dishonestyModal.styles';
+import { getStyles } from './dishonestyModal.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 interface DishonestyModalProps {
     onClose: () => void;
 }
 
 export default function DishonestyModal({ onClose }: DishonestyModalProps) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     return (
         <Modal transparent={true} animationType="fade" visible={true} onRequestClose={onClose}>
             <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>

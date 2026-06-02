@@ -4,7 +4,8 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../constants/Config';
-import { styles } from './feedbackModal.styles';
+import { getStyles } from './feedbackModal.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 export interface FeedbackData {
     rating: string;
@@ -21,6 +22,8 @@ interface FeedbackModalProps {
 }
 
 export default function FeedbackModal({ isOpen, chatId, onClose, onSuccess }: FeedbackModalProps) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [rating, setRating] = useState<string>('');
     const [workedWell, setWorkedWell] = useState<string[]>([]);
     const [issues, setIssues] = useState<string[]>([]);
@@ -94,7 +97,7 @@ export default function FeedbackModal({ isOpen, chatId, onClose, onSuccess }: Fe
                                 <Text style={styles.headerSubtitle}>Help us improve Counselor.AI for you.</Text>
                             </View>
                             <TouchableOpacity style={styles.closeBtn} onPress={handleCloseOrSkip}>
-                                <FontAwesome5 name="times" size={16} color="#718096" />
+                                <FontAwesome5 name="times" size={16} color={theme.textSecondary} />
                             </TouchableOpacity>
                         </View>
 

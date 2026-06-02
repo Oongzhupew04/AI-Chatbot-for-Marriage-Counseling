@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         position: 'relative',
     },
     bgBlob: {
@@ -20,7 +21,7 @@ export const styles = StyleSheet.create({
     },
     card: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         paddingHorizontal: 24,
         paddingTop: 40,
         paddingBottom: 24,
@@ -37,7 +38,7 @@ export const styles = StyleSheet.create({
     brandText: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 24, // 1.5rem
-        color: '#2D3748', // var(--text-main)
+        color: theme.text, // var(--text-main)
     },
     header: {
         marginBottom: 24,
@@ -47,22 +48,22 @@ export const styles = StyleSheet.create({
     headerTitle: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 28, // 1.75rem
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 8,
     },
     headerSubtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15.2, // 0.95rem
-        color: '#718096', // var(--text-muted)
+        color: theme.textSecondary, // var(--text-muted)
     },
     googleBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderWidth: 1,
-        borderColor: '#E2E8F0', // var(--border-light)
+        borderColor: theme.border, // var(--border-light)
         borderRadius: 12, // var(--radius-md)
         paddingVertical: 12,
         marginBottom: 24,
@@ -70,7 +71,7 @@ export const styles = StyleSheet.create({
     googleBtnText: {
         fontFamily: 'Inter_500Medium',
         fontSize: 15.2, // 0.95rem
-        color: '#2D3748',
+        color: theme.text,
     },
     dividerContainer: {
         flexDirection: 'row',
@@ -81,13 +82,13 @@ export const styles = StyleSheet.create({
     dividerLine: {
         flex: 1,
         height: 1,
-        backgroundColor: '#E2E8F0',
+        backgroundColor: theme.border,
     },
     dividerText: {
         fontFamily: 'Inter_400Regular',
         paddingHorizontal: 10,
         fontSize: 13.6, // 0.85rem
-        color: '#718096',
+        color: theme.textSecondary,
     },
     formGroup: {
         width: '100%',
@@ -96,19 +97,19 @@ export const styles = StyleSheet.create({
     label: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 13.6, // 0.85rem
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 8,
     },
     input: {
         fontFamily: 'Inter_400Regular',
-        backgroundColor: '#F8FAFC', // var(--bg-hover)
+        backgroundColor: theme.background, // var(--bg-hover)
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 12,
         paddingHorizontal: 16,
         paddingVertical: 12,
         fontSize: 16, // 1rem
-        color: '#2D3748',
+        color: theme.text,
     },
     disclaimerBox: {
         flexDirection: 'row',
@@ -145,7 +146,7 @@ export const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontFamily: 'Inter_600SemiBold',
-        color: '#FFFFFF',
+        color: theme.card,
         fontSize: 16,
     },
     footerLinks: {
@@ -155,7 +156,7 @@ export const styles = StyleSheet.create({
     },
     footerText: {
         fontFamily: 'Inter_400Regular',
-        color: '#718096',
+        color: theme.textSecondary,
         fontSize: 14.4, // 0.9rem
     },
     linkText: {
@@ -166,7 +167,7 @@ export const styles = StyleSheet.create({
     },
     forgotPasswordText: {
         fontFamily: 'Inter_500Medium',
-        color: '#718096',
+        color: theme.textSecondary,
         fontSize: 13.6, // 0.85rem
         textDecorationLine: 'underline',
     }

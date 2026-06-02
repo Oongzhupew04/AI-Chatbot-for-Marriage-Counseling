@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -8,7 +9,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContainer: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         width: '90%',
         maxWidth: 600,
         maxHeight: '85%',
@@ -24,11 +25,11 @@ export const styles = StyleSheet.create({
         paddingVertical: 24,
         paddingHorizontal: 32,
         borderBottomWidth: 1,
-        borderBottomColor: '#E2E8F0',
+        borderBottomColor: theme.border,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
     },
     headerTextContainer: {
         flex: 1,
@@ -36,11 +37,11 @@ export const styles = StyleSheet.create({
     headerTitle: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 24,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 4,
     },
     headerSubtitle: {
-        color: '#718096',
+        color: theme.textSecondary,
         fontSize: 14.4,
         fontFamily: 'Inter_400Regular',
     },
@@ -57,9 +58,9 @@ export const styles = StyleSheet.create({
         paddingBottom: 32,
     },
     feedbackCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 12,
         padding: 24,
         width: '100%',
@@ -79,12 +80,12 @@ export const styles = StyleSheet.create({
     cardHeaderTitleText: {
         fontSize: 17.6,
         fontWeight: '600',
-        color: '#2D3748',
+        color: theme.text,
         fontFamily: 'Inter_600SemiBold',
     },
     cardHeaderSubtitle: {
         fontSize: 13.6,
-        color: '#718096',
+        color: theme.textSecondary,
         paddingTop: 4,
         paddingLeft: 8,
         fontFamily: 'Inter_400Regular',
@@ -102,7 +103,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     stepNumText: {
-        color: '#718096',
+        color: theme.textSecondary,
         fontSize: 12.8,
         fontWeight: '700',
         fontFamily: 'Inter_700Bold',
@@ -127,7 +128,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
         backgroundColor: '#F7FAFC',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 20,
     },
     chipLabelSelected: {
@@ -136,16 +137,16 @@ export const styles = StyleSheet.create({
     },
     chipText: {
         fontSize: 13.6,
-        color: '#2D3748',
+        color: theme.text,
         fontFamily: 'Inter_400Regular',
     },
     chipTextSelected: {
-        color: '#FFFFFF',
+        color: theme.card,
     },
     textArea: {
         width: '100%',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 8,
         padding: 12,
         fontFamily: 'Inter_400Regular',
@@ -156,14 +157,14 @@ export const styles = StyleSheet.create({
     },
     textAreaFocused: {
         borderColor: '#7C9A92',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
     },
     modalFooter: {
         paddingVertical: 20,
         paddingHorizontal: 32,
         borderTopWidth: 1,
-        borderTopColor: '#E2E8F0',
-        backgroundColor: '#FFFFFF',
+        borderTopColor: theme.border,
+        backgroundColor: theme.card,
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
@@ -175,7 +176,7 @@ export const styles = StyleSheet.create({
     btnOutline: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 8,
@@ -183,7 +184,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     btnOutlineText: {
-        color: '#2D3748',
+        color: theme.text,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14.4,
     },

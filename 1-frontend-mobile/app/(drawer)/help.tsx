@@ -3,8 +3,9 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Linking } 
 import axios from 'axios';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './help.styles';
+import { getStyles } from './help.styles';
 import { API_BASE_URL } from '../../constants/Config';
+import { useTheme } from '../../context/ThemeContext';
 
 interface FaqItem {
     id: number;
@@ -13,6 +14,8 @@ interface FaqItem {
 }
 
 export default function HelpScreen() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [faqs, setFaqs] = useState<FaqItem[]>([]);
     const [loading, setLoading] = useState(true);
 

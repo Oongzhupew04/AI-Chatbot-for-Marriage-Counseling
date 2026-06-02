@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
-import { styles } from './_layout.styles';
+import { getStyles } from './_layout.styles';
 import { Drawer } from 'expo-router/drawer';
+import { useTheme } from '../../context/ThemeContext';
 import { DrawerContentScrollView, DrawerItemList, DrawerToggleButton } from '@react-navigation/drawer';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter, usePathname, Redirect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants/Config';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const isTokenValid = (token: string | null): boolean => {
     if (!token) return false;
@@ -35,6 +46,8 @@ const isTokenValid = (token: string | null): boolean => {
 };
 
 function CustomDrawerContent(props: any) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [initials, setInitials] = useState('');
@@ -128,7 +141,7 @@ function CustomDrawerContent(props: any) {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={{ flex: 1, backgroundColor: theme.card }}>
             <DrawerContentScrollView {...props} contentContainerStyle={{ padding: 24 }}>
                 <View style={styles.homebrand}>
                     <FontAwesome6 name="heart-pulse" size={20} color="#7C9A92" />
@@ -141,25 +154,25 @@ function CustomDrawerContent(props: any) {
                 <View style={styles.divider} />
 
                 {/* Settings / Help */}
-                <TouchableOpacity style={styles.navItem}>
-                    <FontAwesome6 name="gear" size={16} color="#718096" style={{ width: 24 }} />
+                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/settings' as any)}>
+                    <FontAwesome6 name="gear" size={16} color={theme.textSecondary} style={{ width: 24 }} />
                     <Text style={styles.navText}>Settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/help')}>
-                    <FontAwesome6 name="circle-question" size={16} color="#718096" style={{ width: 24 }} />
+                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/help' as any)}>
+                    <FontAwesome6 name="circle-question" size={16} color={theme.textSecondary} style={{ width: 24 }} />
                     <Text style={styles.navText}>Help</Text>
                 </TouchableOpacity>
 
             </DrawerContentScrollView>
 
             <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
-                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
-                    <FontAwesome6 name="circle-user" size={16} color="#718096" style={{ width: 24 }} />
+                <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile' as any)}>
+                    <FontAwesome6 name="circle-user" size={16} color={theme.textSecondary} style={{ width: 24 }} />
                     <Text style={styles.navText}>My Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navItem} onPress={handleLogout}>
-                    <FontAwesome6 name="arrow-right-from-bracket" size={16} color="#E53E3E" style={{ width: 24 }} />
-                    <Text style={[styles.navText, { color: '#E53E3E' }]}>Log Out</Text>
+                    <FontAwesome6 name="arrow-right-from-bracket" size={16} color={theme.danger} style={{ width: 24 }} />
+                    <Text style={[styles.navText, { color: theme.danger }]}>Log Out</Text>
                 </TouchableOpacity>
 
                 <View style={[styles.divider, { marginBottom: 16, marginTop: 8 }]} />
@@ -183,6 +196,8 @@ function CustomDrawerContent(props: any) {
 }
 
 export default function DrawerLayout() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [isChecking, setIsChecking] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const pathname = usePathname();
@@ -210,7 +225,7 @@ export default function DrawerLayout() {
     }, []);
 
     if (isChecking) {
-        return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
+        return <View style={{ flex: 1, backgroundColor: theme.background }} />;
     }
 
     if (!isAuthenticated) {
@@ -223,14 +238,14 @@ export default function DrawerLayout() {
             screenOptions={{
                 headerShown: true,
                 header: () => (
-                    <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
+                    <SafeAreaView style={{ backgroundColor: theme.card }}>
                         <View style={styles.customHeader}>
-                            <DrawerToggleButton tintColor="#2D3748" />
-                            <FontAwesome6 name="heart-pulse" size={20} color="#7C9A92" />
+                            <DrawerToggleButton tintColor={theme.text} />
+                            <FontAwesome6 name="heart-pulse" size={20} color={theme.primary} />
                             <Text style={styles.homebrandText}>Counselor.AI</Text>
                             {pathname === '/' && (
                                 <TouchableOpacity style={styles.headerRightIcon} onPress={() => DeviceEventEmitter.emit('openRightDrawer')}>
-                                    <FontAwesome6 name="clock-rotate-left" size={20} color="#718096" />
+                                    <FontAwesome6 name="clock-rotate-left" size={20} color={theme.textSecondary} />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -238,10 +253,11 @@ export default function DrawerLayout() {
                 ),
                 drawerStyle: {
                     width: 280,
+                    backgroundColor: theme.card,
                 },
-                drawerActiveBackgroundColor: '#EBF3F1',
-                drawerActiveTintColor: '#7C9A92',
-                drawerInactiveTintColor: '#718096',
+                drawerActiveBackgroundColor: theme.border,
+                drawerActiveTintColor: theme.primary,
+                drawerInactiveTintColor: theme.textSecondary,
                 drawerLabelStyle: {
                     fontFamily: 'Inter_500Medium',
                     fontSize: 15,
@@ -289,6 +305,13 @@ export default function DrawerLayout() {
                 options={{
                     drawerItemStyle: { display: 'none' },
                     title: 'Help'
+                }}
+            />
+            <Drawer.Screen
+                name="settings"
+                options={{
+                    drawerItemStyle: { display: 'none' },
+                    title: 'Settings'
                 }}
             />
             <Drawer.Screen

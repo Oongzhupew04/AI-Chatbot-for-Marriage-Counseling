@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     overlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -8,7 +9,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContainer: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         paddingVertical: 32,
         paddingHorizontal: 24,
         borderRadius: 16,

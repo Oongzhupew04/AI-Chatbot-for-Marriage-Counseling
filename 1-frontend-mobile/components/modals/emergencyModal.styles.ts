@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     overlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.85)',
@@ -8,14 +9,14 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContainer: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         width: '90%',
         maxWidth: 500,
         borderRadius: 20,
         padding: 30,
         alignItems: 'center',
         borderLeftWidth: 10,
-        borderLeftColor: '#E53E3E',
+        borderLeftColor: theme.danger,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.5,
@@ -28,20 +29,20 @@ export const styles = StyleSheet.create({
     heading: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 24,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 10,
         textAlign: 'center',
     },
     text: {
         fontFamily: 'Inter_400Regular',
-        color: '#718096',
+        color: theme.textSecondary,
         marginBottom: 25,
         lineHeight: 22,
         textAlign: 'center',
         fontSize: 15,
     },
     contactsBox: {
-        backgroundColor: '#FFF5F5',
+        backgroundColor: theme.dangerBg,
         borderRadius: 12,
         padding: 20,
         width: '100%',
@@ -63,24 +64,24 @@ export const styles = StyleSheet.create({
     },
     contactName: {
         fontFamily: 'Inter_600SemiBold',
-        color: '#2D3748',
+        color: theme.text,
         fontSize: 15,
         marginBottom: 2,
     },
     contactNumber: {
         fontFamily: 'Inter_700Bold',
-        color: '#E53E3E',
+        color: theme.danger,
         fontSize: 17,
     },
     button: {
-        backgroundColor: '#718096',
+        backgroundColor: theme.textSecondary,
         paddingVertical: 12,
         paddingHorizontal: 30,
         borderRadius: 30,
         alignItems: 'center',
     },
     buttonText: {
-        color: '#FFFFFF',
+        color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
     },

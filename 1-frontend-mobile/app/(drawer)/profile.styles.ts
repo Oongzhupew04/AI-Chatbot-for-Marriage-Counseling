@@ -1,9 +1,10 @@
 import { StyleSheet, Platform } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8FAFC', // Matching var(--bg-body)
+        backgroundColor: theme.background, // Matching var(--bg-body)
     },
     mainContent: {
         flexGrow: 1,
@@ -20,13 +21,13 @@ export const styles = StyleSheet.create({
     title: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 26,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 8,
     },
     subtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         lineHeight: 22,
     },
     profileContainer: {
@@ -52,11 +53,11 @@ export const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 60,
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 4,
-        borderColor: '#FFFFFF',
+        borderColor: theme.card,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
@@ -79,7 +80,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 3,
-        borderColor: '#FFFFFF',
+        borderColor: theme.card,
         zIndex: 10,
     },
     profileInfo: {
@@ -88,13 +89,13 @@ export const styles = StyleSheet.create({
     profileName: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 28,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 5,
     },
     profileEmail: {
         fontFamily: 'Inter_400Regular',
         fontSize: 16,
-        color: '#718096',
+        color: theme.textSecondary,
         marginBottom: 15,
     },
     statusBadge: {
@@ -109,10 +110,10 @@ export const styles = StyleSheet.create({
     statusBadgeText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: '#059669',
+        color: theme.primary,
     },
     profileDetailsCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderRadius: 20, // var(--radius-xl)
         padding: 24,
         shadowColor: '#000',
@@ -127,7 +128,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: '#E2E8F0',
+        borderBottomColor: theme.border,
         paddingBottom: 15,
         marginBottom: 20,
         gap: 10,
@@ -135,7 +136,7 @@ export const styles = StyleSheet.create({
     cardTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
-        color: '#2D3748',
+        color: theme.text,
         flex: 1,
     },
     editBtn: {
@@ -146,8 +147,8 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.border,
+        backgroundColor: theme.card,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
@@ -161,10 +162,10 @@ export const styles = StyleSheet.create({
     editBtnText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: '#2D3748',
+        color: theme.text,
     },
     editBtnTextActive: {
-        color: '#FFFFFF',
+        color: theme.card,
     },
     editBtnGroup: {
         flexDirection: 'row',
@@ -175,14 +176,14 @@ export const styles = StyleSheet.create({
         gap: 20,
     },
     detailItem: {
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         padding: 16,
         borderRadius: 12,
     },
     detailLabel: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 12,
-        color: '#718096',
+        color: theme.textSecondary,
         marginBottom: 4,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
@@ -190,41 +191,41 @@ export const styles = StyleSheet.create({
     detailValue: {
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
-        color: '#2D3748',
+        color: theme.text,
     },
     inputField: {
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
-        color: '#2D3748',
-        backgroundColor: '#FFFFFF',
+        color: theme.text,
+        backgroundColor: theme.card,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 4,
         paddingHorizontal: 10,
         paddingVertical: 8,
         width: '100%',
     },
     pickerContainer: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 4,
         overflow: 'hidden',
     },
     loadingText: {
         fontFamily: 'Inter_500Medium',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         textAlign: 'center',
         paddingVertical: 40,
     },
-    dropdownInput: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 4, paddingHorizontal: 10, paddingVertical: 10 },
+    dropdownInput: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 4, paddingHorizontal: 10, paddingVertical: 10 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'flex-end' },
-    modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20, paddingBottom: 40, maxHeight: '80%', borderWidth: 2, borderColor: '#E2E8F0' },
-    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', marginBottom: 8 },
-    modalTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18, color: '#2D3748' },
+    modalContent: { backgroundColor: theme.card, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20, paddingBottom: 40, maxHeight: '80%', borderWidth: 2, borderColor: theme.border },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.border, marginBottom: 8 },
+    modalTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18, color: theme.text },
     dropdownItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F7FAFC' },
     dropdownItemSelected: { backgroundColor: '#F0F5F4', borderRadius: 8, paddingHorizontal: 12 },
-    dropdownItemText: { fontFamily: 'Inter_400Regular', fontSize: 16, color: '#4A5568' },
+    dropdownItemText: { fontFamily: 'Inter_400Regular', fontSize: 16, color: theme.text },
     dropdownItemTextSelected: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92' }
 });

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, View, Text, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { styles } from './thankYouModal.styles';
+import { getStyles } from './thankYouModal.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 interface ThankYouModalProps {
     isOpen: boolean;
@@ -9,6 +10,8 @@ interface ThankYouModalProps {
 }
 
 export default function ThankYouModal({ isOpen, onClose }: ThankYouModalProps) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     if (!isOpen) return null;
 
     return (

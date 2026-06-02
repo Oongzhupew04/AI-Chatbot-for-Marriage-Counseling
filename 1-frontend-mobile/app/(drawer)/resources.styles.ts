@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8FAFC', // Matching var(--bg-body)
+        backgroundColor: theme.background, // Matching var(--bg-body)
     },
     mainContent: {
         flexGrow: 1,
@@ -18,14 +19,14 @@ export const styles = StyleSheet.create({
     title: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 26,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 8,
         textAlign: 'center',
     },
     subtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         textAlign: 'center',
         lineHeight: 22,
     },
@@ -38,7 +39,7 @@ export const styles = StyleSheet.create({
     loadingText: {
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
-        color: '#718096',
+        color: theme.textSecondary,
         marginTop: 15,
     },
     errorContainer: {
@@ -49,13 +50,13 @@ export const styles = StyleSheet.create({
     errorText: {
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
-        color: '#EF4444',
+        color: theme.danger,
     },
     resourcesGrid: {
         gap: 20,
     },
     resourceCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderRadius: 20, // var(--radius-xl)
         padding: 24,
         flexDirection: 'column',
@@ -96,13 +97,13 @@ export const styles = StyleSheet.create({
     resourceTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 6,
     },
     resourceDesc: {
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
-        color: '#718096',
+        color: theme.textSecondary,
         lineHeight: 21,
     }
 });

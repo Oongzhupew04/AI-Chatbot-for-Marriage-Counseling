@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { styles } from './registrationOtpModal.styles';
+import { getStyles } from './registrationOtpModal.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 interface RegistrationOtpModalProps {
     isOpen: boolean;
@@ -23,6 +24,8 @@ export default function RegistrationOtpModal({
     onClose,
     onSubmit
 }: RegistrationOtpModalProps) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     if (!isOpen) return null;
 
     return (

@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8FAFC', // Matching var(--bg-body)
+        backgroundColor: theme.background, // Matching var(--bg-body)
     },
     mainContent: {
         flexGrow: 1,
@@ -17,22 +18,22 @@ export const styles = StyleSheet.create({
     title: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 24,
-        color: '#2D3748',
+        color: theme.text,
     },
     subtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
-        color: '#718096',
+        color: theme.textSecondary,
         marginTop: 4,
     },
     notEnoughDataContainer: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderRadius: 16,
         padding: 40,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         marginBottom: 30,
         marginTop: 20,
     },
@@ -42,20 +43,20 @@ export const styles = StyleSheet.create({
     notEnoughDataTitle: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 22,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 15,
         textAlign: 'center',
     },
     notEnoughDataDesc: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         textAlign: 'center',
         lineHeight: 22,
     },
     boldDesc: {
         fontFamily: 'Inter_600SemiBold',
-        color: '#2D3748',
+        color: theme.text,
     },
     baselineHeader: {
         marginTop: 30,
@@ -64,16 +65,16 @@ export const styles = StyleSheet.create({
     baselineTitle: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 20,
-        color: '#2D3748',
+        color: theme.text,
     },
     baselineDesc: {
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
-        color: '#718096',
+        color: theme.textSecondary,
         marginTop: 4,
     },
     metricCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderRadius: 20,
         padding: 20,
         shadowColor: '#000',
@@ -99,12 +100,12 @@ export const styles = StyleSheet.create({
     cardLabel: {
         fontFamily: 'Inter_500Medium',
         fontSize: 14,
-        color: '#718096',
+        color: theme.textSecondary,
     },
     cardValue: {
         fontFamily: 'Inter_700Bold',
         fontSize: 28,
-        color: '#2D3748',
+        color: theme.text,
         marginVertical: 5,
     },
     trendBadge: {
@@ -122,12 +123,12 @@ export const styles = StyleSheet.create({
         backgroundColor: '#FEE2E2',
     },
     trendTextUp: {
-        color: '#10B981',
+        color: theme.primary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 12,
     },
     trendTextDown: {
-        color: '#EF4444',
+        color: theme.danger,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 12,
     },
@@ -150,14 +151,14 @@ export const styles = StyleSheet.create({
     },
     chartTooltip: {
         position: 'absolute',
-        backgroundColor: '#2D3748',
+        backgroundColor: theme.text,
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 8,
         zIndex: 10,
     },
     chartTooltipText: {
-        color: '#FFFFFF',
+        color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 12,
     },
@@ -165,7 +166,7 @@ export const styles = StyleSheet.create({
         position: 'absolute',
         width: 12,
         height: 12,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderColor: '#5B8DEF',
         borderWidth: 3,
         borderRadius: 6,
@@ -184,12 +185,12 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     maslowTextActive: {
-        color: '#FFFFFF',
+        color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
     },
     maslowTextInactive: {
-        color: '#FFFFFF',
+        color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
         opacity: 0.8,
@@ -199,22 +200,22 @@ export const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 12,
         borderLeftWidth: 4,
-        borderLeftColor: '#10B981',
+        borderLeftColor: theme.primary,
         marginTop: 10,
     },
     insightBoxTitle: {
-        color: '#059669',
+        color: theme.primary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
         marginBottom: 4,
     },
     insightBoxText: {
-        color: '#2D3748',
+        color: theme.text,
         fontFamily: 'Inter_400Regular',
         fontSize: 13,
     },
     interactiveRow: {
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         padding: 12,
         borderRadius: 10,
         marginBottom: 10,
@@ -235,19 +236,19 @@ export const styles = StyleSheet.create({
     interactiveRowLabel: {
         fontFamily: 'Inter_400Regular',
         fontSize: 12,
-        color: '#718096',
+        color: theme.textSecondary,
         marginBottom: 2,
     },
     interactiveRowText: {
         fontFamily: 'Inter_400Regular',
         fontSize: 13,
-        color: '#2D3748',
+        color: theme.text,
         lineHeight: 18,
     },
     interactiveRowTextBold: {
         fontFamily: 'Inter_700Bold',
         fontWeight: 'bold',
-        color: '#2D3748',
+        color: theme.text,
     },
     riskScoreContainer: {
         flexDirection: 'row',
@@ -263,12 +264,12 @@ export const styles = StyleSheet.create({
         flex: 1,
         fontFamily: 'Inter_400Regular',
         fontSize: 13,
-        color: '#718096',
+        color: theme.textSecondary,
         lineHeight: 18,
     },
     progressTrack: {
         width: '100%',
-        backgroundColor: '#E2E8F0',
+        backgroundColor: theme.border,
         height: 12,
         borderRadius: 6,
         marginTop: 20,
@@ -283,7 +284,7 @@ export const styles = StyleSheet.create({
         gap: 12,
     },
     concernRow: {
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 10,
@@ -293,20 +294,20 @@ export const styles = StyleSheet.create({
         borderLeftWidth: 4,
     },
     concernRowConcerning: {
-        borderLeftColor: '#EF4444',
+        borderLeftColor: theme.danger,
     },
     concernRowHealthy: {
-        borderLeftColor: '#10B981',
+        borderLeftColor: theme.primary,
     },
     concernTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: '#2D3748',
+        color: theme.text,
     },
     concernSubtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 12,
-        color: '#718096',
+        color: theme.textSecondary,
         marginTop: 2,
     },
     concernBadge: {
@@ -324,12 +325,12 @@ export const styles = StyleSheet.create({
         backgroundColor: '#D1FAE5',
     },
     badgeTextConcerning: {
-        color: '#EF4444',
+        color: theme.danger,
         fontFamily: 'Inter_700Bold',
         fontSize: 11,
     },
     badgeTextHealthy: {
-        color: '#10B981',
+        color: theme.primary,
         fontFamily: 'Inter_700Bold',
         fontSize: 11,
     }

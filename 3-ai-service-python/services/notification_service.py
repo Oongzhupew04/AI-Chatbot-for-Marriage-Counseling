@@ -1,6 +1,7 @@
 from pywebpush import webpush, WebPushException
 import os
 import json
+import requests
 from datetime import datetime
 from services.checkin_service import CheckinService
 from repositories.user_repo import UserRepository
@@ -55,6 +56,31 @@ class NotificationService:
         payload = json.dumps({"title": title, "body": body})
         
         for sub in subs:
+            # Check if this is an Expo Push Token
+            if sub.endpoint.startswith("ExponentPushToken["):
+                expo_payload = {
+                    "to": sub.endpoint,
+                    "title": title,
+                    "body": body,
+                    "sound": "default",
+                }
+                try:
+                    response = requests.post(
+                        "https://exp.host/--/api/v2/push/send",
+                        json=expo_payload,
+                        headers={
+                            "Accept": "application/json",
+                            "Accept-encoding": "gzip, deflate",
+                            "Content-Type": "application/json",
+                        }
+                    )
+                    response.raise_for_status()
+                except Exception as ex:
+                    print(f"Expo Push failed for endpoint {sub.endpoint}: {ex}")
+                    # Could potentially check for 'DeviceNotRegistered' in response to delete it
+                continue
+                
+            # Otherwise, assume standard Web Push
             subscription_info = {
                 "endpoint": sub.endpoint,
                 "keys": {

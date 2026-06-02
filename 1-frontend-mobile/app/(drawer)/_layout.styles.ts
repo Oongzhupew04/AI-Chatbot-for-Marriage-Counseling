@@ -1,12 +1,13 @@
 import { StyleSheet, Platform } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     customHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
+        borderBottomColor: theme.border,
         height: 56, // Standard header height
     },
     headerRightIcon: {
@@ -26,18 +27,18 @@ export const styles = StyleSheet.create({
     homebrandText: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 19.2, // 1.2rem
-        color: '#2D3748',
+        color: theme.text,
         marginLeft: 12,
     },
     divider: {
         height: 1,
-        backgroundColor: '#E2E8F0',
+        backgroundColor: theme.border,
         marginVertical: 15,
     },
     sectionHeader: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: '#718096',
+        color: theme.textSecondary,
         marginBottom: 10,
         marginLeft: 10,
     },
@@ -51,7 +52,7 @@ export const styles = StyleSheet.create({
     historyIcon: {
         width: 32,
         height: 32,
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
@@ -62,12 +63,12 @@ export const styles = StyleSheet.create({
     historyTitle: {
         fontFamily: 'Inter_500Medium',
         fontSize: 13.6,
-        color: '#2D3748',
+        color: theme.text,
     },
     historyDate: {
         fontFamily: 'Inter_400Regular',
         fontSize: 12,
-        color: '#718096',
+        color: theme.textSecondary,
     },
     navItem: {
         flexDirection: 'row',
@@ -79,7 +80,7 @@ export const styles = StyleSheet.create({
     navText: {
         fontFamily: 'Inter_500Medium',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
     },
     userProfile: {
         flexDirection: 'row',
@@ -87,7 +88,7 @@ export const styles = StyleSheet.create({
         gap: 10,
         padding: 24,
         borderTopWidth: 1,
-        borderTopColor: '#E2E8F0',
+        borderTopColor: theme.border,
     },
     avatar: {
         width: 36,
@@ -97,13 +98,13 @@ export const styles = StyleSheet.create({
     avatarFallback: {
         width: 36,
         height: 36,
-        backgroundColor: '#6B7C93',
+        backgroundColor: theme.textSecondary,
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
     },
     avatarText: {
-        color: '#FFFFFF',
+        color: theme.background,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14.4,
     },
@@ -113,11 +114,11 @@ export const styles = StyleSheet.create({
     userName: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14.4,
-        color: '#2D3748',
+        color: theme.text,
     },
     userEmail: {
         fontFamily: 'Inter_400Regular',
         fontSize: 12,
-        color: '#718096',
+        color: theme.textSecondary,
     }
 });

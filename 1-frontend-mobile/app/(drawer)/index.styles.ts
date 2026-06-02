@@ -1,16 +1,17 @@
 import { StyleSheet, Platform } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
     },
     keyboardView: {
         flex: 1,
     },
     mainContent: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.03,
@@ -22,19 +23,19 @@ export const styles = StyleSheet.create({
     customHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
+        borderBottomColor: theme.border,
     },
     headerTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
-        color: '#2D3748',
+        color: theme.text,
     },
     homebrandText: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 19.2, // 1.2rem
-        color: '#2D3748',
+        color: theme.text,
         marginLeft: 12,
     },
     welcomeSection: {
@@ -51,14 +52,14 @@ export const styles = StyleSheet.create({
     welcomeTitle: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 28,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 10,
         textAlign: 'center',
     },
     welcomeSubtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         textAlign: 'center',
     },
     actionGrid: {
@@ -66,9 +67,9 @@ export const styles = StyleSheet.create({
         gap: 12,
     },
     actionCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 12,
         padding: 16,
         flexDirection: 'row',
@@ -90,7 +91,7 @@ export const styles = StyleSheet.create({
     cardText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 15,
-        color: '#2D3748',
+        color: theme.text,
     },
     chatContainer: {
         flex: 1,
@@ -123,9 +124,9 @@ export const styles = StyleSheet.create({
         bottom: 40,
         left: 16,
         right: 16,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
         borderRadius: 20,
         paddingHorizontal: 16,
         paddingVertical: 10,
@@ -138,7 +139,7 @@ export const styles = StyleSheet.create({
     chatInput: {
         fontFamily: 'Inter_400Regular',
         fontSize: 16,
-        color: '#2D3748',
+        color: theme.text,
         maxHeight: 100,
         minHeight: 24,
         marginBottom: 12,
@@ -148,7 +149,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#F1F5F9',
+        borderTopColor: theme.border,
         paddingTop: 12,
     },
     attachments: {
@@ -187,7 +188,7 @@ export const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         width: 320,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         zIndex: 101,
         padding: 20,
         paddingTop: Platform.OS === 'ios' ? 50 : 20,
@@ -206,17 +207,17 @@ export const styles = StyleSheet.create({
     rightHeaderTitle: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 18,
-        color: '#2D3748',
+        color: theme.text,
     },
     searchWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         borderRadius: 8,
         paddingHorizontal: 12,
         marginBottom: 20,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
     },
     searchInput: {
         flex: 1,
@@ -224,7 +225,7 @@ export const styles = StyleSheet.create({
         marginLeft: 8,
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
-        color: '#2D3748',
+        color: theme.text,
     },
     historyList: {
         flex: 1,
@@ -233,7 +234,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 12,
-        backgroundColor: '#F8FAFC',
+        backgroundColor: theme.background,
         borderRadius: 8,
         marginBottom: 8,
         borderWidth: 1,
@@ -242,13 +243,13 @@ export const styles = StyleSheet.create({
     historyIcon: {
         width: 32,
         height: 32,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: theme.border,
     },
     historyInfo: {
         flex: 1,
@@ -256,21 +257,21 @@ export const styles = StyleSheet.create({
     historyTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 4,
     },
     historyDate: {
         fontFamily: 'Inter_400Regular',
         fontSize: 12,
-        color: '#718096',
+        color: theme.textSecondary,
     },
     dropdownMenu: {
         position: 'absolute',
         top: 30,
         right: 0,
-        backgroundColor: '#FFF5F5',
+        backgroundColor: theme.dangerBg,
         borderWidth: 1,
-        borderColor: '#FED7D7',
+        borderColor: theme.dangerBorder,
         borderRadius: 8,
         padding: 12,
         flexDirection: 'row',
@@ -286,7 +287,7 @@ export const styles = StyleSheet.create({
     dropdownDanger: {
         fontFamily: 'Inter_500Medium',
         fontSize: 14,
-        color: '#E53E3E',
+        color: theme.danger,
     },
     noSessions: {
         alignItems: 'center',
@@ -305,13 +306,13 @@ export const styles = StyleSheet.create({
     sessionEndedLine: {
         flex: 1,
         height: 1,
-        backgroundColor: '#E2E8F0',
+        backgroundColor: theme.border,
     },
     sessionEndedText: {
         paddingHorizontal: 15,
         fontSize: 14,
         fontFamily: 'Inter_500Medium',
-        color: '#718096',
+        color: theme.textSecondary,
     },
     confirmActionContainer: {
         flexDirection: 'row',
@@ -322,12 +323,12 @@ export const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 20,
         borderRadius: 8,
-        backgroundColor: '#EF4444',
+        backgroundColor: theme.danger,
         alignItems: 'center',
         justifyContent: 'center',
     },
     btnYesText: {
-        color: '#FFFFFF',
+        color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
     },
@@ -335,12 +336,12 @@ export const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 23,
         borderRadius: 8,
-        backgroundColor: '#2D3748',
+        backgroundColor: theme.text,
         alignItems: 'center',
         justifyContent: 'center',
     },
     btnNoText: {
-        color: '#FFFFFF',
+        color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
     }

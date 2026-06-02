@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, Linking, TouchableWithoutFeedback } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { styles } from './emergencyModal.styles';
+import { getStyles } from './emergencyModal.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 interface EmergencyModalProps {
     isOpen: boolean;
@@ -9,6 +10,8 @@ interface EmergencyModalProps {
 }
 
 export default function EmergencyModal({ isOpen, onClose }: EmergencyModalProps) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     if (!isOpen) return null;
 
     const handleCall = (number: string) => {
@@ -22,7 +25,7 @@ export default function EmergencyModal({ isOpen, onClose }: EmergencyModalProps)
                     <TouchableWithoutFeedback>
                         <View style={styles.modalContainer}>
                             <View style={styles.iconCircle}>
-                                <FontAwesome5 name="life-ring" size={60} color="#E53E3E" />
+                                <FontAwesome5 name="life-ring" size={60} color={theme.danger} />
                             </View>
 
                             <Text style={styles.heading}>You Are Not Alone</Text>
@@ -32,7 +35,7 @@ export default function EmergencyModal({ isOpen, onClose }: EmergencyModalProps)
 
                             <View style={styles.contactsBox}>
                                 <TouchableOpacity style={styles.contactRow} onPress={() => handleCall('0376272929')}>
-                                    <FontAwesome5 name="phone-alt" size={20} color="#E53E3E" style={styles.contactIcon} />
+                                    <FontAwesome5 name="phone-alt" size={20} color={theme.danger} style={styles.contactIcon} />
                                     <View style={styles.contactInfo}>
                                         <Text style={styles.contactName}>Befrienders KL (24/7)</Text>
                                         <Text style={styles.contactNumber}>03-7627 2929</Text>
@@ -40,7 +43,7 @@ export default function EmergencyModal({ isOpen, onClose }: EmergencyModalProps)
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={styles.contactRow} onPress={() => handleCall('15999')}>
-                                    <FontAwesome5 name="phone-alt" size={20} color="#E53E3E" style={styles.contactIcon} />
+                                    <FontAwesome5 name="phone-alt" size={20} color={theme.danger} style={styles.contactIcon} />
                                     <View style={styles.contactInfo}>
                                         <Text style={styles.contactName}>Talian Kasih (24/7)</Text>
                                         <Text style={styles.contactNumber}>15999</Text>
@@ -48,7 +51,7 @@ export default function EmergencyModal({ isOpen, onClose }: EmergencyModalProps)
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={[styles.contactRow, styles.contactRowLast]} onPress={() => handleCall('15555')}>
-                                    <FontAwesome5 name="phone-alt" size={20} color="#E53E3E" style={styles.contactIcon} />
+                                    <FontAwesome5 name="phone-alt" size={20} color={theme.danger} style={styles.contactIcon} />
                                     <View style={styles.contactInfo}>
                                         <Text style={styles.contactName}>HEAL Line (Mental Health)</Text>
                                         <Text style={styles.contactNumber}>15555</Text>

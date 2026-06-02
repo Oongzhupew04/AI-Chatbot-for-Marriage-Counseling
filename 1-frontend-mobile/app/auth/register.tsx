@@ -8,7 +8,8 @@ import { API_BASE_URL } from '../../constants/Config';
 import DishonestyModal from '../../components/modals/dishonestyModal';
 import RegistrationOtpModal from '../../components/modals/registrationOtpModal';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './register.styles';
+import { getStyles } from './register.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 const CustomDropdown = ({ label, value, options, onSelect, style }: { label: string, value: string, options: { label: string, value: string }[], onSelect: (val: string) => void, style?: any }) => {
     const [visible, setVisible] = useState(false);
@@ -19,7 +20,7 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
             <Text style={styles.label}>{label}</Text>
             <TouchableOpacity style={styles.dropdownInput} onPress={() => setVisible(true)}>
                 <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: value ? '#2D3748' : '#A0AEC0' }}>{selectedLabel}</Text>
-                <Ionicons name="chevron-down" size={20} color="#718096" />
+                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
             </TouchableOpacity>
 
             <Modal visible={visible} transparent animationType="slide">
@@ -49,6 +50,8 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
 };
 
 export default function RegisterScreen() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [formData, setFormData] = useState({
         username: '', email: '', password: '', confirm_password: '',
         sex: '', age: '', years_married: '', children_count: '',
@@ -164,7 +167,7 @@ export default function RegisterScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+            <StatusBar barStyle="dark-content" backgroundColor={theme.card} />
 
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">

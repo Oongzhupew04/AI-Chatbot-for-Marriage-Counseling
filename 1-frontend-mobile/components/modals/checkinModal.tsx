@@ -3,7 +3,8 @@ import { Modal, View, Text, TouchableOpacity, TextInput, ScrollView, TouchableWi
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../constants/Config';
-import { styles } from './checkinModal.styles';
+import { getStyles } from './checkinModal.styles';
+import { useTheme } from '../../context/ThemeContext';
 
 interface CheckinModalProps {
     isOpen: boolean;
@@ -24,6 +25,8 @@ const ROTATIONAL_QUESTIONS = [
 ];
 
 export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModalProps) {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [satisfactionScore, setSatisfactionScore] = useState<number | null>(null);
     const [rotationalAnswer, setRotationalAnswer] = useState<number | null>(null);
     const [todayQuestion, setTodayQuestion] = useState("");
@@ -40,7 +43,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
         if (isOpen) {
             const randomIndex = Math.floor(Math.random() * ROTATIONAL_QUESTIONS.length);
             setTodayQuestion(ROTATIONAL_QUESTIONS[randomIndex]);
-            
+
             // Reset state
             setSatisfactionScore(null);
             setRotationalAnswer(null);
@@ -50,7 +53,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
     }, [isOpen]);
 
     const handleNeedToggle = (need: string) => {
-        setSelectedNeeds(prev => 
+        setSelectedNeeds(prev =>
             prev.includes(need) ? prev.filter(n => n !== need) : [...prev, need]
         );
     };
@@ -68,7 +71,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
         };
 
         try {
-            const token = await AsyncStorage.getItem('token'); 
+            const token = await AsyncStorage.getItem('token');
 
             const response = await fetch(`${API_BASE_URL}/api/checkin`, {
                 method: 'POST',
@@ -101,8 +104,8 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                 <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                     <View style={StyleSheet.absoluteFill} />
                 </TouchableWithoutFeedback>
-                <KeyboardAvoidingView 
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}
                     pointerEvents="box-none"
                 >
@@ -111,24 +114,24 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                             <View style={styles.headerTopRow}>
                                 <Text style={styles.headerTitle}>Daily Check-In</Text>
                                 <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                                    <FontAwesome5 name="times" size={16} color="#718096" />
+                                    <FontAwesome5 name="times" size={16} color={theme.textSecondary} />
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.headerBottomRow}>
                                 <Text style={styles.headerSubtitle}>Track your relationship satisfaction and needs.</Text>
                                 <View style={styles.dateBadge}>
-                                    <FontAwesome5 name="calendar-alt" size={12} color="#2D3748" />
+                                    <FontAwesome5 name="calendar-alt" size={12} color={'black'} />
                                     <Text style={styles.dateBadgeText}>Today</Text>
                                 </View>
                             </View>
                         </View>
 
-                        <ScrollView 
-                            style={styles.modalBody} 
+                        <ScrollView
+                            style={styles.modalBody}
                             contentContainerStyle={styles.modalBodyContent}
                             keyboardShouldPersistTaps="handled"
                         >
-                            
+
                             {/* STEP 1: CORE METRIC */}
                             <View style={styles.checkinCard}>
                                 <View style={styles.cardHeader}>
@@ -140,7 +143,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                                     </View>
                                     <Text style={styles.cardHeaderSubtitle}>Overall, how satisfied are you with your relationship today?</Text>
                                 </View>
-                                
+
                                 <View style={styles.numOptionRow}>
                                     {[1, 2, 3, 4, 5, 6, 7].map(num => (
                                         <TouchableOpacity
@@ -181,8 +184,8 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                                         { label: 'Rather not', value: -1 },
                                         { label: 'No', value: -2 }
                                     ].map((option, idx) => (
-                                        <TouchableOpacity 
-                                            key={idx} 
+                                        <TouchableOpacity
+                                            key={idx}
                                             style={styles.checklistItem}
                                             onPress={() => setRotationalAnswer(option.value)}
                                         >
@@ -209,8 +212,8 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
 
                                 <View style={[styles.checklist, { marginBottom: 20 }]}>
                                     {['Love & Belonging', 'Esteem', 'Safety', 'Physiological'].map(need => (
-                                        <TouchableOpacity 
-                                            key={need} 
+                                        <TouchableOpacity
+                                            key={need}
                                             style={styles.checklistItem}
                                             onPress={() => handleNeedToggle(need)}
                                         >
@@ -222,7 +225,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                                     ))}
                                 </View>
 
-                                <TextInput 
+                                <TextInput
                                     style={styles.notesArea}
                                     placeholder="Add any additional context for the chatbot... (e.g., I felt really appreciated when you...)"
                                     placeholderTextColor="#A0AEC0"
@@ -239,8 +242,8 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                                 <TouchableOpacity style={styles.btnOutline} onPress={onClose}>
                                     <Text style={styles.btnOutlineText}>Skip for now</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={[styles.btnPrimary, !isFormValid && styles.btnPrimaryDisabled]} 
+                                <TouchableOpacity
+                                    style={[styles.btnPrimary, !isFormValid && styles.btnPrimaryDisabled]}
                                     onPress={handleSubmit}
                                     disabled={!isFormValid}
                                 >

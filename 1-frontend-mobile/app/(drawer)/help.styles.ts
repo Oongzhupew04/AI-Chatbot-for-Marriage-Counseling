@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { ThemeColors } from '../../context/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8FAFC', // Matching var(--bg-body)
+        backgroundColor: theme.background, // Matching var(--bg-body)
     },
     mainContent: {
         flexGrow: 1,
@@ -20,13 +21,13 @@ export const styles = StyleSheet.create({
     title: {
         fontFamily: 'Merriweather_700Bold',
         fontSize: 26,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 8,
     },
     subtitle: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         lineHeight: 22,
     },
     helpContainer: {
@@ -34,7 +35,7 @@ export const styles = StyleSheet.create({
         gap: 30,
     },
     helpCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.card,
         borderRadius: 20, // var(--radius-xl)
         padding: 24,
         shadowColor: '#000',
@@ -47,7 +48,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: '#E2E8F0', // var(--border-light)
+        borderBottomColor: theme.border, // var(--border-light)
         paddingBottom: 15,
         marginBottom: 20,
         gap: 10,
@@ -55,42 +56,42 @@ export const styles = StyleSheet.create({
     cardTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
-        color: '#2D3748',
+        color: theme.text,
     },
     faqList: {
         flexDirection: 'column',
         gap: 15,
     },
     faqItem: {
-        backgroundColor: '#F8FAFC', // var(--bg-hover)
+        backgroundColor: theme.background, // var(--bg-hover)
         padding: 16,
         borderRadius: 12,
         borderLeftWidth: 4,
-        borderLeftColor: '#10B981', // var(--primary-sage) fallback color based on web CSS #10B981, wait, web CSS has var(--primary-sage, #10B981). The web's primary sage is actually #7C9A92, but the css fallback had #10B981. Let's stick with #7C9A92 for consistency with the rest of the app.
+        borderLeftColor: theme.primary, // var(--primary-sage) fallback color based on web CSS #10B981, wait, web CSS has var(--primary-sage, #10B981). The web's primary sage is actually #7C9A92, but the css fallback had #10B981. Let's stick with #7C9A92 for consistency with the rest of the app.
     },
     faqQuestion: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 15,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 8,
     },
     faqAnswer: {
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
-        color: '#718096',
+        color: theme.textSecondary,
         lineHeight: 21,
     },
     loadingText: {
         fontFamily: 'Inter_500Medium',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         textAlign: 'center',
         paddingVertical: 20,
     },
     emptyText: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
-        color: '#718096',
+        color: theme.textSecondary,
         textAlign: 'center',
         paddingVertical: 20,
     },
@@ -109,13 +110,13 @@ export const styles = StyleSheet.create({
     contactInfoTitle: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
-        color: '#2D3748',
+        color: theme.text,
         marginBottom: 5,
     },
     contactInfoDesc: {
         fontFamily: 'Inter_400Regular',
         fontSize: 13,
-        color: '#718096',
+        color: theme.textSecondary,
         lineHeight: 18,
     },
     contactBtn: {
@@ -130,6 +131,6 @@ export const styles = StyleSheet.create({
     contactBtnText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: '#FFFFFF',
+        color: theme.card,
     }
 });

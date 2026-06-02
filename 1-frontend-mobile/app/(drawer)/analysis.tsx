@@ -4,8 +4,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import Svg, { Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
-import { styles } from './analysis.styles';
+import { getStyles } from './analysis.styles';
 import { API_BASE_URL } from '../../constants/Config';
+import { useTheme } from '../../context/ThemeContext';
 
 interface CheckinData {
     day: string;
@@ -37,6 +38,8 @@ const getRotationalLabel = (score: number) => {
 };
 
 export default function AnalysisScreen() {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
     const [checkinData, setCheckinData] = useState<CheckinData[]>([]);
     const [baselineData, setBaselineData] = useState<BaselineData | null>(null);
@@ -369,7 +372,7 @@ export default function AnalysisScreen() {
 
                 <View style={{ backgroundColor: '#F8FAFC', padding: 15, borderRadius: 12, marginTop: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <Text style={{ color: '#718096', fontFamily: 'Inter_400Regular', fontSize: 13 }}>Latest Answer:</Text>
+                        <Text style={{ color: theme.textSecondary, fontFamily: 'Inter_400Regular', fontSize: 13 }}>Latest Answer:</Text>
                         <Text style={{ color: '#F2994A', fontFamily: 'Inter_700Bold', fontSize: 12.5 }}>
                             {getRotationalLabel(latestCheckin.rotationalScore)} ({latestCheckin.rotationalScore > 0 ? '+' : ''}{latestCheckin.rotationalScore})
                         </Text>
@@ -401,8 +404,8 @@ export default function AnalysisScreen() {
                     })}
                 </View>
 
-                <Text style={{ fontFamily: 'Merriweather_700Bold', fontSize: 20, color: '#2D3748', marginBottom: 5 }}>Unmet Needs Analysis</Text>
-                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, color: '#718096' }}>Aggregated from your check-ins.</Text>
+                <Text style={{ fontFamily: 'Merriweather_700Bold', fontSize: 20, color: theme.text, marginBottom: 5 }}>Unmet Needs Analysis</Text>
+                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, color: theme.textSecondary }}>Aggregated from your check-ins.</Text>
 
                 <View style={styles.insightBox}>
                     <Text style={styles.insightBoxTitle}>Primary Focus: {mostUnmetNeed}</Text>
@@ -449,7 +452,7 @@ export default function AnalysisScreen() {
                     {/* Insight 3 */}
                     <View style={styles.interactiveRow}>
                         <View style={[styles.interactiveRowIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-                            <FontAwesome5 name="water" size={16} color="#10B981" />
+                            <FontAwesome5 name="water" size={16} color={theme.primary} />
                         </View>
                         <View style={styles.interactiveRowContent}>
                             <Text style={styles.interactiveRowLabel}>Emotional Stability</Text>
