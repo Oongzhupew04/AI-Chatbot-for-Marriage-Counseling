@@ -289,7 +289,7 @@ export default function Home(): JSX.Element {
                 {messages.length === 0 && (
                     <div id="welcome-section">
                         <div className={styles['welcome-header']}>
-                            <h1>Welcome to Your Safe Space</h1>
+                            <h1>Welcome to Your Private<br />Relationship Conversation</h1>
                             <p>Start by checking in or discussing a specific issue. We are here to listen.</p>
                         </div>
 

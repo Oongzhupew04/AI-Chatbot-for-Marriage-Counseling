@@ -93,14 +93,14 @@ export default function ChangePasswordModal({ visible, onClose }: ChangePassword
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
-            <KeyboardAvoidingView 
-                style={styles.modalOverlay} 
+            <KeyboardAvoidingView
+                style={styles.modalOverlay}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
                 <View style={styles.modalContent}>
                     <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                         <Text style={styles.modalTitle}>Change Password</Text>
-                        
+
                         {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                         {passwordSuccess ? <Text style={styles.successText}>{passwordSuccess}</Text> : null}
                         {otpSentMessage ? <Text style={styles.successText}>{otpSentMessage}</Text> : null}
@@ -125,8 +125,8 @@ export default function ChangePasswordModal({ visible, onClose }: ChangePassword
                                     placeholder="6-digit code"
                                     placeholderTextColor="#A0AEC0"
                                 />
-                                <TouchableOpacity 
-                                    style={styles.sendOtpBtn} 
+                                <TouchableOpacity
+                                    style={styles.sendOtpBtn}
                                     onPress={handleSendOtp}
                                     disabled={isSendingOtp}
                                 >
@@ -159,8 +159,8 @@ export default function ChangePasswordModal({ visible, onClose }: ChangePassword
                             <TouchableOpacity style={styles.btnCancel} onPress={handleClose}>
                                 <Text style={styles.btnCancelText}>Cancel</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.btnSubmit, isSubmitting && { opacity: 0.7 }]} 
+                            <TouchableOpacity
+                                style={[styles.btnSubmit, isSubmitting && { opacity: 0.7 }]}
                                 onPress={handleChangePassword}
                                 disabled={isSubmitting}
                             >

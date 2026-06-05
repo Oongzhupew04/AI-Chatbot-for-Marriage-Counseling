@@ -38,6 +38,14 @@ export default function LoginScreen() {
             const data = response.data;
 
             if (data.token) {
+                if (data.role && String(data.role).toLowerCase() === 'admin') {
+                    Alert.alert(
+                        "Admin Login Not Supported",
+                        "Please use the website to login. The mobile app does not support admin accounts."
+                    );
+                    return;
+                }
+
                 await AsyncStorage.setItem('token', data.token);
                 await AsyncStorage.setItem('userID', String(data.id));
                 await AsyncStorage.setItem('username', data.username);
@@ -48,11 +56,7 @@ export default function LoginScreen() {
                     await AsyncStorage.setItem('userRole', data.role);
                 }
 
-                if (data.role && String(data.role).toLowerCase() === 'admin') {
-                    router.replace('/' as any);
-                } else {
-                    router.replace('/' as any);
-                }
+                router.replace('/' as any);
             }
         } catch (error: any) {
             console.error("Login error:", error);

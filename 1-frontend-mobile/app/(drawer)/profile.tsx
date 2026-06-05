@@ -378,23 +378,19 @@ export default function ProfileScreen() {
                             </View>
                         </View>
 
-                        {/* Children Raised and empty space for grid */}
-                        <View style={{ flexDirection: 'row', gap: 15 }}>
-                            {/* Children Raised */}
-                            <View style={[styles.detailItem, { flex: 1 }]}>
-                                <Text style={styles.detailLabel}>Children Raised</Text>
-                                {isEditing ? (
-                                    <TextInput
-                                        style={styles.inputField}
-                                        value={editForm.children_raised !== undefined && editForm.children_raised !== null ? editForm.children_raised.toString() : ''}
-                                        onChangeText={(val) => handleInputChange('children_raised', val ? parseInt(val) : undefined)}
-                                        keyboardType="numeric"
-                                    />
-                                ) : (
-                                    <Text style={styles.detailValue}>{profile.children_raised ?? 'Not provided'}</Text>
-                                )}
-                            </View>
-                            <View style={{ flex: 1 }} />
+                        {/* Children Raised */}
+                        <View style={styles.detailItem}>
+                            <Text style={styles.detailLabel}>Children Raised</Text>
+                            {isEditing ? (
+                                <TextInput
+                                    style={styles.inputField}
+                                    value={editForm.children_raised !== undefined && editForm.children_raised !== null ? editForm.children_raised.toString() : ''}
+                                    onChangeText={(val) => handleInputChange('children_raised', val ? parseInt(val) : undefined)}
+                                    keyboardType="numeric"
+                                />
+                            ) : (
+                                <Text style={styles.detailValue}>{profile.children_raised ?? 'Not provided'}</Text>
+                            )}
                         </View>
 
                         {/* Education */}

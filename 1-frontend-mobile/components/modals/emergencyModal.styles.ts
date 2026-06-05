@@ -12,6 +12,8 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         backgroundColor: theme.card,
         width: '90%',
         maxWidth: 500,
+        maxHeight: '90%',
+        flexShrink: 1,
         borderRadius: 20,
         padding: 30,
         alignItems: 'center',

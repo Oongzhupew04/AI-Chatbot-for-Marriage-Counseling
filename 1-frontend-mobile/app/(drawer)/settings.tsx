@@ -4,7 +4,15 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import * as Notifications from 'expo-notifications';
+// NOTE: Android push notifications are temporarily disabled here.
+// In Expo SDK 53+, the Firebase Cloud Messaging (FCM) library was removed from
+// the Android Expo Go app to reduce bloat. Importing 'expo-notifications' on
+// Android Expo Go causes a fatal crash. We conditionally require it only for iOS.
+// (To enable on Android, an EAS Custom Development Build is required).
+let Notifications: any;
+if (Platform.OS !== 'android') {
+    Notifications = require('expo-notifications');
+}
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { API_BASE_URL } from '../../constants/Config';
@@ -31,13 +39,13 @@ export default function SettingsScreen() {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
                 const response = await axios.get(`${API_BASE_URL}/api/settings/preferences`, config);
-                
+
                 if (response.data.success) {
                     const { push_notifications_enabled, dark_mode_enabled } = response.data;
-                    
+
                     setNotifications(push_notifications_enabled);
                     await AsyncStorage.setItem('push_notifications_enabled', String(push_notifications_enabled));
-                    
+
                     if (isDarkMode !== dark_mode_enabled) {
                         // Keep our local async storage in sync, theme context will catch up on next load
                         // But since we are here, we can just call toggleDarkMode to sync state
@@ -46,7 +54,7 @@ export default function SettingsScreen() {
                 }
             } catch (error) {
                 console.error("Failed to fetch user preferences:", error);
-                
+
                 // Fallback to local storage if API fails
                 const storedPref = await AsyncStorage.getItem('push_notifications_enabled');
                 if (storedPref === 'true') setNotifications(true);
@@ -60,6 +68,11 @@ export default function SettingsScreen() {
     }, []);
 
     const handleNotificationToggle = async (value: boolean) => {
+        if (Platform.OS === 'android') {
+            Alert.alert('Notice', 'Push notifications are temporarily disabled on Android Expo Go.');
+            return;
+        }
+
         setNotifications(value);
         await AsyncStorage.setItem('push_notifications_enabled', String(value));
 
@@ -68,18 +81,9 @@ export default function SettingsScreen() {
 
         try {
             await axios.put(`${API_BASE_URL}/api/settings/preferences`, { pushEnabled: value }, config);
-            
+
             if (value) {
                 // Request permissions and get Expo push token
-                if (Platform.OS === 'android') {
-                    await Notifications.setNotificationChannelAsync('default', {
-                        name: 'default',
-                        importance: Notifications.AndroidImportance.MAX,
-                        vibrationPattern: [0, 250, 250, 250],
-                        lightColor: '#10B981',
-                    });
-                }
-
                 if (Device.isDevice) {
                     const existingPermissions: any = await Notifications.getPermissionsAsync();
                     let isGranted = existingPermissions.granted || existingPermissions.status === 'granted';
@@ -93,11 +97,11 @@ export default function SettingsScreen() {
                         await AsyncStorage.setItem('push_notifications_enabled', 'false');
                         return;
                     }
-                    
+
                     // Get token
                     try {
                         const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
-                        
+
                         const tokenData = await Notifications.getExpoPushTokenAsync(
                             projectId ? { projectId } : undefined
                         );
@@ -112,7 +116,7 @@ export default function SettingsScreen() {
                                 auth: 'expo'
                             }
                         }, config);
-                        
+
                         // Schedule a local notification to immediately prove permissions work
                         await Notifications.scheduleNotificationAsync({
                             content: {
@@ -122,7 +126,7 @@ export default function SettingsScreen() {
                             },
                             trigger: null, // trigger immediately
                         });
-                        
+
                     } catch (tokenError: any) {
                         console.error("Token generation failed:", tokenError);
                         Alert.alert("Development Notice", "Failed to generate push token. This usually requires an Expo account. Error: " + tokenError.message);
@@ -252,12 +256,12 @@ export default function SettingsScreen() {
                 </View>
             </View>
 
-            <ChangePasswordModal 
+            <ChangePasswordModal
                 visible={isPasswordModalOpen}
                 onClose={() => setIsPasswordModalOpen(false)}
             />
-            
-            <DeleteAccountModal 
+
+            <DeleteAccountModal
                 visible={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onSuccess={handleDeleteSuccess}

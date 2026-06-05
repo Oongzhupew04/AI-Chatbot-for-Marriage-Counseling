@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, SafeAreaView, StatusBar, Keyboard, TouchableWithoutFeedback, Animated, Dimensions, Pressable, DeviceEventEmitter } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRouter } from 'expo-router';
+import { useNavigation, useRouter, useFocusEffect } from 'expo-router';
+import { useHeaderHeight } from '@react-navigation/elements';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../constants/Config';
@@ -80,6 +81,7 @@ const getTodayString = () => {
 let hasSeenCheckinModalThisSession = false;
 
 export default function HomeScreen() {
+    const headerHeight = useHeaderHeight();
     const { theme } = useTheme();
     const styles = getStyles(theme);
     const router = useRouter();
@@ -136,6 +138,20 @@ export default function HomeScreen() {
     const [sessions, setSessions] = useState<Session[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    useEffect(() => {
+        const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+        const showSub = Keyboard.addListener(showEvent, (e) => {
+            setKeyboardHeight(e.endCoordinates.height);
+        });
+        const hideSub = Keyboard.addListener(hideEvent, () => {
+            setKeyboardHeight(0);
+        });
+        return () => { showSub.remove(); hideSub.remove(); };
+    }, []);
 
     const screenWidth = Dimensions.get('window').width;
     const slideAnim = useRef(new Animated.Value(screenWidth)).current;
@@ -177,9 +193,11 @@ export default function HomeScreen() {
         }
     };
 
-    useEffect(() => {
-        fetchSessions();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchSessions();
+        }, [])
+    );
 
     useEffect(() => {
         const subscription = DeviceEventEmitter.addListener('startNewChat', () => {
@@ -310,154 +328,167 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor={theme.card} />
-            <KeyboardAvoidingView
-                style={styles.keyboardView}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-                enabled={!isRightDrawerOpen}
-            >
+            <View style={styles.keyboardView}>
                 <View style={styles.mainContent}>
-                    {messages.length === 0 ? (
-                        <ScrollView contentContainerStyle={styles.welcomeSection}>
-                            <View style={styles.welcomeHeader}>
-                                <Text style={styles.welcomeTitle}>Welcome to Your Safe Space</Text>
-                                <Text style={styles.welcomeSubtitle}>Start by checking in or discussing a specific issue. We are here to listen.</Text>
-                            </View>
+                    <KeyboardAvoidingView
+                        style={{ flex: 1 }}
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
+                        enabled={!isRightDrawerOpen && Platform.OS === 'ios'}
+                    >
+                        {messages.length === 0 ? (
+                            <ScrollView contentContainerStyle={styles.welcomeSection}>
+                                <View style={styles.welcomeHeader}>
+                                    <Text style={styles.welcomeTitle}>Welcome to Your Private Relationship Conversation</Text>
+                                    <Text style={styles.welcomeSubtitle}>Start by checking in or discussing a specific issue. We are here to listen.</Text>
+                                </View>
 
-                            <View style={styles.actionGrid}>
-                                <TouchableOpacity style={styles.actionCard} onPress={() => setIsCheckinModalOpen(true)}>
-                                    <View style={styles.cardContent}>
-                                        <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
-                                            <FontAwesome6 name="clipboard-check" size={16} color="#D97706" />
+                                <View style={styles.actionGrid}>
+                                    <TouchableOpacity style={styles.actionCard} onPress={() => setIsCheckinModalOpen(true)}>
+                                        <View style={styles.cardContent}>
+                                            <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
+                                                <FontAwesome6 name="clipboard-check" size={16} color="#D97706" />
+                                            </View>
+                                            <Text style={styles.cardText}>Daily Check-in</Text>
                                         </View>
-                                        <Text style={styles.cardText}>Daily Check-in</Text>
-                                    </View>
-                                    <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
-                                </TouchableOpacity>
+                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                    </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/resources')}>
-                                    <View style={styles.cardContent}>
-                                        <View style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}>
-                                            <FontAwesome6 name="book-open" size={16} color="#2563EB" />
+                                    <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/resources' as any)}>
+                                        <View style={styles.cardContent}>
+                                            <View style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}>
+                                                <FontAwesome6 name="book-open" size={16} color="#2563EB" />
+                                            </View>
+                                            <Text style={styles.cardText}>Browse Resources</Text>
                                         </View>
-                                        <Text style={styles.cardText}>Browse Resources</Text>
-                                    </View>
-                                    <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
-                                </TouchableOpacity>
+                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                    </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/analysis')}>
-                                    <View style={styles.cardContent}>
-                                        <View style={[styles.iconBox, { backgroundColor: '#D1FAE5' }]}>
-                                            <FontAwesome6 name="chart-line" size={16} color="#059669" />
+                                    <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/analysis' as any)}>
+                                        <View style={styles.cardContent}>
+                                            <View style={[styles.iconBox, { backgroundColor: '#D1FAE5' }]}>
+                                                <FontAwesome6 name="chart-line" size={16} color="#059669" />
+                                            </View>
+                                            <Text style={styles.cardText}>View Analysis</Text>
                                         </View>
-                                        <Text style={styles.cardText}>View Analysis</Text>
-                                    </View>
-                                    <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
-                                </TouchableOpacity>
+                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                    </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.actionCard} onPress={() => setIsEmergencyModalOpen(true)}>
-                                    <View style={styles.cardContent}>
-                                        <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
-                                            <FontAwesome6 name="phone-volume" size={16} color="#DC2626" />
+                                    <TouchableOpacity style={styles.actionCard} onPress={() => setIsEmergencyModalOpen(true)}>
+                                        <View style={styles.cardContent}>
+                                            <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
+                                                <FontAwesome6 name="phone-volume" size={16} color="#DC2626" />
+                                            </View>
+                                            <Text style={styles.cardText}>Emergency Help</Text>
                                         </View>
-                                        <Text style={styles.cardText}>Emergency Help</Text>
-                                    </View>
-                                    <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
-                                </TouchableOpacity>
-                            </View>
-                        </ScrollView>
-                    ) : (
-                        <ScrollView
-                            ref={scrollViewRef}
-                            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-                            style={styles.chatContainer}
-                            contentContainerStyle={{ padding: 20, paddingBottom: 0 }}
-                        >
-                            {messages.map((m, i) => {
-                                if (m.text === '[Session Ended]') {
+                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                    </TouchableOpacity>
+                                </View>
+                            </ScrollView>
+                        ) : (
+                            <ScrollView
+                                ref={scrollViewRef}
+                                onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+                                style={styles.chatContainer}
+                                contentContainerStyle={{ padding: 20, paddingBottom: 0 }}
+                            >
+                                {messages.map((m, i) => {
+                                    if (m.text === '[Session Ended]') {
+                                        return (
+                                            <View key={i} style={styles.sessionEndedContainer}>
+                                                <View style={styles.sessionEndedLine} />
+                                                <Text style={styles.sessionEndedText}>Session Ended</Text>
+                                                <View style={styles.sessionEndedLine} />
+                                            </View>
+                                        );
+                                    }
+
+                                    const isLastMessage = i === messages.length - 1;
+
                                     return (
-                                        <View key={i} style={styles.sessionEndedContainer}>
-                                            <View style={styles.sessionEndedLine} />
-                                            <Text style={styles.sessionEndedText}>Session Ended</Text>
-                                            <View style={styles.sessionEndedLine} />
+                                        <View key={i} style={[
+                                            styles.messageBubble,
+                                            m.sender === 'user' ? styles.userMsg : styles.botMsg
+                                        ]}>
+                                            <Text style={[
+                                                styles.messageText,
+                                                m.sender === 'user' ? { color: theme.card } : { color: theme.text }
+                                            ]}>{m.text}</Text>
+
+                                            {isLastMessage && m.action === "confirm_end" && (
+                                                <View style={styles.confirmActionContainer}>
+                                                    <TouchableOpacity style={styles.btnYes} onPress={handleConfirmEnd}>
+                                                        <Text style={styles.btnYesText}>Yes</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity style={styles.btnNo} onPress={handleCancelEnd}>
+                                                        <Text style={styles.btnNoText}>No</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            )}
                                         </View>
                                     );
-                                }
+                                })}
 
-                                const isLastMessage = i === messages.length - 1;
-
-                                return (
-                                    <View key={i} style={[
-                                        styles.messageBubble,
-                                        m.sender === 'user' ? styles.userMsg : styles.botMsg
-                                    ]}>
-                                        <Text style={[
-                                            styles.messageText,
-                                            m.sender === 'user' ? { color: theme.card } : { color: theme.text }
-                                        ]}>{m.text}</Text>
-
-                                        {isLastMessage && m.action === "confirm_end" && (
-                                            <View style={styles.confirmActionContainer}>
-                                                <TouchableOpacity style={styles.btnYes} onPress={handleConfirmEnd}>
-                                                    <Text style={styles.btnYesText}>Yes</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity style={styles.btnNo} onPress={handleCancelEnd}>
-                                                    <Text style={styles.btnNoText}>No</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        )}
+                                {isPending && (
+                                    <View style={[styles.messageBubble, styles.botMsg, { alignSelf: 'flex-start', paddingVertical: 12 }]}>
+                                        <TypingIndicator />
                                     </View>
-                                );
-                            })}
+                                )}
+                            </ScrollView>
+                        )}
 
-                            {isPending && (
-                                <View style={[styles.messageBubble, styles.botMsg, { alignSelf: 'flex-start', paddingVertical: 12 }]}>
-                                    <TypingIndicator />
+                        {isInputFocused && (
+                            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                                <View style={[StyleSheet.absoluteFill, { zIndex: 10 }]} >
+                                    <BlurView 
+                                        intensity={30} 
+                                        tint="dark" 
+                                        style={StyleSheet.absoluteFill} 
+                                        experimentalBlurMethod="dimezisBlurView" 
+                                    />
                                 </View>
-                            )}
-                        </ScrollView>
-                    )}
+                            </TouchableWithoutFeedback>
+                        )}
 
-                    {isInputFocused && (
-                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                            <View style={[StyleSheet.absoluteFill, { zIndex: 10 }]} >
-                                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+                        <View style={[
+                            styles.inputWrapper,
+                            isInputFocused && { zIndex: 11 },
+                            isSessionEnded && { opacity: 0.6 },
+                            Platform.OS === 'android' && !isRightDrawerOpen && { marginBottom: keyboardHeight > 0 ? keyboardHeight + 10 : 10 }
+                        ]}>
+                            <TextInput
+                                style={styles.chatInput}
+                                placeholder={isSessionEnded ? "This session has ended." : "Tell me what's on your mind today..."}
+                                placeholderTextColor="#A0AEC0"
+                                value={input}
+                                onChangeText={setInput}
+                                multiline
+                                maxLength={1000}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setIsInputFocused(false)}
+                                editable={!isSessionEnded}
+                            />
+                            <View style={styles.inputFooter}>
+                                <View style={styles.attachments}>
+
+                                </View>
+                                <TouchableOpacity
+                                    style={[styles.sendBtn, isSessionEnded && { backgroundColor: '#CBD5E0' }]}
+                                    onPress={handleSendMessage}
+                                    disabled={isSessionEnded}
+                                >
+                                    <FontAwesome6 name="paper-plane" size={14} color="#FFFFFF" />
+                                </TouchableOpacity>
                             </View>
-                        </TouchableWithoutFeedback>
-                    )}
-
-                    <View style={[styles.inputWrapper, isInputFocused && { zIndex: 11 }, isSessionEnded && { opacity: 0.6 }]}>
-                        <TextInput
-                            style={styles.chatInput}
-                            placeholder={isSessionEnded ? "This session has ended." : "Tell me what's on your mind today..."}
-                            placeholderTextColor="#A0AEC0"
-                            value={input}
-                            onChangeText={setInput}
-                            multiline
-                            maxLength={1000}
-                            onFocus={() => setIsInputFocused(true)}
-                            onBlur={() => setIsInputFocused(false)}
-                            editable={!isSessionEnded}
-                        />
-                        <View style={styles.inputFooter}>
-                            <View style={styles.attachments}>
-
-                            </View>
-                            <TouchableOpacity
-                                style={[styles.sendBtn, isSessionEnded && { backgroundColor: '#CBD5E0' }]}
-                                onPress={handleSendMessage}
-                                disabled={isSessionEnded}
-                            >
-                                <FontAwesome6 name="paper-plane" size={14} color="#FFFFFF" />
-                            </TouchableOpacity>
                         </View>
-                    </View>
+
+                    </KeyboardAvoidingView>
 
                     <Text style={styles.disclaimer}>
                         Counselor.AI is an emotional support tool, not a licensed therapist. In emergencies, call 999.
                     </Text>
                 </View>
-            </KeyboardAvoidingView>
+            </View>
 
             {/* Right Drawer Overlay */}
             {isRightDrawerOpen && (

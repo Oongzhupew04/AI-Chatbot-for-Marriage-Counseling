@@ -1,10 +1,17 @@
 import requests
 import re
+import json
+
 
 # --- CONFIGURATION ---
-# The IP and Port of your Huawei Cloud ECS running Ollama
-OLLAMA_API_URL = "http://127.0.0.1:11434/api/chat"
-MODEL_NAME = "deepseek-r1:1.5b"
+# --- OLD OLLAMA CONFIG (Commented out) ---
+# OLLAMA_API_URL = "http://127.0.0.1:11434/api/chat"
+# MODEL_NAME = "deepseek-r1:1.5b"
+
+# --- NEW GROQ API CONFIG ---
+GROQ_API_KEY = "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"  # <-- PASTE YOUR GROQ API KEY HERE
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
+MODEL_NAME = "llama-3.3-70b-versatile" # Much smarter and incredibly fast on Groq
 
 # --- CONSTANTS ---
 CRISIS_RESOURCES = (
@@ -75,21 +82,28 @@ def analyze_risk(text):
     return 0, None
 
 def generate_response(messages):
-    """Generate a response by calling the DeepSeek model on the ECS instance."""
+    """Generate a response by calling the Groq Cloud API."""
     payload = {
         "model": MODEL_NAME,
         "messages": messages,
         "stream": False 
     }
     
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
     try:
-        response = requests.post(OLLAMA_API_URL, json=payload)
+        response = requests.post(API_URL, json=payload, headers=headers)
         response.raise_for_status() # Raises an error for bad HTTP status codes
         
         data = response.json()
-        raw_response = data.get("message", {}).get("content", "").strip()
+        
+        # Groq uses the OpenAI JSON format
+        raw_response = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
 
-        print(f"--- DEBUG: RAW RESPONSE START ---\n{raw_response}\n--- DEBUG: RAW RESPONSE END ---")
+        print(f"--- DEBUG: AI CONTENT START ---\n{raw_response}\n--- DEBUG: AI CONTENT END ---")
 
         # Safety check on the AI's output
         if is_unsafe(raw_response):
@@ -120,7 +134,10 @@ def generate_response(messages):
         return clean_response
 
     except requests.exceptions.RequestException as e:
-        print(f"[API ERROR] Failed to connect to DeepSeek: {e}")
+        error_details = ""
+        if hasattr(e, 'response') and e.response is not None:
+            error_details = f" | Details: {e.response.text}"
+        print(f"[API ERROR] Failed to connect to Groq: {e}{error_details}")
         return "I'm having trouble connecting to my thought process right now. Please try again in a moment."
 
 def generate_counseling_response(user_input: str, retrieved_context: str = "") -> str:

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, Image, DeviceEventEmitter, Platform } from 'react-native';
 import { getStyles } from './_layout.styles';
 import { Drawer } from 'expo-router/drawer';
 import { useTheme } from '../../context/ThemeContext';
@@ -9,16 +9,18 @@ import { useRouter, usePathname, Redirect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants/Config';
-import * as Notifications from 'expo-notifications';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// Only load notifications on iOS to prevent Expo Go crash on Android
+if (Platform.OS !== 'android') {
+    const Notifications = require('expo-notifications');
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowBanner: true,
+            shouldShowList: true,
+            shouldPlaySound: true,
+            shouldSetBadge: true,
+        }),
+    });
+}
 
 const isTokenValid = (token: string | null): boolean => {
     if (!token) return false;

@@ -18,7 +18,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  
+
   const [loaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,

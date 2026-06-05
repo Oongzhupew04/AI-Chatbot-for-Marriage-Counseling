@@ -43,7 +43,6 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexGrow: 1,
-        paddingBottom: 120, // space for input wrapper
     },
     welcomeHeader: {
         alignItems: 'center',
@@ -95,7 +94,6 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     },
     chatContainer: {
         flex: 1,
-        marginBottom: 150, // space for input
     },
     messageBubble: {
         maxWidth: '85%',
@@ -120,10 +118,8 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         lineHeight: 22,
     },
     inputWrapper: {
-        position: 'absolute',
-        bottom: 40,
-        left: 16,
-        right: 16,
+        marginHorizontal: 16,
+        marginBottom: 12,
         backgroundColor: theme.card,
         borderWidth: 1,
         borderColor: theme.border,
@@ -167,14 +163,12 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         justifyContent: 'center',
     },
     disclaimer: {
-        position: 'absolute',
-        bottom: 8,
-        left: 16,
-        right: 16,
         textAlign: 'center',
         fontFamily: 'Inter_400Regular',
         fontSize: 10,
         color: '#A0AEC0',
+        paddingHorizontal: 16,
+        paddingBottom: Platform.OS === 'ios' ? 8 : 30,
     },
     headerRightIcon: {
         width: 48,
@@ -191,7 +185,7 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         backgroundColor: theme.card,
         zIndex: 101,
         padding: 20,
-        paddingTop: Platform.OS === 'ios' ? 50 : 20,
+        paddingTop: 20,
         shadowColor: '#000',
         shadowOffset: { width: -5, height: 0 },
         shadowOpacity: 0.1,

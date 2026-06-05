@@ -88,31 +88,38 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     },
     modalActions: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 12,
         marginTop: 20,
     },
     btnCancel: {
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        backgroundColor: theme.border,
-    },
-    btnCancelText: {
-        fontFamily: 'Inter_600SemiBold',
-        color: theme.text,
-        fontSize: 15,
-    },
-    btnSubmit: {
+        flex: 1,
+        marginRight: 6,
+        backgroundColor: '#E2E8F0',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 8,
-        backgroundColor: theme.primary,
         alignItems: 'center',
+        justifyContent: 'center',
+    },
+    btnCancelText: {
+        color: '#4A5568',
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 15,
+        textAlign: 'center',
+    },
+    btnSubmit: {
+        flex: 1,
+        marginLeft: 6,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#7C9A92',
     },
     btnSubmitText: {
         fontFamily: 'Inter_600SemiBold',
         color: theme.card,
         fontSize: 15,
+        textAlign: 'center',
     }
 });
