@@ -6,8 +6,7 @@ from dotenv import load_dotenv # Added to load your openGauss credentials
 from deepseek_ai_cloud import detect_intent, generate_casual_response, is_casual_chat, generate_counseling_response
 from langchain_huggingface import HuggingFaceEmbeddings
 import re
-
-# 1. Swap Chroma for OpenGauss
+import logging
 from langchain_opengauss import OpenGauss, OpenGaussSettings
 
 # Load environment variables from the .env file
@@ -20,6 +19,8 @@ class ChatService:
         self.chat_repo = ChatRepository()
         self.risk_alert_service = RiskAlertService()
         print("Booting up RAG Database Engine (Takes ~10-15 seconds)...")
+        
+        logging.getLogger("transformers.modeling_utils").setLevel(logging.ERROR)
         
         self.embeddings = HuggingFaceEmbeddings(
             model_name="BAAI/bge-large-en-v1.5",
@@ -99,11 +100,17 @@ class ChatService:
             return {"response": intent_response, "action": "none", "risk_level": risk_level}
 
         # 4. Route the message: Casual Chat vs. Counseling Issue
-        if is_casual_chat(user_input):
+        
+        # Fetch recent chat history to give the AI context of the conversation
+        history = self.get_chat_history(chat_id)
+        # Keep only the last 10 messages to avoid exceeding token limits
+        recent_history = history[-10:] if history else []
+        
+        if is_casual_chat(user_input, recent_history):
             print(f"[Router] chat_id {chat_id}: Detected casual conversation. Bypassing RAG.")
             
             # Use the lightweight casual prompt function
-            ai_response = generate_casual_response(user_input)
+            ai_response = generate_casual_response(user_input, recent_history)
             
         else:
             print(f"[Router] chat_id {chat_id}: Detected relationship issue. Engaging RAG.")
@@ -148,8 +155,13 @@ class ChatService:
                 retrieved_context = "" # Failsafe
 
             # 6. Default LLM Response (Using RAG Context)
-            ai_response = generate_counseling_response(user_input, retrieved_context)
+            ai_response = generate_counseling_response(user_input, retrieved_context, recent_history)
 
+        from deepseek_ai_cloud import CRISIS_RESOURCES
+        if CRISIS_RESOURCES in ai_response:
+            risk_level = 2
+            print("[Router] Post-generation safety filter triggered. Escalating risk_level to 2.")
+            
         # 7. Log the interaction (Happens for BOTH casual and clinical paths)
         self.log_message(chat_id, user_input, ai_response)
         

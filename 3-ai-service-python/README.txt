@@ -3,6 +3,8 @@ Start docker, ollama, deepseek:
 
 cd 3-ai-service-python
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+For venv:
+.\venv\Scripts\uvicorn.exe main:app --host 0.0.0.0 --port 8000 --reload
 
 cd 2-gateway-node
 npx ts-node src/server.ts
@@ -18,6 +20,9 @@ npx expo start -c
 
 admin@gmail.com
 admin123
+
+Install dependencies:
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 
 
 Example AI question for level2_safety_emotional_infidelity.md:

@@ -1,6 +1,39 @@
 from database import db
 from models.chat import Chat
 from models.message import Message
+import os
+import base64
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Load AES-256 key from .env (must be 32 bytes when decoded)
+# If missing, fall back to a hardcoded key so the app doesn't crash during development
+encoded_key = os.getenv("AES_ENCRYPTION_KEY", "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=") 
+AES_KEY = base64.b64decode(encoded_key)
+
+def encrypt_text(text: str) -> str:
+    """Encrypts text using AES-256 GCM (Column Level Encryption)."""
+    if not text: return text
+    aesgcm = AESGCM(AES_KEY)
+    nonce = os.urandom(12)
+    ct = aesgcm.encrypt(nonce, text.encode('utf-8'), None)
+    return base64.b64encode(nonce + ct).decode('utf-8')
+
+def decrypt_text(ciphertext_b64: str) -> str:
+    """Decrypts AES-256 GCM encrypted text."""
+    if not ciphertext_b64: return ciphertext_b64
+    try:
+        data = base64.b64decode(ciphertext_b64.encode('utf-8'))
+        nonce = data[:12]
+        ct = data[12:]
+        aesgcm = AESGCM(AES_KEY)
+        pt = aesgcm.decrypt(nonce, ct, None)
+        return pt.decode('utf-8')
+    except Exception:
+        # Fallback if decryption fails (e.g., legacy unencrypted messages)
+        return ciphertext_b64
 
 class ChatRepository:
     """Handles all chat and message database operations."""
@@ -34,7 +67,9 @@ class ChatRepository:
                 INSERT INTO messages (chat_id, timestamp, user_message, bot_response)
                 VALUES (?, CURRENT_TIMESTAMP, ?, ?) RETURNING id
             """
-            cursor.execute(msg_query, (chat_id, user_msg, bot_msg))
+            enc_user_msg = encrypt_text(user_msg)
+            enc_bot_msg = encrypt_text(bot_msg)
+            cursor.execute(msg_query, (chat_id, enc_user_msg, enc_bot_msg))
             message_id = cursor.fetchone()[0]
             conn.commit()
             cursor.close()
@@ -68,9 +103,9 @@ class ChatRepository:
             history = []
             for row in rows:
                 if row[0]: # user_message
-                    history.append({"sender": "user", "text": row[0]})
+                    history.append({"sender": "user", "text": decrypt_text(row[0])})
                 if row[1]: # bot_response
-                    history.append({"sender": "bot", "text": row[1]})
+                    history.append({"sender": "bot", "text": decrypt_text(row[1])})
                     
             cursor.close()
             return history
@@ -97,7 +132,12 @@ class ChatRepository:
             
             # Format into a nice dictionary list
             columns = [column[0] for column in cursor.description]
-            sessions = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            sessions = []
+            for row in cursor.fetchall():
+                session_dict = dict(zip(columns, row))
+                if session_dict.get('title'):
+                    session_dict['title'] = decrypt_text(session_dict['title'])
+                sessions.append(session_dict)
             
             cursor.close()
             return sessions

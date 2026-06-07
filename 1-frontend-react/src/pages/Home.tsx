@@ -180,6 +180,10 @@ export default function Home(): JSX.Element {
             { message: text, chatId },
             {
                 onSuccess: (data) => {
+                    if (data.risk_level && data.risk_level >= 1) {
+                        setShowEmergency(true);
+                    }
+
                     if (data.chatId && !chatId) {
                         setChatId(data.chatId);
                         setSessions(prevSessions => [
