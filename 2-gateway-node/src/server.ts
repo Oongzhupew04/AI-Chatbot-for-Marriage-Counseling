@@ -7,10 +7,31 @@ import morgan from 'morgan';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
+import logger from './utils/logger';
 
 dotenv.config();
 
 const app = express();
+
+// --- RATE LIMITERS ---
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window`
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests from this IP, please try again after 15 minutes" }
+});
+
+const chatLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 10, // Limit each IP to 10 chat requests per minute to prevent LLM abuse
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "You are sending messages too fast. Please wait a minute." }
+});
+
+app.use(globalLimiter);
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev')); // helps see request logs in the terminal
@@ -306,7 +327,7 @@ app.post('/api/chat/new', async (req: AuthRequest, res: Response): Promise<void>
 });
 
 // Translate: @app.route('/get_response', methods=['POST'])
-app.post('/api/chat', async (req: AuthRequest, res: Response): Promise<void> => {
+app.post('/api/chat', chatLimiter, async (req: AuthRequest, res: Response): Promise<void> => {
     // Note: Changed 'const' to 'let' so we can assign the new ID!
     let { message, chatId } = req.body;
     const userId = req.user.userId;
@@ -324,11 +345,20 @@ app.post('/api/chat', async (req: AuthRequest, res: Response): Promise<void> => 
         }
 
         // --- 2. SEND THE MESSAGE ---
-        console.log("Sending to Python:", { user_id: userId, chat_id: chatId, message: message });
+        logger.info("Sending chat request to AI Service", { user_id: userId, chat_id: chatId });
+        
+        const startTime = Date.now();
         const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/get_response`, {
             user_id: userId,
             chat_id: chatId, // This is now guaranteed to be a real string/ID!
             message: message
+        });
+        const latencyMs = Date.now() - startTime;
+        
+        logger.info("Received chat response from AI Service", { 
+            user_id: userId, 
+            chat_id: chatId, 
+            latency_ms: latencyMs 
         });
 
         // --- 3. SEND BACK TO REACT ---
@@ -338,7 +368,7 @@ app.post('/api/chat', async (req: AuthRequest, res: Response): Promise<void> => 
         });
 
     } catch (error: any) {
-        console.error("Python Service Error:", error.message);
+        logger.error("Python Service Error", { error: error.message, stack: error.stack });
         res.status(500).json({ error: "AI Compute Service is currently unavailable." });
     }
 });

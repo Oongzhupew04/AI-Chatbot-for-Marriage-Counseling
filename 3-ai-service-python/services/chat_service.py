@@ -8,6 +8,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import re
 import logging
 from langchain_opengauss import OpenGauss, OpenGaussSettings
+import deepseek_ai_cloud
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -27,6 +28,9 @@ class ChatService:
             model_kwargs={'device': 'cpu'},
             encode_kwargs={'normalize_embeddings': True}
         )
+        
+        # Share the exact same ML model reference with the Semantic Risk Analyzer to save 1.5GB RAM
+        deepseek_ai_cloud.init_semantic_model(self.embeddings._client)
         
         # 2. Configure openGauss Settings (Must match your builder script)
         config = OpenGaussSettings(

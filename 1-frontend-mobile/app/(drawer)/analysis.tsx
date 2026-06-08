@@ -24,6 +24,12 @@ interface BaselineData {
     q19: number;
 }
 
+interface TrendData {
+    date: string;
+    daily_score: number;
+    moving_average: number;
+}
+
 const isConcerning = (val: number) => val > 3;
 
 const getRotationalLabel = (score: number) => {
@@ -42,6 +48,8 @@ export default function AnalysisScreen() {
     const styles = getStyles(theme);
     const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
     const [checkinData, setCheckinData] = useState<CheckinData[]>([]);
+    const [trendData, setTrendData] = useState<TrendData[]>([]);
+    const [chartMode, setChartMode] = useState<'7day' | '30day'>('7day');
     const [baselineData, setBaselineData] = useState<BaselineData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -57,6 +65,7 @@ export default function AnalysisScreen() {
                 });
 
                 setCheckinData(response.data.checkins || []);
+                setTrendData(response.data.trend_analysis || []);
                 setBaselineData(response.data.baseline || null);
             } catch (err: any) {
                 console.error("Failed to fetch analysis data", err);
@@ -196,9 +205,15 @@ export default function AnalysisScreen() {
 
     // 1. Calculate Average Satisfaction
     const avgScore = (() => {
-        if (checkinData.length === 0) return 0;
-        const total = checkinData.reduce((acc, curr) => acc + curr.coreMetric, 0);
-        return Math.round(((total / checkinData.length) / 7) * 100);
+        if (chartMode === '7day') {
+            if (checkinData.length === 0) return 0;
+            const total = checkinData.reduce((acc, curr) => acc + curr.coreMetric, 0);
+            return (total / checkinData.length).toFixed(1);
+        } else {
+            if (trendData.length === 0) return 0;
+            const total = trendData.reduce((acc, curr) => acc + curr.moving_average, 0);
+            return (total / trendData.length).toFixed(1);
+        }
     })();
 
     // 2. Aggregate Unmet Needs
@@ -254,24 +269,35 @@ export default function AnalysisScreen() {
 
     // 4. Trend Calculation
     const trend = (() => {
-        if (checkinData.length < 2) return { value: 0, isUp: true };
-        const first = checkinData[0].coreMetric;
-        const last = checkinData[checkinData.length - 1].coreMetric;
-        const diff = last - first;
-        const percentage = Math.round((Math.abs(diff) / first) * 100);
-        return { value: percentage, isUp: diff >= 0 };
+        if (chartMode === '7day') {
+            if (checkinData.length < 2) return { value: 0, isUp: true };
+            const first = checkinData[0].coreMetric;
+            const last = checkinData[checkinData.length - 1].coreMetric;
+            const diff = last - first;
+            const percentage = Math.round((Math.abs(diff) / first) * 100);
+            return { value: percentage, isUp: diff >= 0 };
+        } else {
+            if (trendData.length < 2) return { value: 0, isUp: true };
+            const first = trendData[0].moving_average;
+            const last = trendData[trendData.length - 1].moving_average;
+            const diff = last - first;
+            const percentage = Math.round((Math.abs(diff) / first) * 100);
+            return { value: percentage, isUp: diff >= 0 };
+        }
     })();
 
     // SVG Path calculation
     const maxMetric = 7;
     const chartHeight = 150;
 
-    const points = checkinData.map((d, i) => ({
-        x: (i / (checkinData.length - 1)) * chartWidth,
-        y: chartHeight - ((d.coreMetric / maxMetric) * (chartHeight - 30)) // Give some top padding
+    const currentDataset = chartMode === '7day' ? checkinData.map(d => d.coreMetric) : trendData.map(d => d.moving_average);
+
+    const points = currentDataset.map((val, i) => ({
+        x: (i / (currentDataset.length - 1 || 1)) * chartWidth,
+        y: chartHeight - ((val / maxMetric) * (chartHeight - 30)) // Give some top padding
     }));
 
-    let lineD = `M ${points[0].x},${points[0].y}`;
+    let lineD = points.length > 0 ? `M ${points[0].x},${points[0].y}` : `M 0,0`;
     for (let i = 1; i < points.length; i++) {
         const prev = points[i - 1];
         const curr = points[i];
@@ -302,7 +328,29 @@ export default function AnalysisScreen() {
                     </View>
                 </View>
                 <Text style={styles.cardLabel}>Average Satisfaction Score</Text>
-                <Text style={styles.cardValue}>{avgScore}/100</Text>
+                <Text style={styles.cardValue}>{avgScore}/7</Text>
+
+                {/* Chart Toggle Buttons */}
+                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginVertical: 15 }}>
+                    <TouchableOpacity 
+                        style={{
+                            paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20,
+                            backgroundColor: chartMode === '7day' ? '#5B8DEF' : '#F1F5F9'
+                        }}
+                        onPress={() => setChartMode('7day')}
+                    >
+                        <Text style={{ fontWeight: '600', color: chartMode === '7day' ? 'white' : '#64748B' }}>7-Day Volatility</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={{
+                            paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20,
+                            backgroundColor: chartMode === '30day' ? '#10B981' : '#F1F5F9'
+                        }}
+                        onPress={() => setChartMode('30day')}
+                    >
+                        <Text style={{ fontWeight: '600', color: chartMode === '30day' ? 'white' : '#64748B' }}>30-Day Stability</Text>
+                    </TouchableOpacity>
+                </View>
 
                 <View style={styles.chartContainer}>
                     {hoveredPoint !== null && (
@@ -311,7 +359,11 @@ export default function AnalysisScreen() {
                                 left: points[hoveredPoint].x - 30, // Center it roughly
                                 top: points[hoveredPoint].y - 35
                             }]}>
-                                <Text style={styles.chartTooltipText}>Score: {checkinData[hoveredPoint].coreMetric}/7</Text>
+                                <Text style={styles.chartTooltipText}>
+                                    {chartMode === '7day' ? 'Score' : 'Avg'}: {chartMode === '7day' 
+                                        ? checkinData[hoveredPoint]?.coreMetric 
+                                        : trendData[hoveredPoint]?.moving_average?.toFixed(1)}/7
+                                </Text>
                             </View>
                             <View style={[styles.chartTooltipDot, {
                                 left: points[hoveredPoint].x - 6, // half width
@@ -322,13 +374,20 @@ export default function AnalysisScreen() {
 
                     <Svg width={chartWidth} height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
                         <Defs>
-                            <LinearGradient id="gradBlue" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <Stop offset="0%" stopColor="rgb(91, 141, 239)" stopOpacity="0.3" />
-                                <Stop offset="100%" stopColor="rgb(91, 141, 239)" stopOpacity="0" />
-                            </LinearGradient>
+                            {chartMode === '7day' ? (
+                                <LinearGradient id="gradColor" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <Stop offset="0%" stopColor="rgb(91, 141, 239)" stopOpacity="0.3" />
+                                    <Stop offset="100%" stopColor="rgb(91, 141, 239)" stopOpacity="0" />
+                                </LinearGradient>
+                            ) : (
+                                <LinearGradient id="gradColor" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <Stop offset="0%" stopColor="rgb(16, 185, 129)" stopOpacity="0.3" />
+                                    <Stop offset="100%" stopColor="rgb(16, 185, 129)" stopOpacity="0" />
+                                </LinearGradient>
+                            )}
                         </Defs>
-                        <Path d={pathD} fill="url(#gradBlue)" />
-                        <Path d={lineD} fill="none" stroke="#5B8DEF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                        <Path d={pathD} fill="url(#gradColor)" />
+                        <Path d={lineD} fill="none" stroke={chartMode === '7day' ? "#5B8DEF" : "#10B981"} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
 
                         {points.map((pt, i) => {
                             const halfSegment = chartWidth / ((points.length - 1) * 2);
@@ -350,10 +409,20 @@ export default function AnalysisScreen() {
                     </Svg>
 
                     <View style={styles.chartXAxis}>
-                        {checkinData.map((d, i) => {
-                            const parts = d.day.split(' ');
-                            return <Text key={i} style={styles.chartXAxisText}>{`${parts[0]}\n${parts[1]}`}</Text>;
-                        })}
+                        {chartMode === '7day' 
+                            ? checkinData.map((d, i) => {
+                                const parts = d.day.split(' ');
+                                return <Text key={i} style={styles.chartXAxisText}>{`${parts[0]}\n${parts[1]}`}</Text>;
+                              })
+                            : trendData.map((d, i) => {
+                                if (i === 0 || i === Math.floor(trendData.length / 2) || i === trendData.length - 1) {
+                                    const parts = d.date.split(' ');
+                                    // Backend sends "Jun 08" (Month Day), flip to "08 Jun" (Date Month) like Web
+                                    return <Text key={i} style={styles.chartXAxisText}>{`${parts[1]}\n${parts[0]}`}</Text>;
+                                }
+                                return <Text key={i} style={[styles.chartXAxisText, { color: 'transparent' }]}>.</Text>;
+                              })
+                        }
                     </View>
                 </View>
             </View>

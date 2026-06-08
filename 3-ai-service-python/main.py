@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import uvicorn
 import os
 import logging
+from utils.logger import logger
 
 from services.auth_service import AuthService
 from services.chat_service import ChatService
@@ -224,7 +225,7 @@ async def internal_register(reg_data: RegisterRequest):
             "dishonesty_detected": result.get("dishonesty_detected", False)
         }
     except Exception as e:
-        print(f"Registration Error: {e}")
+        logger.error("Failed to register user", extra={"extra_data": {"error": str(e)}})
         raise HTTPException(status_code=500, detail="Failed to register user in database")
 
 @app.post('/internal/new_chat')
@@ -236,7 +237,7 @@ async def new_chat(data: NewChatRequest):
         # 2. Return the official database ID to Node.js
         return {"status": "success", "chat_id": new_id}
     except Exception as e:
-        print(f"Database Error: {e}")
+        logger.error("Failed to create chat in DB", extra={"extra_data": {"error": str(e), "user_id": data.user_id}})
         raise HTTPException(status_code=500, detail="Failed to create chat in database")
 
 
@@ -294,7 +295,7 @@ async def handle_checkin(data: CheckinRequest):
         
         return {"success": True, "data": result}
     except Exception as e:
-        print(f"Check-in Processing Error: {e}")
+        logger.error("Check-in Processing Error", extra={"extra_data": {"error": str(e), "user_id": data.user_id}})
         raise HTTPException(status_code=500, detail="Failed to process check-in")
 
 @app.post('/internal/feedback')
@@ -326,9 +327,13 @@ async def get_analysis(user_id: int):
         
         checkins = checkin_service.repo.get_recent_checkins(user_id, limit=7)
         
+        # Enterprise Showcase: Add 30-day sentiment trend analysis using complex OpenGauss SQL
+        trend_analysis = checkin_service.repo.get_30_day_sentiment_trend(user_id)
+        
         return {
             "baseline": baseline,
-            "checkins": checkins
+            "checkins": checkins,
+            "trend_analysis": trend_analysis
         }
     except Exception as e:
         import traceback

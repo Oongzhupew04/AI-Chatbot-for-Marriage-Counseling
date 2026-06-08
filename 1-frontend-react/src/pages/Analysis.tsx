@@ -18,6 +18,13 @@ interface BaselineData {
     q19: number;
 }
 
+interface TrendData {
+    date: string;
+    daily_score: number;
+    moving_average: number;
+    user_role: string;
+}
+
 const isConcerning = (val: number) => val > 3;
 
 const getRotationalLabel = (score: number) => {
@@ -34,6 +41,8 @@ export default function Analysis(): JSX.Element {
     const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
     const [checkinData, setCheckinData] = useState<CheckinData[]>([]);
     const [baselineData, setBaselineData] = useState<BaselineData | null>(null);
+    const [trendData, setTrendData] = useState<TrendData[]>([]);
+    const [chartMode, setChartMode] = useState<'7day' | '30day'>('7day');
     useEffect(() => {
         const fetchAnalysisData = async () => {
             try {
@@ -45,6 +54,7 @@ export default function Analysis(): JSX.Element {
 
                 setCheckinData(response.data.checkins || []);
                 setBaselineData(response.data.baseline || null);
+                setTrendData(response.data.trend_analysis || []);
 
                 // --- DEBUGGING ---
                 // You can view this output in your Browser's Developer Tools (Press F12 -> Console tab)
@@ -154,12 +164,18 @@ export default function Analysis(): JSX.Element {
 
     const latestCheckin = checkinData[checkinData.length - 1];
 
-    // 1. Calculate Average Satisfaction (Scale 1-7, converted to percentage)
+    // 1. Calculate Average Satisfaction (Scale 1-7)
     const avgScore = useMemo(() => {
-        if (checkinData.length === 0) return 0;
-        const total = checkinData.reduce((acc, curr) => acc + curr.coreMetric, 0);
-        return Math.round(((total / checkinData.length) / 7) * 100);
-    }, [checkinData]);
+        if (chartMode === '7day') {
+            if (checkinData.length === 0) return 0;
+            const total = checkinData.reduce((acc, curr) => acc + curr.coreMetric, 0);
+            return (total / checkinData.length).toFixed(1);
+        } else {
+            if (trendData.length === 0) return 0;
+            const total = trendData.reduce((acc, curr) => acc + curr.moving_average, 0);
+            return (total / trendData.length).toFixed(1);
+        }
+    }, [checkinData, trendData, chartMode]);
     // 2. Aggregate Unmet Needs
     const needsCount = useMemo(() => {
         const counts: Record<string, number> = { 'Physiological': 0, 'Safety': 0, 'Love & Belonging': 0, 'Esteem': 0, 'Self-Actualization': 0 };
@@ -207,13 +223,22 @@ export default function Analysis(): JSX.Element {
 
     // 4. Trend Calculation
     const trend = useMemo(() => {
-        if (checkinData.length < 2) return { value: 0, isUp: true };
-        const first = checkinData[0].coreMetric;
-        const last = checkinData[checkinData.length - 1].coreMetric;
-        const diff = last - first;
-        const percentage = Math.round((Math.abs(diff) / first) * 100);
-        return { value: percentage, isUp: diff >= 0 };
-    }, [checkinData]);
+        if (chartMode === '7day') {
+            if (checkinData.length < 2) return { value: 0, isUp: true };
+            const first = checkinData[0].coreMetric;
+            const last = checkinData[checkinData.length - 1].coreMetric;
+            const diff = last - first;
+            const percentage = Math.round((Math.abs(diff) / first) * 100);
+            return { value: percentage, isUp: diff >= 0 };
+        } else {
+            if (trendData.length < 2) return { value: 0, isUp: true };
+            const first = trendData[0].moving_average;
+            const last = trendData[trendData.length - 1].moving_average;
+            const diff = last - first;
+            const percentage = Math.round((Math.abs(diff) / first) * 100);
+            return { value: percentage, isUp: diff >= 0 };
+        }
+    }, [checkinData, trendData, chartMode]);
 
     if (checkinData.length < 7) {
         return (
@@ -241,14 +266,20 @@ export default function Analysis(): JSX.Element {
         );
     }
 
-    // SVG Path calculation for the 7-day line chart (Curved)
-    const maxMetric = 7;
-    const points = checkinData.map((d, i) => ({
-        x: (i / (checkinData.length - 1)) * 400, // 400 is SVG width
-        y: 150 - ((d.coreMetric / maxMetric) * 120) // 150 is SVG height, 120 is max height
-    }));
+    const activeData = chartMode === '7day' ? checkinData : trendData;
+    const activeLength = activeData.length > 0 ? activeData.length : 1;
 
-    let lineD = `M ${points[0].x},${points[0].y}`;
+    // SVG Path calculation for the dynamic line chart (Curved)
+    const maxMetric = 7;
+    const points = activeData.map((d: any, i) => {
+        const val = chartMode === '7day' ? d.coreMetric : d.moving_average;
+        return {
+            x: (i / (activeLength - 1)) * 400, // 400 is SVG width
+            y: 150 - ((val / maxMetric) * 120) // 150 is SVG height, 120 is max height
+        };
+    });
+
+    let lineD = points.length > 0 ? `M ${points[0].x},${points[0].y}` : 'M 0,150';
     for (let i = 1; i < points.length; i++) {
         const prev = points[i - 1];
         const curr = points[i];
@@ -257,7 +288,7 @@ export default function Analysis(): JSX.Element {
         const cp2x = prev.x + (curr.x - prev.x) / 2;
         lineD += ` C ${cp1x},${prev.y} ${cp2x},${curr.y} ${curr.x},${curr.y}`;
     }
-    const pathD = `${lineD} L 400,150 L 0,150 Z`;
+    const pathD = points.length > 0 ? `${lineD} L 400,150 L 0,150 Z` : 'M 0,150 Z';
     return (
         <main className={styles['main-content']}>
             <div className={styles['header']}>
@@ -278,15 +309,41 @@ export default function Analysis(): JSX.Element {
                         </span>
                     </div>
                     <div className={styles['card-label']}>Average Satisfaction Score</div>
-                    <div className={styles['card-value']}>{avgScore}/100</div>
+                    <div className={styles['card-value']}>{avgScore}/7</div>
+                    
+                    {/* Chart Toggle Buttons */}
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
+                        <button 
+                            onClick={() => setChartMode('7day')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s',
+                                background: chartMode === '7day' ? '#5B8DEF' : '#F1F5F9', color: chartMode === '7day' ? 'white' : '#64748B'
+                            }}
+                        >
+                            7-Day Volatility
+                        </button>
+                        <button 
+                            onClick={() => setChartMode('30day')}
+                            style={{
+                                padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s',
+                                background: chartMode === '30day' ? '#10B981' : '#F1F5F9', color: chartMode === '30day' ? 'white' : '#64748B'
+                            }}
+                        >
+                            30-Day Stability
+                        </button>
+                    </div>
+
                     <div className={styles['chart-container']}>
-                        {hoveredPoint !== null && (
+
+                        {hoveredPoint !== null && points[hoveredPoint] && (
                             <>
                                 <div className={styles['chart-tooltip']} style={{
                                     left: `${(points[hoveredPoint].x / 400) * 100}%`,
                                     top: `calc(${(points[hoveredPoint].y / 150) * 100}% - 12px)`
                                 }}>
-                                    Score: {checkinData[hoveredPoint].coreMetric}/7
+                                    {chartMode === '7day' 
+                                        ? `Score: ${(activeData[hoveredPoint] as CheckinData).coreMetric}/7` 
+                                        : `Avg: ${(activeData[hoveredPoint] as TrendData).moving_average.toFixed(1)}/7`}
                                 </div>
                                 <div className={styles['tooltip-dot']} style={{
                                     left: `${(points[hoveredPoint].x / 400) * 100}%`,
@@ -297,12 +354,12 @@ export default function Analysis(): JSX.Element {
                         <svg width="100%" height="100%" viewBox="0 0 400 150" preserveAspectRatio="none">
                             <defs>
                                 <linearGradient id="gradBlue" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" style={{ stopColor: 'rgb(91, 141, 239)', stopOpacity: 0.3 }} />
-                                    <stop offset="100%" style={{ stopColor: 'rgb(91, 141, 239)', stopOpacity: 0 }} />
+                                    <stop offset="0%" style={{ stopColor: chartMode === '30day' ? 'rgb(16, 185, 129)' : 'rgb(91, 141, 239)', stopOpacity: 0.3 }} />
+                                    <stop offset="100%" style={{ stopColor: chartMode === '30day' ? 'rgb(16, 185, 129)' : 'rgb(91, 141, 239)', stopOpacity: 0 }} />
                                 </linearGradient>
                             </defs>
                             <path d={pathD} fill="url(#gradBlue)" />
-                            <path d={lineD} fill="none" stroke="#5B8DEF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d={lineD} fill="none" stroke={chartMode === '30day' ? '#10B981' : '#5B8DEF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
                             {points.map((pt, i) => {
                                 const halfSegment = 400 / ((points.length - 1) * 2);
                                 const leftEdge = Math.max(0, pt.x - halfSegment);
@@ -324,10 +381,21 @@ export default function Analysis(): JSX.Element {
                         </svg>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                            {checkinData.map((d, i) => {
-                                const parts = d.day.split(' ');
-                                return <span key={i}>{`${parts[0]} ${parts[1]}`}</span>;
-                            })}
+                            {chartMode === '7day' 
+                                ? activeData.map((d: any, i) => {
+                                    const parts = d.day.split(' ');
+                                    return <span key={i}>{`${parts[0]} ${parts[1]}`}</span>;
+                                  })
+                                : activeData.map((d: any, i) => {
+                                    // For 30 day, only show a few labels to prevent overlap
+                                    if (i === 0 || i === Math.floor(activeData.length / 2) || i === activeData.length - 1) {
+                                        const parts = d.date.split(' ');
+                                        // Backend sends "Jun 08" (Month Day), so we flip it to "08 Jun" (Date Month)
+                                        return <span key={i}>{`${parts[1]} ${parts[0]}`}</span>;
+                                    }
+                                    return <span key={i} style={{visibility: 'hidden'}}>.</span>;
+                                  })
+                            }
                         </div>
                     </div>
                 </div>

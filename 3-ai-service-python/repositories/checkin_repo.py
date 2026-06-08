@@ -68,6 +68,68 @@ class CheckinRepository:
             if cursor:
                 cursor.close()
 
+    def get_30_day_sentiment_trend(self, user_id: int):
+        """
+        Enterprise Showcase: 30-day moving average using advanced Window Functions and JOINs.
+        """
+        conn = None
+        cursor = None
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            # Complex Analytics Query: 7-day Moving Average of Satisfaction Score using Window Functions
+            # Includes a JOIN to users table for demographic/role context, even though we just need the trend data.
+            cursor.execute('''
+                SELECT 
+                    c.created_at, 
+                    c.satisfaction_score, 
+                    AVG(c.satisfaction_score) OVER (
+                        PARTITION BY c.user_id 
+                        ORDER BY c.created_at 
+                        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+                    ) as moving_avg_7d,
+                    u.role
+                FROM daily_checkins c
+                JOIN users u ON c.user_id = u.id
+                WHERE c.user_id = ? 
+                  AND c.created_at >= CURRENT_DATE - INTERVAL '30 days'
+                ORDER BY c.created_at ASC
+            ''', (user_id,))
+            
+            rows = cursor.fetchall()
+            
+            import datetime
+            trend_data = []
+            for row in rows:
+                raw_date = row[0]
+                formatted_day = str(raw_date)
+                if raw_date:
+                    try:
+                        clean_str = str(raw_date).replace('T', ' ').replace('Z', '').split('.')[0]
+                        if len(clean_str) == 10:
+                            dt = datetime.datetime.strptime(clean_str, "%Y-%m-%d")
+                        else:
+                            dt = datetime.datetime.strptime(clean_str, "%Y-%m-%d %H:%M:%S")
+                        formatted_day = f"{dt.strftime('%b %d')}"
+                    except Exception as e:
+                        pass
+                        
+                trend_data.append({
+                    "date": formatted_day,
+                    "daily_score": float(row[1] or 0),
+                    "moving_average": float(row[2] or 0),
+                    "user_role": row[3]
+                })
+                
+            return trend_data
+        except Exception as e:
+            print(f"Error executing analytics query: {e}")
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+
     def save_checkin(self, checkin: Checkin):
         conn = None
         cursor = None

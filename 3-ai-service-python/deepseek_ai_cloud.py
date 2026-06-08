@@ -5,17 +5,16 @@ import spacy
 from sentence_transformers import SentenceTransformer, util
 import torch
 import logging
+import time
+from utils.logger import logger
 
 nlp = spacy.load("en_core_web_sm")
 
 logging.getLogger("transformers.modeling_utils").setLevel(logging.ERROR)
 
-print("Booting up Semantic Risk Analyzer Model...")
-# Load BGE-Large model for highly accurate risk vector matching (Unified with RAG)
-try:
-    risk_model = SentenceTransformer("BAAI/bge-large-en-v1.5")
-except:
-    risk_model = None # Fallback
+# Shared ML reference placeholder
+risk_model = None 
+anchor_embeddings = None
 
 HIGH_RISK_ANCHORS = [
     "I want to end my life",
@@ -29,10 +28,12 @@ HIGH_RISK_ANCHORS = [
     "I am going to hurt my spouse"
 ]
 
-if risk_model:
+def init_semantic_model(shared_model):
+    """Dependency injection to reuse the 1.5GB RAM model loaded by the RAG engine."""
+    global risk_model, anchor_embeddings
+    print("Binding shared ML Model to Semantic Risk Analyzer...")
+    risk_model = shared_model
     anchor_embeddings = risk_model.encode(HIGH_RISK_ANCHORS, convert_to_tensor=True)
-else:
-    anchor_embeddings = None
 
 
 # --- CONFIGURATION ---
@@ -240,15 +241,30 @@ def generate_response(messages):
     }
     
     try:
+        start_time = time.time()
         response = requests.post(API_URL, json=payload, headers=headers)
         response.raise_for_status() # Raises an error for bad HTTP status codes
+        latency_ms = int((time.time() - start_time) * 1000)
         
         data = response.json()
+        
+        usage = data.get("usage", {})
+        total_tokens = usage.get("total_tokens", 0)
+        
+        logger.info("LLM Inference Completed", extra={"extra_data": {
+            "event": "llm_inference",
+            "model": MODEL_NAME,
+            "latency_ms": latency_ms,
+            "total_tokens": total_tokens,
+            "prompt_tokens": usage.get("prompt_tokens", 0),
+            "completion_tokens": usage.get("completion_tokens", 0)
+        }})
         
         # Groq uses the OpenAI JSON format
         raw_response = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
 
-        print(f"--- DEBUG: AI CONTENT START ---\n{raw_response}\n--- DEBUG: AI CONTENT END ---")
+
+        print(f"\n--- DEBUG: AI CONTENT START ---\n{raw_response}\n--- DEBUG: AI CONTENT END ---")
 
         # Safety check on the AI's output
         if is_unsafe(raw_response):

@@ -202,9 +202,10 @@ export default function Home(): JSX.Element {
                         action: data.action
                     });
                 },
-                onError: (error) => {
+                onError: (error: any) => {
                     console.error('Failed to send message:', error);
-                    addMessage({ sender: 'bot', text: 'Sorry, I am having trouble connecting.' });
+                    const errorMessage = error.response?.data?.error || 'Sorry, I am having trouble connecting.';
+                    addMessage({ sender: 'bot', text: errorMessage });
                 }
             }
         );
