@@ -161,14 +161,14 @@ class NewResourceRequest(BaseModel):
 # ==========================================
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
+def validation_exception_handler(request, exc):
     print("--- VALIDATION ERROR DETAILS ---")
     print(exc.errors()) # This prints the EXACT field that is failing
     print("--- END ERROR ---")
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 @app.post('/internal/login')
-async def internal_login(login_data: LoginRequest):
+def internal_login(login_data: LoginRequest):
     """Node.js calls this to verify a password against openGauss."""
     
     # login_data automatically parses the JSON body!
@@ -191,7 +191,7 @@ async def internal_login(login_data: LoginRequest):
     }
 
 @app.post('/internal/register')
-async def internal_register(reg_data: RegisterRequest):
+def internal_register(reg_data: RegisterRequest):
     try:
         # Pass the expanded dictionary or object to your auth_service
         # (You will need to update the register method inside auth_service.py to accept these kwargs)
@@ -229,7 +229,7 @@ async def internal_register(reg_data: RegisterRequest):
         raise HTTPException(status_code=500, detail="Failed to register user in database")
 
 @app.post('/internal/new_chat')
-async def new_chat(data: NewChatRequest):
+def new_chat(data: NewChatRequest):
     try:
         # 1. Ask the service/repo to create the row in the database
         new_id = chat_service.get_or_create_chat(data.user_id, None)
@@ -242,7 +242,7 @@ async def new_chat(data: NewChatRequest):
 
 
 @app.post("/internal/get_response", response_model=ChatResponse)
-async def process_chat(chat_data: ChatRequest):
+def process_chat(chat_data: ChatRequest):
     """
     Internal endpoint called ONLY by the Node.js Gateway.
     """
@@ -260,12 +260,12 @@ async def process_chat(chat_data: ChatRequest):
     )
 
 @app.get('/internal/users/{user_id}/chats')
-async def get_user_chats(user_id: int):
+def get_user_chats(user_id: int):
     sessions = chat_service.chat_repo.get_user_sessions(user_id)
     return {"sessions": sessions}
 
 @app.delete('/internal/chats/{chat_id}')
-async def delete_chat(chat_id: int):
+def delete_chat(chat_id: int):
     """Deletes a chat session from the database."""
     success = chat_service.delete_session(chat_id)
     
@@ -275,7 +275,7 @@ async def delete_chat(chat_id: int):
     return {"success": True, "message": "Chat deleted successfully"}
 
 @app.post('/internal/chats/{chat_id}/end')
-async def end_chat_session(chat_id: int):
+def end_chat_session(chat_id: int):
     """Logs a system message indicating the session was ended by the user."""
     success = chat_service.log_message(chat_id, "[Request End Session]", "[Session Ended]")
     if not success:
@@ -283,12 +283,12 @@ async def end_chat_session(chat_id: int):
     return {"success": True}
 
 @app.get('/internal/chats/{chat_id}/messages')
-async def get_messages(chat_id: int):
+def get_messages(chat_id: int):
     messages = chat_service.chat_repo.get_chat_history(chat_id)
     return {"messages": messages}
 
 @app.post('/internal/checkin')
-async def handle_checkin(data: CheckinRequest):
+def handle_checkin(data: CheckinRequest):
     try:
         # Pass the validated Pydantic object directly to the service
         result = checkin_service.process_daily_checkin(data)
@@ -299,7 +299,7 @@ async def handle_checkin(data: CheckinRequest):
         raise HTTPException(status_code=500, detail="Failed to process check-in")
 
 @app.post('/internal/feedback')
-async def handle_feedback(data: FeedbackRequest):
+def handle_feedback(data: FeedbackRequest):
     try:
         print(f"Received feedback from user {data.user_id} for chat {data.chatId}: {data.rating} stars")
         result = feedback_service.process_feedback(data)
@@ -312,7 +312,7 @@ async def handle_feedback(data: FeedbackRequest):
 
 
 @app.get('/internal/users/{user_id}/analysis')
-async def get_analysis(user_id: int):
+def get_analysis(user_id: int):
     try:
         user = auth_service.user_repo.get_by_id(user_id)
         if not user:
@@ -341,7 +341,7 @@ async def get_analysis(user_id: int):
         raise HTTPException(status_code=500, detail="Failed to fetch analysis data")
 
 @app.post('/internal/settings/push-subscription')
-async def save_push_subscription(data: PushSubscriptionRequest):
+def save_push_subscription(data: PushSubscriptionRequest):
     repo = PushSubscriptionRepository()
     success = repo.save_subscription(data.user_id, data.endpoint, data.p256dh, data.auth)
     if not success:
@@ -349,7 +349,7 @@ async def save_push_subscription(data: PushSubscriptionRequest):
     return {"success": True}
 
 @app.delete('/internal/settings/push-subscription')
-async def delete_push_subscription(endpoint: str):
+def delete_push_subscription(endpoint: str):
     repo = PushSubscriptionRepository()
     success = repo.delete_subscription(endpoint)
     if not success:
@@ -357,7 +357,7 @@ async def delete_push_subscription(endpoint: str):
     return {"success": True}
 
 @app.get('/internal/settings/preferences/{user_id}')
-async def get_preferences(user_id: int):
+def get_preferences(user_id: int):
     repo = UserRepository()
     user = repo.get_by_id(user_id)
     if not user:
@@ -370,7 +370,7 @@ async def get_preferences(user_id: int):
     }
 
 @app.put('/internal/settings/preferences')
-async def update_push_preferences(data: PushPreferenceRequest):
+def update_push_preferences(data: PushPreferenceRequest):
     repo = UserRepository()
     success = repo.update_push_preferences(data.user_id, data.enabled)
     if not success:
@@ -378,7 +378,7 @@ async def update_push_preferences(data: PushPreferenceRequest):
     return {"success": True}
 
 @app.put('/internal/settings/darkmode')
-async def update_dark_mode_preferences(data: DarkModePreferenceRequest):
+def update_dark_mode_preferences(data: DarkModePreferenceRequest):
     repo = UserRepository()
     success = repo.update_dark_mode_preference(data.user_id, data.enabled)
     if not success:
@@ -386,35 +386,35 @@ async def update_dark_mode_preferences(data: DarkModePreferenceRequest):
     return {"success": True}
 
 @app.post('/internal/settings/request-otp')
-async def request_otp(data: OTPRequest):
+def request_otp(data: OTPRequest):
     success, message = auth_service.generate_otp(data.user_id)
     if not success:
         raise HTTPException(status_code=400, detail=message)
     return {"success": True, "message": message}
 
 @app.post('/internal/request-registration-otp')
-async def request_registration_otp(data: RegistrationOTPRequest):
+def request_registration_otp(data: RegistrationOTPRequest):
     success, message = auth_service.generate_registration_otp(data.email)
     if not success:
         raise HTTPException(status_code=400, detail=message)
     return {"success": True, "message": message}
 
 @app.post('/internal/forgot-password')
-async def forgot_password(data: ForgotPasswordRequest):
+def forgot_password(data: ForgotPasswordRequest):
     success, message = auth_service.request_password_reset_otp(data.email)
     if not success:
         raise HTTPException(status_code=400, detail=message)
     return {"success": True, "message": message}
 
 @app.post('/internal/reset-password')
-async def reset_password(data: ResetPasswordRequest):
+def reset_password(data: ResetPasswordRequest):
     success, message = auth_service.reset_password_via_otp(data.email, data.otp, data.new_password)
     if not success:
         raise HTTPException(status_code=400, detail=message)
     return {"success": True, "message": message}
 
 @app.put('/internal/settings/change-password')
-async def change_password(data: ChangePasswordRequest):
+def change_password(data: ChangePasswordRequest):
     success, message = auth_service.change_password(
         data.user_id, data.current_password, data.new_password, data.otp
     )
@@ -423,7 +423,7 @@ async def change_password(data: ChangePasswordRequest):
     return {"success": True, "message": message}
 
 @app.get('/internal/faq')
-async def get_faqs():
+def get_faqs():
     repo = FaqRepository()
     faqs = repo.get_all_faqs()
     # Serialize objects to dict
@@ -431,7 +431,7 @@ async def get_faqs():
     return {"success": True, "faqs": faq_list}
 
 @app.get('/internal/users/{user_id}/profile')
-async def get_user_profile(user_id: int):
+def get_user_profile(user_id: int):
     repo = UserRepository()
     user = repo.get_by_id(user_id)
     if not user:
@@ -456,7 +456,7 @@ async def get_user_profile(user_id: int):
     }
 
 @app.put('/internal/users/{user_id}/profile')
-async def update_user_profile(user_id: int, data: ProfileUpdateRequest):
+def update_user_profile(user_id: int, data: ProfileUpdateRequest):
     repo = UserRepository()
     # Ensure user exists
     user = repo.get_by_id(user_id)
@@ -467,7 +467,7 @@ async def update_user_profile(user_id: int, data: ProfileUpdateRequest):
     return {"success": True}
 
 @app.put('/internal/users/{user_id}/profile-pic')
-async def update_user_profile_pic(user_id: int, data: ProfilePicRequest):
+def update_user_profile_pic(user_id: int, data: ProfilePicRequest):
     repo = UserRepository()
     user = repo.get_by_id(user_id)
     if not user:
@@ -477,7 +477,7 @@ async def update_user_profile_pic(user_id: int, data: ProfilePicRequest):
     return {"success": True}
 
 @app.delete('/internal/users/{user_id}')
-async def delete_user_account(user_id: int):
+def delete_user_account(user_id: int):
     repo = UserRepository()
     user = repo.get_by_id(user_id)
     if not user:
@@ -490,7 +490,7 @@ async def delete_user_account(user_id: int):
     return {"success": True}
 
 @app.get('/internal/resources')
-async def get_resources():
+def get_resources():
     from repositories.resource_repo import ResourceRepository
     repo = ResourceRepository()
     resources = repo.get_all_resources()
@@ -508,7 +508,7 @@ admin_high_risk_service = AdminHighRiskService()
 admin_feedback_service = AdminFeedbackService()
 
 @app.get('/internal/admin/stats')
-async def get_admin_stats():
+def get_admin_stats():
     try:
         stats = admin_dashboard_service.get_dashboard_stats()
         return {"success": True, "stats": stats}
@@ -517,7 +517,7 @@ async def get_admin_stats():
         raise HTTPException(status_code=500, detail="Failed to fetch admin stats")
 
 @app.get('/internal/admin/incidents')
-async def get_admin_incidents():
+def get_admin_incidents():
     try:
         incidents = admin_high_risk_service.get_recent_incidents()
         return {"success": True, "incidents": incidents}
@@ -526,7 +526,7 @@ async def get_admin_incidents():
         raise HTTPException(status_code=500, detail="Failed to fetch admin incidents")
 
 @app.get('/internal/admin/feedbacks')
-async def get_admin_feedbacks():
+def get_admin_feedbacks():
     try:
         feedbacks = admin_feedback_service.get_all_feedback()
         return {"success": True, "feedbacks": feedbacks}
@@ -535,7 +535,7 @@ async def get_admin_feedbacks():
         raise HTTPException(status_code=500, detail="Failed to fetch admin feedbacks")
 
 @app.get('/internal/admin/incidents/all')
-async def get_all_admin_incidents():
+def get_all_admin_incidents():
     try:
         incidents = admin_high_risk_service.get_all_incidents()
         return {"success": True, "incidents": incidents}
@@ -544,7 +544,7 @@ async def get_all_admin_incidents():
         raise HTTPException(status_code=500, detail="Failed to fetch all admin incidents")
 
 @app.put('/internal/admin/incidents/{incident_id}/resolve')
-async def admin_resolve_incident(incident_id: int):
+def admin_resolve_incident(incident_id: int):
     try:
         success, message = admin_high_risk_service.resolve_incident(incident_id)
         if not success:
@@ -560,7 +560,7 @@ class ContactUserRequest(BaseModel):
     message: str
 
 @app.post('/internal/admin/incidents/{incident_id}/contact')
-async def admin_contact_user(incident_id: int, data: ContactUserRequest):
+def admin_contact_user(incident_id: int, data: ContactUserRequest):
     try:
         success, message = admin_high_risk_service.send_high_risk_email(data.user_id, data.message)
         if not success:
@@ -571,7 +571,7 @@ async def admin_contact_user(incident_id: int, data: ContactUserRequest):
         raise HTTPException(status_code=500, detail="Failed to send email to user")
 
 @app.get('/internal/admin/users')
-async def get_admin_users():
+def get_admin_users():
     try:
         users = admin_dashboard_service.get_user_management_data()
         return {"success": True, "users": users}
@@ -580,7 +580,7 @@ async def get_admin_users():
         raise HTTPException(status_code=500, detail="Failed to fetch admin users")
 
 @app.put('/internal/admin/users/{user_id}/freeze')
-async def admin_freeze_user(user_id: int):
+def admin_freeze_user(user_id: int):
     try:
         success, message = admin_dashboard_service.freeze_user(user_id)
         if not success:
@@ -591,7 +591,7 @@ async def admin_freeze_user(user_id: int):
         raise HTTPException(status_code=500, detail="Failed to freeze/unfreeze user")
 
 @app.post('/internal/admin/users/{user_id}/reset-password')
-async def admin_reset_password(user_id: int):
+def admin_reset_password(user_id: int):
     try:
         success, message = admin_dashboard_service.reset_user_password(user_id)
         if not success:
@@ -602,7 +602,7 @@ async def admin_reset_password(user_id: int):
         raise HTTPException(status_code=500, detail="Failed to reset password")
 
 @app.delete('/internal/admin/users/{user_id}')
-async def admin_delete_user(user_id: int):
+def admin_delete_user(user_id: int):
     repo = UserRepository()
     user = repo.get_by_id(user_id)
     if not user:
@@ -615,7 +615,7 @@ async def admin_delete_user(user_id: int):
     return {"success": True}
 
 @app.post('/internal/admin/resources')
-async def admin_add_resource(data: NewResourceRequest):
+def admin_add_resource(data: NewResourceRequest):
     from repositories.resource_repo import ResourceRepository
     repo = ResourceRepository()
     
@@ -634,7 +634,7 @@ async def admin_add_resource(data: NewResourceRequest):
     return {"success": True, "message": message}
 
 @app.delete('/internal/admin/resources/{resource_id}')
-async def admin_delete_resource(resource_id: int):
+def admin_delete_resource(resource_id: int):
     from repositories.resource_repo import ResourceRepository
     repo = ResourceRepository()
     success, message = repo.delete_resource(resource_id)
@@ -643,7 +643,7 @@ async def admin_delete_resource(resource_id: int):
     return {"success": True, "message": message}
 
 @app.post('/internal/admin/faqs')
-async def admin_add_faq(data: NewFaqRequest):
+def admin_add_faq(data: NewFaqRequest):
     repo = FaqRepository()
     success, message = repo.add_faq(data.question, data.answer)
     if not success:

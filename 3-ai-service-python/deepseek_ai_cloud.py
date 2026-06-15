@@ -73,7 +73,7 @@ def is_unsafe(text):
     text_lower = text.lower()
     return any(re.search(pattern, text_lower) for pattern in UNSAFE_PATTERNS)
 
-def anonymize_pii(text: str) -> str:
+def anonymize_pii(text: str, pii_vault: dict = None) -> str:
     """
     Zero-trust PII Anonymization Layer to adhere to PDPA guidelines.
     Uses SpaCy for unstructured data (Names, Locations, Orgs) and Regex for structured data.
@@ -81,6 +81,18 @@ def anonymize_pii(text: str) -> str:
     if not text:
         return text
         
+    if pii_vault is None:
+        pii_vault = {}
+        
+    def _redact(match_text, prefix):
+        for token, original in pii_vault.items():
+            if original == match_text and token.startswith(f"[{prefix}"):
+                return token
+        count = sum(1 for k in pii_vault.keys() if k.startswith(f"[{prefix}"))
+        token = f"[{prefix}_{count + 1}]"
+        pii_vault[token] = match_text
+        return token
+
     # SpaCy NLP for Unstructured PII (Names, Organizations, Locations)
     if nlp:
         doc = nlp(text)
@@ -88,23 +100,45 @@ def anonymize_pii(text: str) -> str:
         ents = sorted(doc.ents, key=lambda x: x.start_char, reverse=True)
         for ent in ents:
             if ent.label_ == "PERSON":
-                text = text[:ent.start_char] + "[REDACTED_NAME]" + text[ent.end_char:]
+                token = _redact(ent.text, "REDACTED_NAME")
+                text = text[:ent.start_char] + token + text[ent.end_char:]
             elif ent.label_ in ["GPE", "LOC", "FAC"]:
-                text = text[:ent.start_char] + "[REDACTED_LOCATION]" + text[ent.end_char:]
+                token = _redact(ent.text, "REDACTED_LOCATION")
+                text = text[:ent.start_char] + token + text[ent.end_char:]
             elif ent.label_ == "ORG":
-                text = text[:ent.start_char] + "[REDACTED_ORG]" + text[ent.end_char:]
+                token = _redact(ent.text, "REDACTED_ORG")
+                text = text[:ent.start_char] + token + text[ent.end_char:]
     # Malaysian NRIC (e.g., 900101-14-5566 or 900101145566)
-    text = re.sub(r'\b\d{6}-?\d{2}-?\d{4}\b', '[REDACTED_NRIC]', text)
+    text = re.sub(r'\b\d{6}-?\d{2}-?\d{4}\b', lambda m: _redact(m.group(0), "REDACTED_NRIC"), text)
     
     # Email addresses
-    text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[REDACTED_EMAIL]', text)
+    text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', lambda m: _redact(m.group(0), "REDACTED_EMAIL"), text)
     
     # Phone numbers (Malaysian and international basic) e.g., +60123456789, 012-3456789
-    text = re.sub(r'(\+?6?01[0-46-9]-?\d{7,8}|\+?6?0[2-9]-?\d{7,8})', '[REDACTED_PHONE]', text)
+    text = re.sub(r'(\+?6?01[0-46-9]-?\d{7,8}|\+?6?0[2-9]-?\d{7,8})', lambda m: _redact(m.group(0), "REDACTED_PHONE"), text)
     
     # Credit Card Numbers (Basic 16 digit check)
-    text = re.sub(r'\b(?:\d{4}[ -]?){3}\d{4}\b', '[REDACTED_CARD]', text)
+    text = re.sub(r'\b(?:\d{4}[ -]?){3}\d{4}\b', lambda m: _redact(m.group(0), "REDACTED_CARD"), text)
     
+    return text
+
+def deanonymize_pii(text: str, pii_vault: dict) -> str:
+    """Restores the original PII from the vault back into the AI's response."""
+    if not text or not pii_vault:
+        return text
+    # Sort by length of token descending so [REDACTED_NAME_10] is replaced before [REDACTED_NAME_1]
+    for token in sorted(pii_vault.keys(), key=len, reverse=True):
+        text = text.replace(token, pii_vault[token])
+        
+    # Fallback: AI sometimes drops the index (e.g., outputs [REDACTED_NAME] instead of [REDACTED_NAME_1])
+    for prefix in ["REDACTED_NAME", "REDACTED_LOCATION", "REDACTED_ORG", "REDACTED_NRIC", "REDACTED_EMAIL", "REDACTED_PHONE", "REDACTED_CARD"]:
+        generic_token = f"[{prefix}]"
+        if generic_token in text:
+            for token, original in pii_vault.items():
+                if token.startswith(f"[{prefix}_"):
+                    text = text.replace(generic_token, original)
+                    break
+                    
     return text
 
 def detect_intent(text):
@@ -229,6 +263,8 @@ def analyze_risk(text):
 
 def generate_response(messages):
     """Generate a response by calling the Groq Cloud API."""
+    print(f"\n--- DEBUG: OUTGOING MESSAGES TO AI ---\n{json.dumps(messages, indent=2)}\n--------------------------------------\n")
+    
     payload = {
         "model": MODEL_NAME,
         "messages": messages,
@@ -264,7 +300,7 @@ def generate_response(messages):
         raw_response = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
 
 
-        print(f"\n--- DEBUG: AI CONTENT START ---\n{raw_response}\n--- DEBUG: AI CONTENT END ---")
+        print(f"\n--- DEBUG: RESPONSE FROM AI START ---\n{raw_response}\n--- DEBUG: RESPONSE FROM AI END ---")
 
         # Safety check on the AI's output
         if is_unsafe(raw_response):
@@ -305,6 +341,8 @@ def generate_counseling_response(user_input: str, retrieved_context: str = "", h
     if history is None:
         history = []
 
+    pii_vault = {}
+
     system_msg = f"""You are an empathetic, professional marriage counselor AI. 
 You use Maslow's Hierarchy of Needs to diagnose and advise on relationship issues.
 
@@ -330,16 +368,17 @@ Instructions:
         content = msg.get("text", "")
         # Apply Zero-Trust PII Anonymization to user history
         if role == "user":
-            content = anonymize_pii(content)
+            content = anonymize_pii(content, pii_vault)
         messages.append({"role": role, "content": content})
 
     # Apply Zero-Trust PII Anonymization to current input
-    messages.append({"role": "user", "content": anonymize_pii(user_input)})
+    messages.append({"role": "user", "content": anonymize_pii(user_input, pii_vault)})
 
     # print(f"\n--- DEBUG: OUTGOING MESSAGES PAYLOAD ---\n{messages}\n----------------------------------------\n")
     
     # Call your actual DeepSeek/ECS API here using full_prompt
-    return generate_response(messages)
+    ai_response = generate_response(messages)
+    return deanonymize_pii(ai_response, pii_vault)
 
 def generate_casual_response(user_msg, history: list = None):
     """
@@ -347,6 +386,8 @@ def generate_casual_response(user_msg, history: list = None):
     """
     if history is None:
         history = []
+
+    pii_vault = {}
 
     casual_prompt = """You are a warm, empathetic AI marriage counselor.
 Introduce yourself as a warm, empathetic AI marriage counselor.
@@ -363,11 +404,12 @@ Do NOT give clinical advice."""
         content = msg.get("text", "")
         # Apply Zero-Trust PII Anonymization to user history
         if role == "user":
-            content = anonymize_pii(content)
+            content = anonymize_pii(content, pii_vault)
         messages.append({"role": role, "content": content})
 
     # Apply Zero-Trust PII Anonymization to current input
-    messages.append({"role": "user", "content": anonymize_pii(user_msg)})
+    messages.append({"role": "user", "content": anonymize_pii(user_msg, pii_vault)})
 
     # Reuse your existing server connection function!
-    return generate_response(messages)
+    ai_response = generate_response(messages)
+    return deanonymize_pii(ai_response, pii_vault)
