@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, StatusBar, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, StatusBar, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -79,98 +79,100 @@ export default function LoginScreen() {
                 style={styles.keyboardView}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View style={styles.card}>
-                    <View style={styles.brandContainer}>
-                        <FontAwesome6 name="heart-pulse" size={24} color="#7C9A92" />
-                        <Text style={styles.brandText}>Counselor.AI</Text>
-                    </View>
+                    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} keyboardShouldPersistTaps="handled">
+                        <View style={styles.card}>
+                            <View style={styles.brandContainer}>
+                                <FontAwesome6 name="heart-pulse" size={24} color="#7C9A92" />
+                                <Text style={styles.brandText}>Counselor.AI</Text>
+                            </View>
 
-                    <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Welcome Back</Text>
-                        <Text style={styles.headerSubtitle}>Please enter your details to sign in.</Text>
-                    </View>
+                            <View style={styles.header}>
+                                <Text style={styles.headerTitle}>Welcome Back</Text>
+                                <Text style={styles.headerSubtitle}>Please enter your details to sign in.</Text>
+                            </View>
 
-                    <TouchableOpacity style={styles.googleBtn}>
-                        <FontAwesome6 name="google" size={18} color={theme.text} style={{ marginRight: 10 }} />
-                        <Text style={styles.googleBtnText}>Sign in with Google</Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.dividerContainer}>
-                        <View style={styles.dividerLine} />
-                        <Text style={styles.dividerText}>or sign in with email</Text>
-                        <View style={styles.dividerLine} />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Email Address</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="example@gmail.com"
-                            placeholderTextColor="#718096"
-                            value={email}
-                            onChangeText={setEmail}
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                        />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Password</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="••••••••"
-                            placeholderTextColor="#718096"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
-                    </View>
-
-                    <View style={styles.disclaimerBox}>
-                        <TouchableOpacity
-                            style={styles.checkboxContainer}
-                            onPress={() => setConsent(!consent)}
-                        >
-                            <Ionicons
-                                name={consent ? "checkbox" : "square-outline"}
-                                size={20}
-                                color={consent ? "#7C9A92" : "#718096"}
-                                style={styles.checkboxIcon}
-                            />
-                        </TouchableOpacity>
-                        <Text style={styles.disclaimerText}>
-                            I understand this AI provides emotional support, not professional therapy. In emergencies, I will contact local authorities.
-                        </Text>
-                    </View>
-
-                    <TouchableOpacity
-                        style={styles.submitBtn}
-                        onPress={handleLogin}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.submitBtnText}>Sign In</Text>
-                        )}
-                    </TouchableOpacity>
-
-                    <View style={styles.footerLinks}>
-                        <Text style={styles.footerText}>Don't have an account? </Text>
-                        <Link href="/auth/register" asChild>
-                            <TouchableOpacity>
-                                <Text style={styles.linkText}>Create free account</Text>
+                            <TouchableOpacity style={styles.googleBtn}>
+                                <FontAwesome6 name="google" size={18} color={theme.text} style={{ marginRight: 10 }} />
+                                <Text style={styles.googleBtnText}>Sign in with Google</Text>
                             </TouchableOpacity>
-                        </Link>
-                    </View>
-                    <View style={[styles.footerLinks, { marginTop: 8 }]}>
-                        <Link href="/auth/forgot-password" asChild>
-                            <TouchableOpacity>
-                                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+
+                            <View style={styles.dividerContainer}>
+                                <View style={styles.dividerLine} />
+                                <Text style={styles.dividerText}>or sign in with email</Text>
+                                <View style={styles.dividerLine} />
+                            </View>
+
+                            <View style={styles.formGroup}>
+                                <Text style={styles.label}>Email Address</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="example@gmail.com"
+                                    placeholderTextColor="#718096"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                />
+                            </View>
+
+                            <View style={styles.formGroup}>
+                                <Text style={styles.label}>Password</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="••••••••"
+                                    placeholderTextColor="#718096"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry
+                                />
+                            </View>
+
+                            <View style={styles.disclaimerBox}>
+                                <TouchableOpacity
+                                    style={styles.checkboxContainer}
+                                    onPress={() => setConsent(!consent)}
+                                >
+                                    <Ionicons
+                                        name={consent ? "checkbox" : "square-outline"}
+                                        size={20}
+                                        color={consent ? "#7C9A92" : "#718096"}
+                                        style={styles.checkboxIcon}
+                                    />
+                                </TouchableOpacity>
+                                <Text style={styles.disclaimerText}>
+                                    I understand this AI provides emotional support, not professional therapy. In emergencies, I will contact local authorities.
+                                </Text>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.submitBtn}
+                                onPress={handleLogin}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.submitBtnText}>Sign In</Text>
+                                )}
                             </TouchableOpacity>
-                        </Link>
-                    </View>
-                    </View>
+
+                            <View style={styles.footerLinks}>
+                                <Text style={styles.footerText}>Don't have an account? </Text>
+                                <Link href="/auth/register" asChild>
+                                    <TouchableOpacity>
+                                        <Text style={styles.linkText}>Create free account</Text>
+                                    </TouchableOpacity>
+                                </Link>
+                            </View>
+                            <View style={[styles.footerLinks, { marginTop: 8, marginBottom: 10 }]}>
+                                <Link href="/auth/forgot-password" asChild>
+                                    <TouchableOpacity>
+                                        <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                                    </TouchableOpacity>
+                                </Link>
+                            </View>
+                        </View>
+                    </ScrollView>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
         </SafeAreaView>

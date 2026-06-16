@@ -331,24 +331,28 @@ export default function AnalysisScreen() {
                 <Text style={styles.cardValue}>{avgScore}/7</Text>
 
                 {/* Chart Toggle Buttons */}
-                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginVertical: 15 }}>
+                <View style={{ flexDirection: 'row', width: '100%', gap: 10, marginVertical: 15 }}>
                     <TouchableOpacity 
                         style={{
-                            paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20,
+                            flex: 1,
+                            paddingVertical: 10, borderRadius: 20,
+                            alignItems: 'center',
                             backgroundColor: chartMode === '7day' ? '#5B8DEF' : '#F1F5F9'
                         }}
                         onPress={() => setChartMode('7day')}
                     >
-                        <Text style={{ fontWeight: '600', color: chartMode === '7day' ? 'white' : '#64748B' }}>7-Day Volatility</Text>
+                        <Text style={{ fontWeight: '600', fontSize: 13, color: chartMode === '7day' ? 'white' : '#64748B' }}>7-Day Volatility</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style={{
-                            paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20,
+                            flex: 1,
+                            paddingVertical: 10, borderRadius: 20,
+                            alignItems: 'center',
                             backgroundColor: chartMode === '30day' ? '#10B981' : '#F1F5F9'
                         }}
                         onPress={() => setChartMode('30day')}
                     >
-                        <Text style={{ fontWeight: '600', color: chartMode === '30day' ? 'white' : '#64748B' }}>30-Day Stability</Text>
+                        <Text style={{ fontWeight: '600', fontSize: 13, color: chartMode === '30day' ? 'white' : '#64748B' }}>30-Day Stability</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -360,8 +364,8 @@ export default function AnalysisScreen() {
                                 top: points[hoveredPoint].y - 35
                             }]}>
                                 <Text style={styles.chartTooltipText}>
-                                    {chartMode === '7day' ? 'Score' : 'Avg'}: {chartMode === '7day' 
-                                        ? checkinData[hoveredPoint]?.coreMetric 
+                                    {chartMode === '7day' ? 'Score' : 'Avg'}: {chartMode === '7day'
+                                        ? checkinData[hoveredPoint]?.coreMetric
                                         : trendData[hoveredPoint]?.moving_average?.toFixed(1)}/7
                                 </Text>
                             </View>
@@ -409,11 +413,11 @@ export default function AnalysisScreen() {
                     </Svg>
 
                     <View style={styles.chartXAxis}>
-                        {chartMode === '7day' 
+                        {chartMode === '7day'
                             ? checkinData.map((d, i) => {
                                 const parts = d.day.split(' ');
                                 return <Text key={i} style={styles.chartXAxisText}>{`${parts[0]}\n${parts[1]}`}</Text>;
-                              })
+                            })
                             : trendData.map((d, i) => {
                                 if (i === 0 || i === Math.floor(trendData.length / 2) || i === trendData.length - 1) {
                                     const parts = d.date.split(' ');
@@ -421,7 +425,7 @@ export default function AnalysisScreen() {
                                     return <Text key={i} style={styles.chartXAxisText}>{`${parts[1]}\n${parts[0]}`}</Text>;
                                 }
                                 return <Text key={i} style={[styles.chartXAxisText, { color: 'transparent' }]}>.</Text>;
-                              })
+                            })
                         }
                     </View>
                 </View>
@@ -435,7 +439,7 @@ export default function AnalysisScreen() {
                         <FontAwesome5 name="brain" size={16} color="#7C9A92" />
                     </View>
                 </View>
-                <Text style={[styles.cardValue, { fontSize: 18, marginVertical: 15, lineHeight: 26, flexWrap: 'wrap' }]}>
+                <Text style={[styles.cardValue, { fontSize: 18, marginVertical: 15, lineHeight: 30, paddingBottom: 5, flexWrap: 'wrap' }]}>
                     "{latestCheckin.rotationalQuestion}"
                 </Text>
 

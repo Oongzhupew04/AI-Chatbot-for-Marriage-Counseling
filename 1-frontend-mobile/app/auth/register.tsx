@@ -12,6 +12,8 @@ import { getStyles } from './register.styles';
 import { useTheme } from '../../context/ThemeContext';
 
 const CustomDropdown = ({ label, value, options, onSelect, style }: { label: string, value: string, options: { label: string, value: string }[], onSelect: (val: string) => void, style?: any }) => {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
     const [visible, setVisible] = useState(false);
     const selectedLabel = options.find(o => o.value === value)?.label || 'Select...';
 
@@ -278,7 +280,7 @@ export default function RegisterScreen() {
                             {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitBtnText}>Create Account</Text>}
                         </TouchableOpacity>
 
-                        <View style={styles.footerLinks}>
+                        <View style={[styles.footerLinks, { marginBottom: 10 }]}>
                             <Text style={styles.footerText}>Already have an account? </Text>
                             <Link href="/auth/login" asChild>
                                 <TouchableOpacity><Text style={styles.linkText}>Sign in</Text></TouchableOpacity>

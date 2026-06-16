@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+.DS_Store
+dist
+
+# Ignore all testing files and configurations
+src/**/*.test.ts
+src/**/*.integration.test.ts
+coverage/

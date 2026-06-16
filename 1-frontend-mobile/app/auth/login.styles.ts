@@ -153,22 +153,23 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        flexWrap: 'wrap',
     },
     footerText: {
         fontFamily: 'Inter_400Regular',
         color: theme.textSecondary,
-        fontSize: 14.4, // 0.9rem
+        fontSize: 13,
     },
     linkText: {
         fontFamily: 'Inter_600SemiBold',
-        color: '#7C9A92', // var(--primary-sage)
-        fontSize: 14.4,
+        color: '#7C9A92',
+        fontSize: 13,
         textDecorationLine: 'underline',
     },
     forgotPasswordText: {
         fontFamily: 'Inter_500Medium',
         color: theme.textSecondary,
-        fontSize: 13.6, // 0.85rem
+        fontSize: 13,
         textDecorationLine: 'underline',
     }
 });

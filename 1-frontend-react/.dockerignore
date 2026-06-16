@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.DS_Store
+dist
+dist-ssr
+*.local
+
+# Ignore all testing files and configurations
+src/**/*.test.tsx
+src/**/*.test.ts
+src/setupTests.ts
+coverage/

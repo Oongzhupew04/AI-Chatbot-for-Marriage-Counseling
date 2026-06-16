@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+
+# Ignore all testing files and configurations
+.pytest_cache/
+tests/
+coverage/
+.coverage

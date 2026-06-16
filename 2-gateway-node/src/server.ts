@@ -795,7 +795,11 @@ app.post('/api/admin/faqs', authenticateToken, async (req: Request, res: Respons
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`[TypeScript Node Gateway] running on http://localhost:${PORT}`);
-    console.log(`Routing AI traffic to ${PYTHON_SERVICE_URL}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`[TypeScript Node Gateway] running on http://localhost:${PORT}`);
+        console.log(`Routing AI traffic to ${PYTHON_SERVICE_URL}`);
+    });
+}
+
+export default app;

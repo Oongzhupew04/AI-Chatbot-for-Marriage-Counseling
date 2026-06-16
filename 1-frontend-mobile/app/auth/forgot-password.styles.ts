@@ -76,6 +76,7 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 32,
+        flexWrap: 'wrap',
     },
     footerText: {
         fontFamily: 'Inter_400Regular',
