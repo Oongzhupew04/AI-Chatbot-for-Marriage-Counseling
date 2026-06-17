@@ -56,7 +56,7 @@ export default function ForgotPassword() {
                     <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                         
                         <View style={styles.brand}>
-                            <FontAwesome6 name="heart-pulse" size={24} color={theme.primary} />
+                            <FontAwesome6 name="heart-pulse" style={styles.iconHeartPulse} />
                             <Text style={styles.brandText}>Counselor.AI</Text>
                         </View>
 
@@ -81,7 +81,7 @@ export default function ForgotPassword() {
                         </View>
 
                         <TouchableOpacity 
-                            style={[styles.submitBtn, isSubmitting && { opacity: 0.7 }]} 
+                            style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]} 
                             onPress={handleRequestOtp}
                             disabled={isSubmitting}
                         >

@@ -36,5 +36,16 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     submitBtnText: { fontFamily: 'Inter_600SemiBold', color: theme.card, fontSize: 16 },
     footerLinks: { flexDirection: 'row', justifyContent: 'center' },
     footerText: { fontFamily: 'Inter_400Regular', color: theme.textSecondary, fontSize: 14.4 },
-    linkText: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92', fontSize: 14.4, textDecorationLine: 'underline', }
+    linkText: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92', fontSize: 14.4, textDecorationLine: 'underline', },
+    dropdownLabelActive: { color: '#2D3748' },
+    dropdownLabelInactive: { color: '#A0AEC0' },
+    iconChevron: { fontSize: 20 },
+    iconCheckmark: { fontSize: 20, color: '#7C9A92' },
+    iconHeartPulse: { fontSize: 22, color: '#7C9A92' },
+    iconCheckboxChecked: { color: '#7C9A92', fontSize: 22 },
+    iconCheckboxUnchecked: { color: '#718096', fontSize: 22 },
+    formGroupHalf: { width: '48%' },
+    formGroupHalfMarginTop: { width: '48%', marginTop: 18 },
+    flex1: { flex: 1 },
+    footerLinksBottom: { marginBottom: 10 }
 });

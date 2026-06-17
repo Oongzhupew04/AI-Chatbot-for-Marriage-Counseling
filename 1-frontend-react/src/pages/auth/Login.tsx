@@ -76,16 +76,16 @@ export default function Login() {
                         <input type="password" id="password" className={styles['input-field']} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
                     </div>
                     <div className={styles['disclaimer-box']}>
-                        <input type="checkbox" id="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} required style={{ marginRight: '8px' }} />
+                        <input type="checkbox" id="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} required className={styles['mr-8']} />
                         <label htmlFor="consent">
                             I understand this AI provides emotional support, not professional therapy. In emergencies, I will contact local authorities.
                         </label>
                     </div>
-                    <button type="submit" className={styles['btn-submit']} style={{ backgroundColor: 'var(--primary-sage)', color: 'white', cursor: 'pointer' }}>Sign In</button>
+                    <button type="submit" className={styles['btn-submit']}>Sign In</button>
                 </form>
                 <div className={styles['footer-links']}>
                     <p>Don't have an account? <Link to="/register">Create free account</Link></p>
-                    <p style={{ marginTop: '8px' }}><Link to="/forgot-password" style={{ fontWeight: 500, color: 'var(--text-muted)', fontSize: '0.85rem' }}>Forgot password?</Link></p>
+                    <p className={styles['mt-8']}><Link to="/forgot-password" className={styles['forgot-password-link']}>Forgot password?</Link></p>
                 </div>
             </div>
         </div>

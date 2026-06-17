@@ -201,4 +201,21 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14.4,
     },
+    keyboardAvoidingView: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    iconTimes: {
+        fontSize: 16,
+    },
+    iconStar: {
+        fontSize: 32,
+    },
+    iconStarActive: {
+        color: "#D4AF37",
+    },
+    iconStarInactive: {
+        color: "#E2E8F0",
+    }
 });

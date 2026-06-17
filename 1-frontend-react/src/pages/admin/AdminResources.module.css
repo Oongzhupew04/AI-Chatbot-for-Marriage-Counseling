@@ -301,3 +301,102 @@
     text-align: center;
     padding: 20px;
 }
+
+.iconSage {
+    color: var(--primary-sage);
+}
+
+.resizeVertical {
+    resize: vertical;
+}
+
+.flexRowCenter {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.flex1 {
+    flex: 1;
+}
+
+.orText {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.uploadLabel {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background: transparent;
+    margin: 0;
+    padding: 10px 16px;
+}
+
+.uploadLabelActive {
+    background: var(--bg-light);
+}
+
+.pdfIcon {
+    margin-right: 8px;
+    color: inherit;
+}
+
+.pdfIconActive {
+    color: #E53E3E;
+}
+
+.hiddenInput {
+    display: none;
+}
+
+.removeFileBtn {
+    background: transparent;
+    border: none;
+    color: #E53E3E;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    color: #A0AEC0;
+}
+
+.colTitle {
+    width: 25%;
+}
+
+.colDesc {
+    width: 35%;
+}
+
+.colCat {
+    width: 15%;
+}
+
+.colDate {
+    width: 10%;
+}
+
+.colActions {
+    width: 15%;
+}
+
+.descText {
+    font-size: 0.85rem;
+    color: #4A5568;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+.noDescText {
+    font-style: italic;
+    color: #A0AEC0;
+}

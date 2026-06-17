@@ -161,14 +161,14 @@ export default function Settings(): JSX.Element {
             <div className={styles['header']}>
                 <div>
                     <h1>Settings</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Manage your preferences and account settings</p>
+                    <p className={styles['text-muted']}>Manage your preferences and account settings</p>
                 </div>
             </div>
 
             <div className={styles['settings-grid']}>
                 <div className={styles['setting-card']}>
                     <div className={styles['card-title']}>
-                        <i className="fas fa-bell" style={{ color: '#F59E0B' }}></i> Notifications
+                        <i className={`fas fa-bell ${styles['icon-warning']}`}></i> Notifications
                     </div>
 
                     <div className={styles['setting-row']}>
@@ -185,7 +185,7 @@ export default function Settings(): JSX.Element {
 
                 <div className={styles['setting-card']}>
                     <div className={styles['card-title']}>
-                        <i className="fas fa-paint-brush" style={{ color: '#3B82F6' }}></i> Appearance
+                        <i className={`fas fa-paint-brush ${styles['icon-primary']}`}></i> Appearance
                     </div>
 
                     <div className={styles['setting-row']}>
@@ -202,7 +202,7 @@ export default function Settings(): JSX.Element {
 
                 <div className={styles['setting-card']}>
                     <div className={styles['card-title']}>
-                        <i className="fas fa-lock" style={{ color: '#10B981' }}></i> Privacy & Security
+                        <i className={`fas fa-lock ${styles['icon-success']}`}></i> Privacy & Security
                     </div>
 
                     <div className={styles['setting-row']}>
@@ -214,14 +214,14 @@ export default function Settings(): JSX.Element {
                     </div>
                 </div>
 
-                <div className={styles['setting-card']} style={{ border: '1px solid #fca5a5' }}>
-                    <div className={styles['card-title']} style={{ color: '#ef4444' }}>
+                <div className={`${styles['setting-card']} ${styles['card-danger']}`}>
+                    <div className={`${styles['card-title']} ${styles['card-title-danger']}`}>
                         <i className="fas fa-exclamation-triangle"></i> Danger Zone
                     </div>
 
                     <div className={styles['setting-row']}>
                         <div className={styles['setting-info']}>
-                            <h4 style={{ color: '#ef4444' }}>Delete Account</h4>
+                            <h4 className={styles['text-danger']}>Delete Account</h4>
                             <p>Permanently remove your account and all associated data.</p>
                         </div>
                         <button className={styles['danger-btn']} onClick={() => setIsDeleteModalOpen(true)}>Delete Account</button>

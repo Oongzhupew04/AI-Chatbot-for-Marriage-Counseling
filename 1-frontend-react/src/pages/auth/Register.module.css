@@ -215,3 +215,46 @@
 .footer-links a:hover {
     text-decoration: underline;
 }
+
+/* Utilities for removing inline styles */
+.mb-10 {
+    margin-bottom: 10px;
+}
+.mb-15 {
+    margin-bottom: 15px;
+}
+.mt-10 {
+    margin-top: 10px;
+}
+.max-w-600 {
+    max-width: 600px;
+}
+.flex-1 {
+    flex: 1;
+}
+.grid-cols-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.text-center {
+    text-align: center;
+}
+.text-sm {
+    font-size: 0.85rem;
+}
+.text-md {
+    font-size: 1rem;
+}
+.section-title {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+.custom-hr {
+    margin: 20px 0;
+    border-color: #eee;
+}
+.btn-submit-valid {
+    background-color: #000;
+    cursor: pointer;
+}

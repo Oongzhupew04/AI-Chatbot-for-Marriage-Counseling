@@ -18,6 +18,8 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     },
     icon: {
         marginBottom: 20,
+        fontSize: 48,
+        color: '#7C9A92',
     },
     heading: {
         fontFamily: 'Merriweather_700Bold',

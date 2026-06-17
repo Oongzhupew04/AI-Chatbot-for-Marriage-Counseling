@@ -135,5 +135,53 @@
     background: var(--primary-sage);
     color: white;
     border-color: var(--primary-sage);
-    transform: scale(1.05);
+}
+
+.iconSmall {
+    font-size: 0.8rem;
+}
+
+.userEmail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.ratingContainer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.starIcon {
+    color: #ECC94B;
+}
+
+.commentsCell {
+    max-width: 300px;
+}
+
+.feedbackWrapper {
+    white-space: nowrap;
+    max-width: 100%;
+    display: inline-flex;
+}
+
+.linkIcon {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.ellipsisText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 20px;
 }

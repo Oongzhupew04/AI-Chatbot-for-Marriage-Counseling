@@ -120,5 +120,73 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontFamily: 'Inter_400Regular',
         fontSize: 12,
         color: theme.textSecondary,
+    },
+    container: {
+        flex: 1,
+        backgroundColor: theme.card,
+    },
+    drawerContent: {
+        padding: 24,
+    },
+    iconWidth: {
+        width: 24,
+    },
+    bottomNavContainer: {
+        paddingHorizontal: 24,
+        paddingBottom: 24,
+    },
+    navTextDanger: {
+        color: theme.danger,
+    },
+    bottomDivider: {
+        marginBottom: 16,
+        marginTop: 8,
+    },
+    bottomUserProfile: {
+        padding: 0,
+        borderTopWidth: 0,
+    },
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: theme.background,
+    },
+    safeArea: {
+        backgroundColor: theme.card,
+    },
+    drawerIcon: {
+        width: 20,
+    },
+    iconHeartPulseDrawer: {
+        fontSize: 20,
+        color: '#7C9A92',
+    },
+    iconHeartPulseHeader: {
+        fontSize: 20,
+        color: theme.primary,
+    },
+    iconGear: {
+        fontSize: 16,
+        color: theme.textSecondary,
+    },
+    iconQuestionDrawer: {
+        fontSize: 16,
+        color: theme.textSecondary,
+    },
+    iconUserDrawer: {
+        fontSize: 16,
+        color: theme.textSecondary,
+    },
+    iconLogout: {
+        fontSize: 16,
+        color: theme.danger,
+    },
+    iconClockRotate: {
+        fontSize: 20,
+        color: theme.textSecondary,
     }
+});
+
+export const getDrawerIconStyle = (color: string) => ({
+    fontSize: 16,
+    color,
 });

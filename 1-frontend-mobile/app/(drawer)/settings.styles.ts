@@ -139,5 +139,28 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         color: '#FFFFFF',
         fontSize: 14,
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconBell: {
+        fontSize: 16,
+        color: '#F59E0B',
+    },
+    iconBrush: {
+        fontSize: 16,
+        color: '#3B82F6',
+    },
+    iconLock: {
+        fontSize: 16,
+        color: '#10B981',
+    },
+    cardTitleContainerDanger: {
+        borderBottomColor: '#FCA5A5',
+    },
+    iconWarning: {
+        fontSize: 16,
+        color: '#EF4444',
     }
 });

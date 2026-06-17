@@ -99,7 +99,7 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
                         <h2>Daily Check-In</h2>
                         <p>Track your relationship satisfaction and needs.</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div className={styles.headerRight}>
                         <div className={styles['date-badge']}>
                             <i className="far fa-calendar-alt"></i> Today
                         </div>
@@ -129,7 +129,7 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
                                 </button>
                             ))}
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#777' }}>
+                        <div className={styles.numOptionLabels}>
                             <span>Very Dissatisfied</span>
                             <span>Very Satisfied</span>
                         </div>
@@ -139,11 +139,11 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
                     <div className={`${styles['checkin-card']} ${styles['featured']}`}>
                         <div className={styles['badge-featured']}>Daily Focus</div>
                         <div className={styles['card-header']}>
-                            <h3 style={{ color: 'var(--primary-sage)' }}><span className={styles['step-num']} style={{ background: 'var(--primary-sage)', color: 'white' }}>2</span> Reflection</h3>
+                            <h3 className={styles.sageTitle}><span className={`${styles['step-num']} ${styles.stepNumSage}`}>2</span> Reflection</h3>
                             <span>{todayQuestion}</span>
                         </div>
 
-                        <ul className={styles['checklist']} style={{ marginTop: '15px' }}>
+                        <ul className={`${styles['checklist']} ${styles.rotationalChecklist}`}>
                             {[
                                 { label: 'Yes', value: 2 },
                                 { label: 'Rather yes', value: 1 },
@@ -151,16 +151,16 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
                                 { label: 'Rather not', value: -1 },
                                 { label: 'No', value: -2 }
                             ].map((option, idx) => (
-                                <li key={idx} style={{ marginBottom: '8px', listStyle: 'none' }}>
+                                <li key={idx} className={styles.rotationalItem}>
                                     <input 
                                         type="radio" 
                                         name="rotational" 
                                         id={`rot_${option.value}`}
                                         checked={rotationalAnswer === option.value}
                                         onChange={() => setRotationalAnswer(option.value)}
-                                        style={{ marginRight: '10px' }}
+                                        className={styles.rotationalRadio}
                                     />
-                                    <label htmlFor={`rot_${option.value}`} style={{ cursor: 'pointer' }}>
+                                    <label htmlFor={`rot_${option.value}`} className={styles.rotationalLabel}>
                                         {option.label}
                                     </label>
                                 </li>
@@ -175,7 +175,7 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
                             <span>What is your primary unmet need today?</span>
                         </div>
 
-                        <ul className={styles['checklist']} style={{ marginBottom: '20px' }}>
+                        <ul className={`${styles['checklist']} ${styles.needsChecklist}`}>
                             {['Love & Belonging', 'Esteem', 'Safety', 'Physiological'].map(need => (
                                 <li key={need}>
                                     <input
@@ -200,13 +200,12 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
                 </div>
 
                 <div className={styles['modal-footer']}>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <button className={styles['card-btn'] + ' ' + styles['btn-outline']} style={{ width: 'auto', margin: '0', padding: '10px 20px' }} onClick={onClose}>
+                    <div className={styles.footerButtons}>
+                        <button className={`${styles['card-btn']} ${styles['btn-outline']} ${styles.btnAutoSkip}`} onClick={onClose}>
                             Skip for now
                         </button>
                         <button 
-                            className={styles['card-btn'] + ' ' + styles['btn-primary']}
-                            style={{ width: 'auto', margin: '0', padding: '10px 24px', opacity: isFormValid ? 1 : 0.6 }} 
+                            className={`${styles['card-btn']} ${styles['btn-primary']} ${styles.btnAutoSave}`}
                             onClick={handleSubmit}
                             disabled={!isFormValid}
                         >

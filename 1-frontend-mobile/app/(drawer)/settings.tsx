@@ -163,7 +163,7 @@ export default function SettingsScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <View style={[styles.container, styles.loadingContainer]}>
                 <ActivityIndicator size="large" color="#10B981" />
             </View>
         );
@@ -180,7 +180,7 @@ export default function SettingsScreen() {
                 {/* Notifications Card */}
                 <View style={styles.settingCard}>
                     <View style={styles.cardTitleContainer}>
-                        <FontAwesome5 name="bell" size={16} color="#F59E0B" />
+                        <FontAwesome5 name="bell" style={styles.iconBell} />
                         <Text style={styles.cardTitle}>Notifications</Text>
                     </View>
 
@@ -201,7 +201,7 @@ export default function SettingsScreen() {
                 {/* Appearance Card */}
                 <View style={styles.settingCard}>
                     <View style={styles.cardTitleContainer}>
-                        <FontAwesome5 name="paint-brush" size={16} color="#3B82F6" />
+                        <FontAwesome5 name="paint-brush" style={styles.iconBrush} />
                         <Text style={styles.cardTitle}>Appearance</Text>
                     </View>
 
@@ -222,7 +222,7 @@ export default function SettingsScreen() {
                 {/* Privacy & Security Card */}
                 <View style={styles.settingCard}>
                     <View style={styles.cardTitleContainer}>
-                        <FontAwesome5 name="lock" size={16} color="#10B981" />
+                        <FontAwesome5 name="lock" style={styles.iconLock} />
                         <Text style={styles.cardTitle}>Privacy & Security</Text>
                     </View>
 
@@ -239,8 +239,8 @@ export default function SettingsScreen() {
 
                 {/* Danger Zone Card */}
                 <View style={[styles.settingCard, styles.settingCardDanger]}>
-                    <View style={[styles.cardTitleContainer, { borderBottomColor: '#FCA5A5' }]}>
-                        <FontAwesome5 name="exclamation-triangle" size={16} color="#EF4444" />
+                    <View style={[styles.cardTitleContainer, styles.cardTitleContainerDanger]}>
+                        <FontAwesome5 name="exclamation-triangle" style={styles.iconWarning} />
                         <Text style={[styles.cardTitle, styles.cardTitleDanger]}>Danger Zone</Text>
                     </View>
 

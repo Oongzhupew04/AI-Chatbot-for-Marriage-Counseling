@@ -299,4 +299,23 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         backgroundColor: '#7C9A92',
         borderColor: '#7C9A92',
     },
+    keyboardAvoidingView: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    iconTimes: {
+        fontSize: 16,
+    },
+    iconCalendar: {
+        fontSize: 12,
+        color: 'black',
+    },
+    checklistMargin: {
+        marginBottom: 20,
+    },
+    iconCheck: {
+        fontSize: 10,
+        color: 'white',
+    }
 });

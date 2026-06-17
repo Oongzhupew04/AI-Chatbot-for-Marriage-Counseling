@@ -26,3 +26,22 @@
     flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 10px;
     font-size: 0.95rem; line-height: 1.5; color: var(--text-main);
 }
+
+.starIcon {
+    color: #ECC94B;
+    margin-left: 5px;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--border-light);
+    margin: 10px 0;
+}
+
+.textSection {
+    margin: 5px 0 15px 0;
+}
+
+.textSectionLast {
+    margin: 5px 0 0 0;
+}

@@ -21,7 +21,7 @@ export default function ThankYouModal({ isOpen, onClose }: ThankYouModalProps) {
                     <View style={StyleSheet.absoluteFill} />
                 </TouchableWithoutFeedback>
                 <View style={styles.container}>
-                    <FontAwesome5 name="check-circle" solid size={48} color="#7C9A92" style={styles.icon} />
+                    <FontAwesome5 name="check-circle" solid style={styles.icon} />
                     <Text style={styles.heading}>Session Ended</Text>
                     <Text style={styles.text}>Thank you for sharing with us today.</Text>
                 </View>

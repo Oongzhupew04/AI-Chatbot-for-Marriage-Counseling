@@ -87,5 +87,12 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
         color: theme.primary,
+    },
+    iconHeartPulse: {
+        fontSize: 24,
+        color: theme.primary,
+    },
+    submitBtnDisabled: {
+        opacity: 0.7,
     }
 });

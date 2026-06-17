@@ -35,20 +35,20 @@ export default function AdminFeedbackDetailsModal({ isOpen, onClose, feedback }:
                     <div><strong>Chat ID:</strong> {feedback.chat_id || 'N/A'}</div>
                     <div>
                         <strong>Rating:</strong> {feedback.rating}/5
-                        <i className="fas fa-star" style={{ color: '#ECC94B', marginLeft: '5px' }}></i>
+                        <i className={`fas fa-star ${styles.starIcon}`}></i>
                     </div>
-                    <hr style={{ border: 'none', borderTop: '1px solid var(--border-light)', margin: '10px 0' }} />
+                    <hr className={styles.divider} />
                     <div>
                         <strong>What worked well:</strong>
-                        <p style={{ margin: '5px 0 15px 0' }}>{feedback.worked_well || 'N/A'}</p>
+                        <p className={styles.textSection}>{feedback.worked_well || 'N/A'}</p>
                     </div>
                     <div>
                         <strong>Issues faced:</strong>
-                        <p style={{ margin: '5px 0 15px 0' }}>{feedback.issues || 'N/A'}</p>
+                        <p className={styles.textSection}>{feedback.issues || 'N/A'}</p>
                     </div>
                     <div>
                         <strong>Additional comments:</strong>
-                        <p style={{ margin: '5px 0 0 0' }}>{feedback.comments || 'N/A'}</p>
+                        <p className={styles.textSectionLast}>{feedback.comments || 'N/A'}</p>
                     </div>
                 </div>
             </div>

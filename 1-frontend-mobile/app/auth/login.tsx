@@ -79,10 +79,10 @@ export default function LoginScreen() {
                 style={styles.keyboardView}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} keyboardShouldPersistTaps="handled">
+                    <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                         <View style={styles.card}>
                             <View style={styles.brandContainer}>
-                                <FontAwesome6 name="heart-pulse" size={24} color="#7C9A92" />
+                                <FontAwesome6 name="heart-pulse" style={styles.iconHeartPulse} />
                                 <Text style={styles.brandText}>Counselor.AI</Text>
                             </View>
 
@@ -123,9 +123,7 @@ export default function LoginScreen() {
                                 >
                                     <Ionicons
                                         name={consent ? "checkbox" : "square-outline"}
-                                        size={20}
-                                        color={consent ? "#7C9A92" : "#718096"}
-                                        style={styles.checkboxIcon}
+                                        style={[styles.checkboxIcon, consent ? styles.checkboxIconChecked : styles.checkboxIconUnchecked]}
                                     />
                                 </TouchableOpacity>
                                 <Text style={styles.disclaimerText}>
@@ -153,7 +151,7 @@ export default function LoginScreen() {
                                     </TouchableOpacity>
                                 </Link>
                             </View>
-                            <View style={[styles.footerLinks, { marginTop: 8, marginBottom: 10 }]}>
+                            <View style={[styles.footerLinks, styles.footerLinksAlt]}>
                                 <Link href="/auth/forgot-password" asChild>
                                     <TouchableOpacity>
                                         <Text style={styles.forgotPasswordText}>Forgot password?</Text>

@@ -105,5 +105,9 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontSize: 14,
         color: theme.textSecondary,
         lineHeight: 21,
+    },
+    iconResource: {
+        fontSize: 24,
+        color: '#7C9A92',
     }
 });

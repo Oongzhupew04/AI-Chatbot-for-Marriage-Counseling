@@ -97,20 +97,20 @@ export default function AdminHome() {
                         <div className={`${styles['stat-card']} ${styles['card-alert']}`}>
                             <div className={styles['card-header-row']}>
                                 <div className={styles['card-title']}>Active Risk Alerts</div>
-                                <i className="fas fa-bell" style={{ color: 'var(--accent-alert)' }}></i>
+                                <i className={`fas fa-bell ${styles.iconAlert}`}></i>
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Requires Review</div>
+                            <div className={styles.subText}>Requires Review</div>
                             <div className={styles['alert-count']}>{stats?.active_risk_alerts || 0}</div>
 
                             <div className={styles['avatar-stack']}>
                                 {/* Using placeholder mini-avatars since we just have a count right now, or map from incidents */}
                                 {incidents.slice(0, 3).map((incident, idx) => (
-                                    <div key={idx} className={styles['mini-avatar']} style={{ background: '#FED7D7', color: '#C53030' }}>
+                                    <div key={idx} className={`${styles['mini-avatar']} ${styles.avatarDanger}`}>
                                         {incident.username ? incident.username[0].toUpperCase() : 'U'}
                                     </div>
                                 ))}
                                 {stats?.active_risk_alerts > 3 && (
-                                    <div className={styles['mini-avatar']} style={{ background: '#eee', color: '#666' }}>+{stats.active_risk_alerts - 3}</div>
+                                    <div className={`${styles['mini-avatar']} ${styles.avatarMore}`}>+{stats.active_risk_alerts - 3}</div>
                                 )}
                             </div>
                         </div>
@@ -118,7 +118,7 @@ export default function AdminHome() {
                         <div className={styles['stat-card']}>
                             <div className={styles['card-header-row']}>
                                 <div className={styles['card-title']}>Weekly Sessions</div>
-                                <i className="fas fa-chart-line" style={{ color: 'var(--primary-sage)' }}></i>
+                                <i className={`fas fa-chart-line ${styles.iconSage}`}></i>
                             </div>
 
                             {(() => {
@@ -139,10 +139,10 @@ export default function AdminHome() {
 
                                 return (
                                     <>
-                                        <div className={styles['alert-count']} style={{ color: 'var(--primary-dark)' }}>
+                                        <div className={`${styles['alert-count']} ${styles.textPrimaryDark}`}>
                                             {currentWeekSessions.toLocaleString()}
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', color: percentageColor }}>
+                                        <div className={isIncrease ? styles.textSuccess : styles.textDanger}>
                                             {percentageText}
                                         </div>
                                     </>
@@ -185,11 +185,11 @@ export default function AdminHome() {
                         <div className={styles['stat-card']}>
                             <div className={styles['card-header-row']}>
                                 <div className={styles['card-title']}>Avg. Feedback</div>
-                                <div style={{ background: '#C6F6D5', color: '#276749', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>Active</div>
+                                <div className={styles.badgeActive}>Active</div>
                             </div>
 
-                            <div style={{ fontSize: '2rem', fontWeight: 700 }}>{stats?.avg_feedback || '0.0'}/5</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Average Rating</div>
+                            <div className={styles.bigNumber}>{stats?.avg_feedback || '0.0'}/5</div>
+                            <div className={styles.mutedLabel}>Average Rating</div>
 
                             <div className={styles['chart-mock-bar']}>
                                 {(() => {
@@ -202,11 +202,11 @@ export default function AdminHome() {
                                         const isActive = count === maxCount && count > 0;
                                         const starRating = idx + 1;
 
+                                        const roundedHeight = Math.round(heightPct / 10) * 10;
                                         return (
                                             <div
                                                 key={idx}
-                                                className={`${styles.bar} ${isActive ? styles.active : ''}`}
-                                                style={{ height: `${heightPct}%` }}
+                                                className={`${styles.bar} ${isActive ? styles.active : ''} ${styles[`h${roundedHeight}`]}`}
                                                 title={`${starRating} Star: ${count} ratings`}
                                             ></div>
                                         );
@@ -218,12 +218,12 @@ export default function AdminHome() {
                         <div className={styles['stat-card']}>
                             <div className={styles['card-header-row']}>
                                 <div className={styles['card-title']}>Total Users</div>
-                                <i className="fas fa-users" style={{ color: 'var(--primary-sage)' }}></i>
+                                <i className={`fas fa-users ${styles.iconSage}`}></i>
                             </div>
-                            <div className={styles['alert-count']} style={{ color: 'var(--primary-dark)' }}>
+                            <div className={`${styles['alert-count']} ${styles.textPrimaryDark}`}>
                                 {stats?.total_users?.toLocaleString() || 0}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Registered Accounts</div>
+                            <div className={styles.mutedLabel}>Registered Accounts</div>
                         </div>
                     </div>
 
@@ -244,20 +244,20 @@ export default function AdminHome() {
                                 </div>
                             </div>
                         )) : (
-                            <div style={{ padding: '20px', color: 'var(--text-muted)' }}>No recent high-risk incidents.</div>
+                            <div className={styles.emptyIncidents}>No recent high-risk incidents.</div>
                         )}
                     </div>
 
                     <div className={styles['section-header']}>
                         <span>User Management</span>
-                        <div style={{ position: 'relative' }}>
-                            <i className="fas fa-search" style={{ position: 'absolute', left: '10px', top: '8px', color: '#A0AEC0' }}></i>
+                        <div className={styles.searchWrapper}>
+                            <i className={`fas fa-search ${styles.searchIcon}`}></i>
                             <input
                                 type="text"
                                 placeholder="Search users..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{ padding: '8px 10px 8px 30px', border: '1px solid var(--border-light)', borderRadius: '8px', outline: 'none' }}
+                                className={styles.searchInput}
                             />
                         </div>
                     </div>
@@ -266,12 +266,12 @@ export default function AdminHome() {
                         <table className={styles['data-table']}>
                             <thead>
                                 <tr>
-                                    <th style={{ width: '30%' }}>User Profile</th>
-                                    <th style={{ width: '15%' }}>Account Type</th>
-                                    <th style={{ width: '15%' }}>Status</th>
-                                    <th style={{ width: '20%' }}>Registration Date</th>
-                                    <th style={{ width: '10%' }}>Sessions</th>
-                                    <th style={{ width: '10%' }}>Actions</th>
+                                    <th className={styles.colProfile}>User Profile</th>
+                                    <th className={styles.colAccount}>Account Type</th>
+                                    <th className={styles.colStatus}>Status</th>
+                                    <th className={styles.colRegDate}>Registration Date</th>
+                                    <th className={styles.colSessions}>Sessions</th>
+                                    <th className={styles.colActions}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -280,19 +280,19 @@ export default function AdminHome() {
                                         <td>
                                             <div className={styles['user-cell']}>
                                                 {user.profile_pic ? (
-                                                    <img src={user.profile_pic} alt={user.username} className={styles['user-img']} style={{ borderRadius: '50%' }} />
+                                                    <img src={user.profile_pic} alt={user.username} className={`${styles['user-img']} ${styles.roundedCircle}`} />
                                                 ) : (
-                                                    <div className={styles['user-img']} style={{ background: '#B2F5EA' }}></div>
+                                                    <div className={`${styles['user-img']} ${styles.bgTeal}`}></div>
                                                 )}
                                                 <strong>{user.username}</strong>
                                             </div>
                                         </td>
-                                        <td style={{ textTransform: 'capitalize' }}>{user.role}</td>
+                                        <td className={styles.textCapitalize}>{user.role}</td>
                                         <td>
                                             {user.status === 'frozen' ? (
-                                                <span className={`${styles['status-pill']} ${styles['pill-pending']}`} style={{ background: '#FED7D7', color: '#9B2C2C' }}>Frozen</span>
+                                                <span className={`${styles['status-pill']} ${styles['pill-pending']} ${styles.badgeFrozen}`}>Frozen</span>
                                             ) : (
-                                                <span className={`${styles['status-pill']} ${styles['pill-resolved']}`} style={{ background: '#C6F6D5', color: '#22543D' }}>Active</span>
+                                                <span className={`${styles['status-pill']} ${styles['pill-resolved']} ${styles.badgeActiveUser}`}>Active</span>
                                             )}
                                         </td>
                                         <td>{user.created_at !== 'N/A' && user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Recent'}</td>
@@ -309,7 +309,7 @@ export default function AdminHome() {
                                 ))}
                                 {filteredUsers.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>No users found.</td>
+                                        <td colSpan={6} className={styles.emptyState}>No users found.</td>
                                     </tr>
                                 )}
                             </tbody>

@@ -116,7 +116,7 @@ export default function AdminResources() {
                 <div className={`${styles['stat-card']} ${styles['upload-card']}`}>
                     <div className={styles['card-header-row']}>
                         <div className={styles['card-title']}>Upload New Resource</div>
-                        <i className="fas fa-cloud-upload-alt" style={{ color: 'var(--primary-sage)' }}></i>
+                        <i className={`fas fa-cloud-upload-alt ${styles.iconSage}`}></i>
                     </div>
 
                     <form onSubmit={handleUpload} className={styles['form-container']}>
@@ -151,26 +151,24 @@ export default function AdminResources() {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Brief description of the resource..."
-                                className={styles['form-input']}
+                                className={`${styles['form-input']} ${styles.resizeVertical}`}
                                 rows={2}
-                                style={{ resize: 'vertical' }}
                             />
                         </div>
 
                         <div className={styles['form-row']}>
                             <label className={styles['form-label']}>Resource Source (URL)</label>
-                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                            <div className={styles.flexRowCenter}>
                                 <input
                                     type="text"
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
                                     placeholder="https://..."
-                                    className={styles['form-input']}
-                                    style={{ flex: 1 }}
+                                    className={`${styles['form-input']} ${styles.flex1}`}
                                 />
-                                <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem' }}>OR</span>
-                                <label className={styles['action-btn']} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', background: file ? 'var(--bg-light)' : 'transparent', margin: 0, padding: '10px 16px' }}>
-                                    <i className="fas fa-file-pdf" style={{ marginRight: '8px', color: file ? '#E53E3E' : 'inherit' }}></i>
+                                <span className={styles.orText}>OR</span>
+                                <label className={`${styles['action-btn']} ${styles.uploadLabel} ${file ? styles.uploadLabelActive : ''}`}>
+                                    <i className={`fas fa-file-pdf ${styles.pdfIcon} ${file ? styles.pdfIconActive : ''}`}></i>
                                     {file ? file.name : 'Upload PDF'}
                                     <input
                                         type="file"
@@ -180,14 +178,14 @@ export default function AdminResources() {
                                                 setFile(e.target.files[0]);
                                             }
                                         }}
-                                        style={{ display: 'none' }}
+                                        className={styles.hiddenInput}
                                     />
                                 </label>
                                 {file && (
                                     <button
                                         type="button"
                                         onClick={() => setFile(null)}
-                                        style={{ background: 'transparent', border: 'none', color: '#E53E3E', cursor: 'pointer', padding: '5px' }}
+                                        className={styles.removeFileBtn}
                                         title="Remove File"
                                     >
                                         <i className="fas fa-times"></i>
@@ -212,7 +210,7 @@ export default function AdminResources() {
             <div className={`${styles['section-header']} ${styles['resources-header']}`}>
                 <span>Available Resources</span>
                 <div className={styles['search-container']}>
-                    <i className="fas fa-search" style={{ position: 'absolute', left: '10px', top: '8px', color: '#A0AEC0' }}></i>
+                    <i className={`fas fa-search ${styles.searchIcon}`}></i>
                     <input
                         type="text"
                         placeholder="Search resources..."
@@ -230,11 +228,11 @@ export default function AdminResources() {
                     <table className={styles['data-table']}>
                         <thead>
                             <tr>
-                                <th style={{ width: '25%' }}>Title</th>
-                                <th style={{ width: '35%' }}>Description</th>
-                                <th style={{ width: '15%' }}>Category</th>
-                                <th style={{ width: '10%' }}>Date Uploaded</th>
-                                <th style={{ width: '15%' }}>Actions</th>
+                                <th className={styles.colTitle}>Title</th>
+                                <th className={styles.colDesc}>Description</th>
+                                <th className={styles.colCat}>Category</th>
+                                <th className={styles.colDate}>Date Uploaded</th>
+                                <th className={styles.colActions}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -244,8 +242,8 @@ export default function AdminResources() {
                                         <strong>{resource.title}</strong>
                                     </td>
                                     <td>
-                                        <div style={{ fontSize: '0.85rem', color: '#4A5568', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }} title={resource.description}>
-                                            {resource.description || <span style={{ fontStyle: 'italic', color: '#A0AEC0' }}>No description</span>}
+                                        <div className={styles.descText} title={resource.description}>
+                                            {resource.description || <span className={styles.noDescText}>No description</span>}
                                         </div>
                                     </td>
                                     <td className={styles['category-cell']}>

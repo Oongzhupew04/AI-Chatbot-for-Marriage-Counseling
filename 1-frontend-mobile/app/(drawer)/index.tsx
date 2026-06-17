@@ -26,7 +26,14 @@ interface Session {
     updated_at: string;
 }
 
+const getDynamicZIndex = (zIndexValue: number) => ({
+    zIndex: zIndexValue
+});
+
 const TypingIndicator = () => {
+    const { theme } = useTheme();
+    const styles = getStyles(theme);
+
     const dot1 = useRef(new Animated.Value(0)).current;
     const dot2 = useRef(new Animated.Value(0)).current;
     const dot3 = useRef(new Animated.Value(0)).current;
@@ -56,19 +63,11 @@ const TypingIndicator = () => {
         animateDot(dot3, 300);
     }, []);
 
-    const dotStyle = {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: '#718096',
-        marginHorizontal: 3,
-    };
-
     return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', height: 20, paddingHorizontal: 5 }}>
-            <Animated.View style={[dotStyle, { transform: [{ translateY: dot1 }] }]} />
-            <Animated.View style={[dotStyle, { transform: [{ translateY: dot2 }] }]} />
-            <Animated.View style={[dotStyle, { transform: [{ translateY: dot3 }] }]} />
+        <View style={styles.typingIndicatorContainer}>
+            <Animated.View style={[styles.typingIndicatorDot, { transform: [{ translateY: dot1 }] }]} />
+            <Animated.View style={[styles.typingIndicatorDot, { transform: [{ translateY: dot2 }] }]} />
+            <Animated.View style={[styles.typingIndicatorDot, { transform: [{ translateY: dot3 }] }]} />
         </View>
     );
 };
@@ -331,7 +330,7 @@ export default function HomeScreen() {
             <View style={styles.keyboardView}>
                 <View style={styles.mainContent}>
                     <KeyboardAvoidingView
-                        style={{ flex: 1 }}
+                        style={styles.flex1}
                         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                         keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
                         enabled={!isRightDrawerOpen && Platform.OS === 'ios'}
@@ -346,42 +345,42 @@ export default function HomeScreen() {
                                 <View style={styles.actionGrid}>
                                     <TouchableOpacity style={styles.actionCard} onPress={() => setIsCheckinModalOpen(true)}>
                                         <View style={styles.cardContent}>
-                                            <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
-                                                <FontAwesome6 name="clipboard-check" size={16} color="#D97706" />
+                                            <View style={[styles.iconBox, styles.actionCardIconCheckin]}>
+                                                <FontAwesome6 name="clipboard-check" style={styles.iconCheckin} />
                                             </View>
                                             <Text style={styles.cardText}>Daily Check-in</Text>
                                         </View>
-                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                        <FontAwesome6 name="plus" style={styles.iconPlus} />
                                     </TouchableOpacity>
 
                                     <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/resources' as any)}>
                                         <View style={styles.cardContent}>
-                                            <View style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}>
-                                                <FontAwesome6 name="book-open" size={16} color="#2563EB" />
+                                            <View style={[styles.iconBox, styles.actionCardIconResources]}>
+                                                <FontAwesome6 name="book-open" style={styles.iconResources} />
                                             </View>
                                             <Text style={styles.cardText}>Browse Resources</Text>
                                         </View>
-                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                        <FontAwesome6 name="plus" style={styles.iconPlus} />
                                     </TouchableOpacity>
 
                                     <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/analysis' as any)}>
                                         <View style={styles.cardContent}>
-                                            <View style={[styles.iconBox, { backgroundColor: '#D1FAE5' }]}>
-                                                <FontAwesome6 name="chart-line" size={16} color="#059669" />
+                                            <View style={[styles.iconBox, styles.actionCardIconAnalysis]}>
+                                                <FontAwesome6 name="chart-line" style={styles.iconAnalysis} />
                                             </View>
                                             <Text style={styles.cardText}>View Analysis</Text>
                                         </View>
-                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                        <FontAwesome6 name="plus" style={styles.iconPlus} />
                                     </TouchableOpacity>
 
                                     <TouchableOpacity style={styles.actionCard} onPress={() => setIsEmergencyModalOpen(true)}>
                                         <View style={styles.cardContent}>
-                                            <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
-                                                <FontAwesome6 name="phone-volume" size={16} color="#DC2626" />
+                                            <View style={[styles.iconBox, styles.actionCardIconEmergency]}>
+                                                <FontAwesome6 name="phone-volume" style={styles.iconEmergency} />
                                             </View>
                                             <Text style={styles.cardText}>Emergency Help</Text>
                                         </View>
-                                        <FontAwesome6 name="plus" size={14} color={theme.textSecondary} />
+                                        <FontAwesome6 name="plus" style={styles.iconPlus} />
                                     </TouchableOpacity>
                                 </View>
                             </ScrollView>
@@ -390,7 +389,7 @@ export default function HomeScreen() {
                                 ref={scrollViewRef}
                                 onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
                                 style={styles.chatContainer}
-                                contentContainerStyle={{ padding: 20, paddingBottom: 0 }}
+                                contentContainerStyle={styles.chatScrollViewContent}
                             >
                                 {messages.map((m, i) => {
                                     if (m.text === '[Session Ended]') {
@@ -412,7 +411,7 @@ export default function HomeScreen() {
                                         ]}>
                                             <Text style={[
                                                 styles.messageText,
-                                                m.sender === 'user' ? { color: theme.card } : { color: theme.text }
+                                                m.sender === 'user' ? styles.userMsgText : styles.botMsgText
                                             ]}>{m.text}</Text>
 
                                             {isLastMessage && m.action === "confirm_end" && (
@@ -430,7 +429,7 @@ export default function HomeScreen() {
                                 })}
 
                                 {isPending && (
-                                    <View style={[styles.messageBubble, styles.botMsg, { alignSelf: 'flex-start', paddingVertical: 12 }]}>
+                                    <View style={[styles.messageBubble, styles.botMsg, styles.typingIndicatorBubble]}>
                                         <TypingIndicator />
                                     </View>
                                 )}
@@ -439,7 +438,7 @@ export default function HomeScreen() {
 
                         {isInputFocused && (
                             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                                <View style={[StyleSheet.absoluteFill, { zIndex: 10 }]} >
+                                <View style={styles.absoluteFillZ10} >
                                     <BlurView 
                                         intensity={30} 
                                         tint="dark" 
@@ -452,8 +451,8 @@ export default function HomeScreen() {
 
                         <View style={[
                             styles.inputWrapper,
-                            isInputFocused && { zIndex: 11 },
-                            isSessionEnded && { opacity: 0.6 },
+                            isInputFocused && styles.inputWrapperFocused,
+                            isSessionEnded && styles.inputWrapperSessionEnded,
                             Platform.OS === 'android' && !isRightDrawerOpen && { marginBottom: keyboardHeight > 0 ? keyboardHeight + 10 : 10 }
                         ]}>
                             <TextInput
@@ -473,11 +472,11 @@ export default function HomeScreen() {
 
                                 </View>
                                 <TouchableOpacity
-                                    style={[styles.sendBtn, isSessionEnded && { backgroundColor: '#CBD5E0' }]}
+                                    style={[styles.sendBtn, isSessionEnded && styles.sendBtnSessionEnded]}
                                     onPress={handleSendMessage}
                                     disabled={isSessionEnded}
                                 >
-                                    <FontAwesome6 name="paper-plane" size={14} color="#FFFFFF" />
+                                    <FontAwesome6 name="paper-plane" style={styles.iconSend} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -493,7 +492,7 @@ export default function HomeScreen() {
             {/* Right Drawer Overlay */}
             {isRightDrawerOpen && (
                 <TouchableWithoutFeedback onPress={() => setIsRightDrawerOpen(false)}>
-                    <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100 }]} />
+                    <View style={styles.drawerOverlay} />
                 </TouchableWithoutFeedback>
             )}
 
@@ -503,18 +502,18 @@ export default function HomeScreen() {
                 { transform: [{ translateX: slideAnim }] }
             ]}>
                 <Pressable
-                    style={{ flex: 1 }}
+                    style={styles.flex1}
                     onPress={() => { setOpenDropdownId(null); Keyboard.dismiss(); }}
                 >
                     <View style={styles.rightHeader}>
                         <Text style={styles.rightHeaderTitle}>Recent Sessions</Text>
-                        <TouchableOpacity onPress={() => setIsRightDrawerOpen(false)} style={{ padding: 5 }}>
-                            <FontAwesome6 name="xmark" size={20} color={theme.textSecondary} />
+                        <TouchableOpacity onPress={() => setIsRightDrawerOpen(false)} style={styles.rightHeaderClose}>
+                            <FontAwesome6 name="xmark" style={styles.iconClose} />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.searchWrapper}>
-                        <FontAwesome6 name="magnifying-glass" size={14} color={theme.textSecondary} />
+                        <FontAwesome6 name="magnifying-glass" style={styles.iconSearch} />
                         <TextInput
                             style={styles.searchInput}
                             placeholder="Search sessions..."
@@ -526,7 +525,7 @@ export default function HomeScreen() {
 
                     <ScrollView
                         style={styles.historyList}
-                        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+                        contentContainerStyle={styles.historyListContent}
                         keyboardShouldPersistTaps="handled"
                         onScrollBeginDrag={() => {
                             setOpenDropdownId(null);
@@ -537,31 +536,31 @@ export default function HomeScreen() {
                             filteredSessions.map((session, index) => (
                                 <TouchableOpacity
                                     key={session.id}
-                                    style={[styles.historyItem, { zIndex: filteredSessions.length - index }]}
+                                    style={[styles.historyItem, getDynamicZIndex(filteredSessions.length - index)]}
                                     onPress={() => handleLoadSession(session.id)}
                                 >
-                                    <View style={styles.historyIcon}><FontAwesome6 name="comment-dots" size={14} color={theme.textSecondary} /></View>
+                                    <View style={styles.historyIcon}><FontAwesome6 name="comment-dots" style={styles.iconHistory} /></View>
                                     <View style={styles.historyInfo}>
                                         <Text style={styles.historyTitle} numberOfLines={1}>
                                             {session.title ? (session.title.length > 20 ? session.title.substring(0, 20) + "..." : session.title) : "New Chat"}
                                         </Text>
                                         <Text style={styles.historyDate}>{new Date(session.updated_at).toLocaleDateString('en-GB')}</Text>
                                     </View>
-                                    <View style={{ position: 'relative' }}>
+                                    <View>
                                         <TouchableOpacity
-                                            style={{ padding: 10 }}
+                                            style={styles.ellipsisButton}
                                             onPress={(e) => {
                                                 setOpenDropdownId(openDropdownId === session.id ? null : session.id);
                                             }}
                                         >
-                                            <FontAwesome6 name="ellipsis" size={20} color={theme.textSecondary} />
+                                            <FontAwesome6 name="ellipsis" style={styles.iconEllipsis} />
                                         </TouchableOpacity>
                                         {openDropdownId === session.id && (
                                             <TouchableOpacity
                                                 style={styles.dropdownMenu}
                                                 onPress={() => handleDeleteSession(session.id)}
                                             >
-                                                <FontAwesome6 name="trash" size={14} color={theme.danger} style={{ marginRight: 8 }} />
+                                                <FontAwesome6 name="trash" style={styles.iconTrash} />
                                                 <Text style={styles.dropdownDanger}>Delete</Text>
                                             </TouchableOpacity>
                                         )}

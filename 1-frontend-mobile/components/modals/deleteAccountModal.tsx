@@ -48,7 +48,7 @@ export default function DeleteAccountModal({ visible, onClose, onSuccess }: Dele
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
                     <View style={styles.warningIconContainer}>
-                        <FontAwesome5 name="exclamation-triangle" size={24} color="#EF4444" />
+                        <FontAwesome5 name="exclamation-triangle" style={styles.iconWarning} />
                     </View>
                     
                     <Text style={styles.modalTitle}>Delete Account</Text>
@@ -69,7 +69,7 @@ export default function DeleteAccountModal({ visible, onClose, onSuccess }: Dele
                         </TouchableOpacity>
                         
                         <TouchableOpacity 
-                            style={[styles.btnDelete, isDeleting && { opacity: 0.7 }]} 
+                            style={[styles.btnDelete, isDeleting && styles.btnDeleteDisabled]} 
                             onPress={handleDelete} 
                             disabled={isDeleting}
                         >

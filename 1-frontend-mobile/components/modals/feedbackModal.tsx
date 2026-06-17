@@ -87,7 +87,7 @@ export default function FeedbackModal({ isOpen, chatId, onClose, onSuccess }: Fe
                 </TouchableWithoutFeedback>
                 <KeyboardAvoidingView 
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
-                    style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}
+                    style={styles.keyboardAvoidingView}
                     pointerEvents="box-none"
                 >
                     <View style={styles.modalContainer}>
@@ -97,7 +97,7 @@ export default function FeedbackModal({ isOpen, chatId, onClose, onSuccess }: Fe
                                 <Text style={styles.headerSubtitle}>Help us improve Counselor.AI for you.</Text>
                             </View>
                             <TouchableOpacity style={styles.closeBtn} onPress={handleCloseOrSkip}>
-                                <FontAwesome5 name="times" size={16} color={theme.textSecondary} />
+                                <FontAwesome5 name="times" style={[styles.iconTimes, { color: theme.textSecondary }]} />
                             </TouchableOpacity>
                         </View>
 
@@ -125,8 +125,7 @@ export default function FeedbackModal({ isOpen, chatId, onClose, onSuccess }: Fe
                                             <FontAwesome5 
                                                 name="star" 
                                                 solid 
-                                                size={32} 
-                                                color={rating && parseInt(rating) >= starValue ? "#D4AF37" : "#E2E8F0"} 
+                                                style={[styles.iconStar, rating && parseInt(rating) >= starValue ? styles.iconStarActive : styles.iconStarInactive]} 
                                             />
                                         </TouchableOpacity>
                                     ))}

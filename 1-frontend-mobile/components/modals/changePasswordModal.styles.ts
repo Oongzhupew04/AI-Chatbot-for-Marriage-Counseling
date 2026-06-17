@@ -121,5 +121,8 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         color: theme.card,
         fontSize: 15,
         textAlign: 'center',
+    },
+    btnSubmitDisabled: {
+        opacity: 0.7,
     }
 });

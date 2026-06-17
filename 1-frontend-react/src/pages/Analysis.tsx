@@ -81,19 +81,16 @@ export default function Analysis(): JSX.Element {
 
             <div className={styles['baseline-grid']}>
                 {/* 5. OVERALL RISK PERCENTAGE */}
-                <div className={`${styles['metric-card']}`} style={{ animationDelay: '0.5s' }}>
+                <div className={`${styles['metric-card']} ${styles['delay-1']}`}>
                     <div className={styles['card-title']}>
                         <div className={styles['card-label']}>Marital Risk Percentage</div>
-                        <div className={styles['icon-bg']} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
+                        <div className={`${styles['icon-bg']} ${styles['icon-red']}`}>
                             <i className="fas fa-exclamation-triangle"></i>
                         </div>
                     </div>
 
                     <div className={styles['risk-score-container']}>
-                        <div
-                            className={styles['risk-score-value']}
-                            style={{ color: (100 - (baselineData?.maritalRiskPercentage || 0)) > 50 ? '#EF4444' : ((100 - (baselineData?.maritalRiskPercentage || 0)) > 30 ? '#F59E0B' : '#10B981') }}
-                        >
+                        <div className={`${styles['risk-score-value']} ${styles[(100 - (baselineData?.maritalRiskPercentage || 0)) > 50 ? 'risk-red' : ((100 - (baselineData?.maritalRiskPercentage || 0)) > 30 ? 'risk-yellow' : 'risk-green')]}`}>
                             {100 - (baselineData?.maritalRiskPercentage || 0)}%
                         </div>
                         <p className={styles['risk-score-desc']}>
@@ -102,21 +99,16 @@ export default function Analysis(): JSX.Element {
                     </div>
 
                     <div className={styles['progress-track']}>
-                        <div
-                            className={styles['progress-fill']}
-                            style={{
-                                width: `${100 - (baselineData?.maritalRiskPercentage || 0)}%`,
-                                backgroundColor: (100 - (baselineData?.maritalRiskPercentage || 0)) > 50 ? '#EF4444' : ((100 - (baselineData?.maritalRiskPercentage || 0)) > 30 ? '#F59E0B' : '#10B981')
-                            }}
-                        ></div>
+                        <style>{`.dynamic-width-risk { width: ${100 - (baselineData?.maritalRiskPercentage || 0)}%; }`}</style>
+                        <div className={`${styles['progress-fill']} dynamic-width-risk ${styles[(100 - (baselineData?.maritalRiskPercentage || 0)) > 50 ? 'risk-bg-red' : ((100 - (baselineData?.maritalRiskPercentage || 0)) > 30 ? 'risk-bg-yellow' : 'risk-bg-green')]}`}></div>
                     </div>
                 </div>
 
                 {/* 6. BASELINE CONCERNS (Q17, Q13, Q19) */}
-                <div className={`${styles['metric-card']}`} style={{ animationDelay: '0.6s' }}>
+                <div className={`${styles['metric-card']} ${styles['delay-2']}`}>
                     <div className={styles['card-title']}>
                         <div className={styles['card-label']}>Core Vulnerabilities</div>
-                        <div className={styles['icon-bg']} style={{ background: '#EBF3F1', color: 'var(--primary-sage)' }}>
+                        <div className={`${styles['icon-bg']} ${styles['icon-sage']}`}>
                             <i className="fas fa-search-plus"></i>
                         </div>
                     </div>
@@ -246,16 +238,16 @@ export default function Analysis(): JSX.Element {
                 <div className={styles['header']}>
                     <div>
                         <h1>Relationship Analysis</h1>
-                        <p style={{ color: 'var(--text-muted)' }}>Insights based on your last 7 daily check-ins</p>
+                        <p className={styles['text-muted']}>Insights based on your last 7 daily check-ins</p>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '60px 20px', background: 'var(--bg-white)', borderRadius: '16px', border: '1px solid var(--border-light)', marginBottom: '50px' }}>
-                    <div style={{ fontSize: '4rem', color: 'var(--primary-sage)', marginBottom: '20px' }}>
+                <div className={styles['empty-state']}>
+                    <div className={styles['empty-icon']}>
                         <i className="fas fa-chart-line"></i>
                     </div>
-                    <h2 style={{ fontFamily: "'Merriweather', serif", fontSize: '2rem', marginBottom: '15px' }}>Not Enough Data Yet</h2>
-                    <p style={{ color: 'var(--text-muted)', maxWidth: '500px', lineHeight: '1.6' }}>
+                    <h2 className={styles['empty-title']}>Not Enough Data Yet</h2>
+                    <p className={styles['empty-desc']}>
                         Our AI needs at least 7 days of daily check-ins to analyse your behavioral insights and trend analysis.
                         <br /><br />
                         You currently have <strong>{checkinData.length}</strong> check-in{checkinData.length !== 1 ? 's' : ''}. Keep going!
@@ -294,14 +286,14 @@ export default function Analysis(): JSX.Element {
             <div className={styles['header']}>
                 <div>
                     <h1>Relationship Analysis</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Insights based on your last 7 daily check-ins</p>
+                    <p className={styles['text-muted']}>Insights based on your last 7 daily check-ins</p>
                 </div>
             </div>
             <div className={styles['analysis-grid']}>
                 {/* 1. SATISFACTION TREND */}
                 <div className={`${styles['metric-card']} ${styles['card-main']}`}>
                     <div className={styles['card-title']}>
-                        <div className={styles['icon-bg']} style={{ background: 'rgba(236, 72, 153, 0.1)', color: '#EC4899' }}>
+                        <div className={`${styles['icon-bg']} ${styles['icon-pink']}`}>
                             <i className="fas fa-heart"></i>
                         </div>
                         <span className={`${styles['trend-badge']} ${trend.isUp ? styles['trend-up'] : styles['trend-down']}`}>
@@ -312,22 +304,16 @@ export default function Analysis(): JSX.Element {
                     <div className={styles['card-value']}>{avgScore}/7</div>
                     
                     {/* Chart Toggle Buttons */}
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
+                    <div className={styles['toggle-container']}>
                         <button 
                             onClick={() => setChartMode('7day')}
-                            style={{
-                                padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s',
-                                background: chartMode === '7day' ? '#5B8DEF' : '#F1F5F9', color: chartMode === '7day' ? 'white' : '#64748B'
-                            }}
+                            className={`${styles['chart-toggle-btn']} ${chartMode === '7day' ? styles['btn-active-blue'] : styles['btn-inactive']}`}
                         >
                             7-Day Volatility
                         </button>
                         <button 
                             onClick={() => setChartMode('30day')}
-                            style={{
-                                padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s',
-                                background: chartMode === '30day' ? '#10B981' : '#F1F5F9', color: chartMode === '30day' ? 'white' : '#64748B'
-                            }}
+                            className={`${styles['chart-toggle-btn']} ${chartMode === '30day' ? styles['btn-active-green'] : styles['btn-inactive']}`}
                         >
                             30-Day Stability
                         </button>
@@ -336,26 +322,26 @@ export default function Analysis(): JSX.Element {
                     <div className={styles['chart-container']}>
 
                         {hoveredPoint !== null && points[hoveredPoint] && (
+                            <style>{`
+                                .dynamic-tooltip { left: ${(points[hoveredPoint].x / 400) * 100}%; top: calc(${(points[hoveredPoint].y / 150) * 100}% - 12px); }
+                                .dynamic-tooltip-dot { left: ${(points[hoveredPoint].x / 400) * 100}%; top: ${(points[hoveredPoint].y / 150) * 100}%; }
+                            `}</style>
+                        )}
+                        {hoveredPoint !== null && points[hoveredPoint] && (
                             <>
-                                <div className={styles['chart-tooltip']} style={{
-                                    left: `${(points[hoveredPoint].x / 400) * 100}%`,
-                                    top: `calc(${(points[hoveredPoint].y / 150) * 100}% - 12px)`
-                                }}>
+                                <div className={`${styles['chart-tooltip']} dynamic-tooltip`}>
                                     {chartMode === '7day' 
                                         ? `Score: ${(activeData[hoveredPoint] as CheckinData).coreMetric}/7` 
                                         : `Avg: ${(activeData[hoveredPoint] as TrendData).moving_average.toFixed(1)}/7`}
                                 </div>
-                                <div className={styles['tooltip-dot']} style={{
-                                    left: `${(points[hoveredPoint].x / 400) * 100}%`,
-                                    top: `${(points[hoveredPoint].y / 150) * 100}%`
-                                }}></div>
+                                <div className={`${styles['tooltip-dot']} dynamic-tooltip-dot`}></div>
                             </>
                         )}
                         <svg width="100%" height="100%" viewBox="0 0 400 150" preserveAspectRatio="none">
                             <defs>
                                 <linearGradient id="gradBlue" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" style={{ stopColor: chartMode === '30day' ? 'rgb(16, 185, 129)' : 'rgb(91, 141, 239)', stopOpacity: 0.3 }} />
-                                    <stop offset="100%" style={{ stopColor: chartMode === '30day' ? 'rgb(16, 185, 129)' : 'rgb(91, 141, 239)', stopOpacity: 0 }} />
+                                    <stop offset="0%" className={chartMode === '30day' ? styles['stop-green-30'] : styles['stop-blue-30']} />
+                                    <stop offset="100%" className={chartMode === '30day' ? styles['stop-green-0'] : styles['stop-blue-0']} />
                                 </linearGradient>
                             </defs>
                             <path d={pathD} fill="url(#gradBlue)" />
@@ -372,7 +358,7 @@ export default function Analysis(): JSX.Element {
                                         width={rightEdge - leftEdge}
                                         height={150}
                                         fill="transparent"
-                                        style={{ cursor: 'pointer', outline: 'none' }}
+                                        className={styles['chart-rect']}
                                         onMouseEnter={() => setHoveredPoint(i)}
                                         onMouseLeave={() => setHoveredPoint(null)}
                                     />
@@ -380,7 +366,7 @@ export default function Analysis(): JSX.Element {
                             })}
                         </svg>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                        <div className={styles['x-axis-labels']}>
                             {chartMode === '7day' 
                                 ? activeData.map((d: any, i) => {
                                     const parts = d.day.split(' ');
@@ -393,7 +379,7 @@ export default function Analysis(): JSX.Element {
                                         // Backend sends "Jun 08" (Month Day), so we flip it to "08 Jun" (Date Month)
                                         return <span key={i}>{`${parts[1]} ${parts[0]}`}</span>;
                                     }
-                                    return <span key={i} style={{visibility: 'hidden'}}>.</span>;
+                                    return <span key={i} className={styles['hidden']}>.</span>;
                                   })
                             }
                         </div>
@@ -403,21 +389,22 @@ export default function Analysis(): JSX.Element {
                 <div className={`${styles['metric-card']} ${styles['card-comm']}`}>
                     <div className={styles['card-title']}>
                         <div className={styles['card-label']}>Recent Reflection</div>
-                        <div className={styles['icon-bg']} style={{ background: '#EBF3F1', color: 'var(--primary-sage)' }}>
+                        <div className={`${styles['icon-bg']} ${styles['icon-sage']}`}>
                             <i className="fa-solid fa-brain"></i>
                         </div>
                     </div>
-                    <div className={styles['card-value']} style={{ fontSize: '1.2rem', margin: '15px 0' }}>
+                    <div className={`${styles['card-value']} ${styles['reflection-val']}`}>
                         "{latestCheckin.rotationalQuestion}"
                     </div>
 
-                    <div style={{ background: '#F8FAFC', padding: '15px', borderRadius: '12px', marginTop: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Latest Answer:</span>
-                            <strong style={{ color: '#F2994A' }}>{getRotationalLabel(latestCheckin.rotationalScore)} ({latestCheckin.rotationalScore > 0 ? '+' : ''}{latestCheckin.rotationalScore})</strong>
+                    <div className={styles['reflection-box']}>
+                        <div className={styles['reflection-header']}>
+                            <span className={styles['text-muted']}>Latest Answer:</span>
+                            <strong className={styles['text-orange']}>{getRotationalLabel(latestCheckin.rotationalScore)} ({latestCheckin.rotationalScore > 0 ? '+' : ''}{latestCheckin.rotationalScore})</strong>
                         </div>
-                        <div style={{ width: '100%', background: 'var(--border-light)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-                            <div style={{ width: `${((latestCheckin.rotationalScore + 2) / 4) * 100}%`, background: '#F2994A', height: '100%', borderRadius: '4px' }}></div>
+                        <div className={styles['bar-bg']}>
+                            <style>{`.dynamic-rotational-bar { width: ${((latestCheckin.rotationalScore + 2) / 4) * 100}%; }`}</style>
+                            <div className={`${styles['bar-fill-orange']} dynamic-rotational-bar`}></div>
                         </div>
                     </div>
                 </div>
@@ -429,11 +416,7 @@ export default function Analysis(): JSX.Element {
                             return (
                                 <div
                                     key={need}
-                                    className={`${styles['maslow-level']} ${isMostUnmet ? styles['active'] : ''}`}
-                                    style={{
-                                        background: isMostUnmet ? '#10B981' : '#A0AEC0',
-                                        opacity: isMostUnmet ? 1 : 0.4
-                                    }}
+                                    className={`${styles['maslow-level']} ${isMostUnmet ? styles['maslow-bg-active'] : styles['maslow-bg-inactive']} ${isMostUnmet ? styles['active'] : ''}`}
                                 >
                                     {need}
                                 </div>
@@ -441,58 +424,58 @@ export default function Analysis(): JSX.Element {
                         })}
                     </div>
                     <div className={styles['maslow-text']}>
-                        <h3 style={{ fontFamily: "'Merriweather', serif", fontSize: '1.6rem', marginBottom: '5px' }}>Unmet Needs Analysis</h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Aggregated from your check-ins.</p>
-                        <div className={styles['insight-box']} style={{ borderLeftColor: '#10B981', background: 'rgba(16, 185, 129, 0.15)' }}>
-                            <strong style={{ color: '#059669' }}>Primary Focus: {mostUnmetNeed}</strong><br />
+                        <h3 className={styles['unmet-title']}>Unmet Needs Analysis</h3>
+                        <p className={styles['unmet-desc']}>Aggregated from your check-ins.</p>
+                        <div className={styles['insight-box']}>
+                            <strong className={styles['text-green']}>Primary Focus: {mostUnmetNeed}</strong><br />
                             This need was flagged {needsCount[mostUnmetNeed]} times this week.
                         </div>
                     </div>
                 </div>
                 {/* 4. BEHAVIORAL PATTERNS */}
-                <div className={`${styles['metric-card']} ${styles['card-conflict']}`} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div className={`${styles['metric-card']} ${styles['card-conflict']} ${styles['flex-col-between']}`}>
                     <div className={styles['card-title']}>
                         <div className={styles['card-label']}>Behavioral Patterns</div>
-                        <div className={styles['icon-bg']} style={{ background: '#EBF3F1', color: 'var(--primary-sage)' }}>
+                        <div className={`${styles['icon-bg']} ${styles['icon-sage']}`}>
                             <i className="fas fa-chart-pie"></i>
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '10px' }}>
+                    <div className={styles['mt-10']}>
                         {/* Insight 1: Needs Impact */}
-                        <div className={styles['interactive-row']} style={{ background: '#F8FAFC', padding: '12px', borderRadius: '10px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ background: 'rgba(242, 153, 74, 0.2)', minWidth: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F2994A' }}>
+                        <div className={`${styles['interactive-row']} ${styles['insight-row']} ${styles['mb-10']}`}>
+                            <div className={styles['icon-orange']}>
                                 <i className="fas fa-balance-scale"></i>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '2px' }}>Needs Impact</div>
-                                <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: '1.3' }}>
+                            <div className={styles['flex-1']}>
+                                <div className={styles['insight-label']}>Needs Impact</div>
+                                <div className={styles['insight-text']}>
                                     Satisfaction drops to <strong>{behavioralInsights.needsImpactWith}/7</strong> when needs are unmet (vs {behavioralInsights.needsImpactWithout} when met).
                                 </div>
                             </div>
                         </div>
 
                         {/* Insight 2: Weekend Lift */}
-                        <div className={styles['interactive-row']} style={{ background: '#F8FAFC', padding: '12px', borderRadius: '10px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ background: 'rgba(91, 141, 239, 0.2)', minWidth: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5B8DEF' }}>
+                        <div className={`${styles['interactive-row']} ${styles['insight-row']} ${styles['mb-10']}`}>
+                            <div className={styles['icon-blue']}>
                                 <i className="fas fa-calendar-day"></i>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '2px' }}>Routine Impact</div>
-                                <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: '1.3' }}>
+                            <div className={styles['flex-1']}>
+                                <div className={styles['insight-label']}>Routine Impact</div>
+                                <div className={styles['insight-text']}>
                                     Connection scores are <strong>{Number(behavioralInsights.weekendLift) > 0 ? `+${behavioralInsights.weekendLift}` : behavioralInsights.weekendLift} pts higher</strong> on weekends.
                                 </div>
                             </div>
                         </div>
 
                         {/* Insight 3: Stability */}
-                        <div className={styles['interactive-row']} style={{ background: '#F8FAFC', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ background: 'rgba(16, 185, 129, 0.2)', minWidth: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
+                        <div className={`${styles['interactive-row']} ${styles['insight-row']}`}>
+                            <div className={styles['icon-green']}>
                                 <i className="fas fa-water"></i>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '2px' }}>Emotional Stability</div>
-                                <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: '1.3' }}>
+                            <div className={styles['flex-1']}>
+                                <div className={styles['insight-label']}>Emotional Stability</div>
+                                <div className={styles['insight-text']}>
                                     Scores fluctuated by a max of <strong>{behavioralInsights.maxFluctuation} pts</strong> day-to-day. Connection is stable.
                                 </div>
                             </div>

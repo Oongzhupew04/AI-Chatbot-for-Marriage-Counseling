@@ -227,5 +227,54 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     dropdownItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F7FAFC' },
     dropdownItemSelected: { backgroundColor: '#F0F5F4', borderRadius: 8, paddingHorizontal: 12 },
     dropdownItemText: { fontFamily: 'Inter_400Regular', fontSize: 16, color: theme.text },
-    dropdownItemTextSelected: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92' }
+    dropdownItemTextSelected: { fontFamily: 'Inter_600SemiBold', color: '#7C9A92' },
+    dropdownLabelText: {
+        fontFamily: 'Inter_400Regular',
+        fontSize: 16,
+    },
+    dropdownLabelActive: {
+        color: theme.text,
+    },
+    dropdownLabelInactive: {
+        color: theme.textSecondary,
+    },
+    iconChevron: {
+        fontSize: 20,
+        color: theme.textSecondary,
+    },
+    iconCheckmark: {
+        fontSize: 20,
+        color: '#7C9A92',
+    },
+    iconUser: {
+        fontSize: 40,
+        color: theme.primary,
+    },
+    iconCamera: {
+        fontSize: 14,
+        color: '#FFFFFF',
+    },
+    iconRole: {
+        fontSize: 12,
+        color: '#059669',
+    },
+    iconAddressCard: {
+        fontSize: 18,
+        color: '#F59E0B',
+    },
+    iconPen: {
+        fontSize: 12,
+        color: theme.text,
+    },
+    iconSave: {
+        fontSize: 12,
+        color: '#FFFFFF',
+    },
+    rowGap15: {
+        flexDirection: 'row',
+        gap: 15,
+    },
+    flex1: {
+        flex: 1,
+    }
 });

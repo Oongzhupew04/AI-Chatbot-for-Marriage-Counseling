@@ -338,5 +338,123 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         color: theme.card,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
+    },
+    iconCheckin: {
+        fontSize: 16,
+        color: '#D97706',
+    },
+    iconResources: {
+        fontSize: 16,
+        color: '#2563EB',
+    },
+    iconAnalysis: {
+        fontSize: 16,
+        color: '#059669',
+    },
+    iconEmergency: {
+        fontSize: 16,
+        color: '#DC2626',
+    },
+    iconPlus: {
+        fontSize: 14,
+        color: theme.textSecondary,
+    },
+    iconSend: {
+        fontSize: 14,
+        color: '#FFFFFF',
+    },
+    iconClose: {
+        fontSize: 20,
+        color: theme.textSecondary,
+    },
+    iconSearch: {
+        fontSize: 14,
+        color: theme.textSecondary,
+    },
+    iconHistory: {
+        fontSize: 14,
+        color: theme.textSecondary,
+    },
+    iconEllipsis: {
+        fontSize: 20,
+        color: theme.textSecondary,
+    },
+    iconTrash: {
+        fontSize: 14,
+        color: theme.danger,
+        marginRight: 8,
+    },
+    trashIcon: {
+        marginRight: 8,
+    },
+    typingIndicatorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 20,
+        paddingHorizontal: 5,
+    },
+    typingIndicatorDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#718096',
+        marginHorizontal: 3,
+    },
+    flex1: {
+        flex: 1,
+    },
+    actionCardIconCheckin: {
+        backgroundColor: '#FEF3C7',
+    },
+    actionCardIconResources: {
+        backgroundColor: '#DBEAFE',
+    },
+    actionCardIconAnalysis: {
+        backgroundColor: '#D1FAE5',
+    },
+    actionCardIconEmergency: {
+        backgroundColor: '#FEE2E2',
+    },
+    chatScrollViewContent: {
+        padding: 20,
+        paddingBottom: 0,
+    },
+    userMsgText: {
+        color: theme.card,
+    },
+    botMsgText: {
+        color: theme.text,
+    },
+    typingIndicatorBubble: {
+        alignSelf: 'flex-start',
+        paddingVertical: 12,
+    },
+    absoluteFillZ10: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 10,
+    },
+    inputWrapperFocused: {
+        zIndex: 11,
+    },
+    inputWrapperSessionEnded: {
+        opacity: 0.6,
+    },
+    sendBtnSessionEnded: {
+        backgroundColor: '#CBD5E0',
+    },
+    drawerOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 100,
+    },
+    rightHeaderClose: {
+        padding: 5,
+    },
+    historyListContent: {
+        flexGrow: 1,
+        paddingBottom: 20,
+    },
+    ellipsisButton: {
+        padding: 10,
     }
 });

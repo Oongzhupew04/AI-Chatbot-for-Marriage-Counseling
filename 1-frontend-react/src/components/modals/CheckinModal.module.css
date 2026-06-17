@@ -315,3 +315,67 @@
             background: var(--bg-white);
             flex-shrink: 0;
         }
+
+        .headerRight {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .numOptionLabels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .sageTitle {
+            color: var(--primary-sage);
+        }
+
+        .stepNumSage {
+            background: var(--primary-sage) !important;
+            color: white !important;
+        }
+
+        .rotationalChecklist {
+            margin-top: 15px;
+        }
+
+        .rotationalItem {
+            margin-bottom: 8px;
+            list-style: none;
+        }
+
+        .rotationalRadio {
+            margin-right: 10px;
+        }
+
+        .rotationalLabel {
+            cursor: pointer;
+        }
+
+        .needsChecklist {
+            margin-bottom: 20px;
+        }
+
+        .footerButtons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btnAutoSkip {
+            width: auto;
+            margin: 0;
+            padding: 10px 20px;
+        }
+
+        .btnAutoSave {
+            width: auto;
+            margin: 0;
+            padding: 10px 24px;
+        }
+
+        .btnAutoSave:disabled {
+            opacity: 0.6;
+        }

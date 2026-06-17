@@ -131,7 +131,7 @@ export default function Profile(): JSX.Element {
     if (loading && !profile) {
         return (
             <main className={styles['main-content']}>
-                <p style={{ padding: '40px', color: 'var(--text-muted)' }}>Loading profile...</p>
+                <p className={styles['loading-text']}>Loading profile...</p>
             </main>
         );
     }
@@ -139,7 +139,7 @@ export default function Profile(): JSX.Element {
     if (!profile) {
         return (
             <main className={styles['main-content']}>
-                <p style={{ padding: '40px', color: 'var(--text-muted)' }}>Error loading profile. Please log in again.</p>
+                <p className={styles['loading-text']}>Error loading profile. Please log in again.</p>
             </main>
         );
     }
@@ -149,7 +149,7 @@ export default function Profile(): JSX.Element {
             <div className={styles['header']}>
                 <div>
                     <h1>My Profile</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Manage your personal information</p>
+                    <p className={styles['text-muted']}>Manage your personal information</p>
                 </div>
             </div>
 
@@ -157,14 +157,14 @@ export default function Profile(): JSX.Element {
                 <div className={styles['profile-header-card']}>
                     <div className={styles['avatar-container']}>
                         {profile.profile_pic ? (
-                            <img src={profile.profile_pic} alt="Profile" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }} />
+                            <img src={profile.profile_pic} alt="Profile" className={styles['avatar-img']} />
                         ) : (
                             <i className="fas fa-user"></i>
                         )}
-                        <div className={styles['edit-avatar-btn']} onClick={handleCameraClick} style={{ cursor: 'pointer' }}>
-                            <i className="fas fa-camera" style={{ fontSize: '1rem', color: 'white' }}></i>
+                        <div className={`${styles['edit-avatar-btn']} ${styles['cursor-pointer']}`} onClick={handleCameraClick}>
+                            <i className={`fas fa-camera ${styles['icon-white-md']}`}></i>
                         </div>
-                        <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleImageUpload} />
+                        <input type="file" ref={fileInputRef} className={styles['hidden']} accept="image/*" onChange={handleImageUpload} />
                     </div>
 
                     <div className={styles['profile-info']}>
@@ -179,18 +179,18 @@ export default function Profile(): JSX.Element {
 
                 <div className={styles['profile-details-card']}>
                     <div className={styles['card-title']}>
-                        <i className="fas fa-address-card" style={{ color: '#F59E0B' }}></i> Personal Details
+                        <i className={`fas fa-address-card ${styles['icon-warning']}`}></i> Personal Details
 
                         {!isEditing ? (
-                            <button className={styles['edit-btn']} style={{ marginLeft: 'auto' }} onClick={handleEditClick}>
+                            <button className={`${styles['edit-btn']} ${styles['ml-auto']}`} onClick={handleEditClick}>
                                 <i className="fas fa-pen"></i> Edit
                             </button>
                         ) : (
-                            <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-                                <button className={styles['edit-btn']} style={{ marginLeft: 'auto' }} onClick={handleCancelClick}>
+                            <div className={styles['edit-btn-group']}>
+                                <button className={`${styles['edit-btn']} ${styles['ml-auto']}`} onClick={handleCancelClick}>
                                     Cancel
                                 </button>
-                                <button className={styles['edit-btn']} style={{ marginLeft: 'auto' }} onClick={handleSaveClick}>
+                                <button className={`${styles['edit-btn']} ${styles['ml-auto']}`} onClick={handleSaveClick}>
                                     <i className="fas fa-save"></i> Save
                                 </button>
                             </div>
@@ -202,7 +202,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Full Name</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <input type="text" name="username" value={editForm.username || ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
+                                    <input type="text" name="username" value={editForm.username || ''} onChange={handleInputChange} className={styles['edit-input']} />
                                 ) : (
                                     profile.username
                                 )}
@@ -216,7 +216,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Sex</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <select name="sex" value={editForm.sex || ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>
+                                    <select name="sex" value={editForm.sex || ''} onChange={handleInputChange} className={styles['edit-input']}>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
@@ -229,7 +229,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Age</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <input type="number" min="0" name="age" value={editForm.age || ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
+                                    <input type="number" min="0" name="age" value={editForm.age || ''} onChange={handleInputChange} className={styles['edit-input']} />
                                 ) : (
                                     profile.age || 'Not provided'
                                 )}
@@ -239,7 +239,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Years Married</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <input type="number" min="0" name="years_married" value={editForm.years_married ?? ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
+                                    <input type="number" min="0" name="years_married" value={editForm.years_married ?? ''} onChange={handleInputChange} className={styles['edit-input']} />
                                 ) : (
                                     profile.years_married ?? 'Not provided'
                                 )}
@@ -249,7 +249,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Children Count</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <input type="number" min="0" name="children_count" value={editForm.children_count ?? ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
+                                    <input type="number" min="0" name="children_count" value={editForm.children_count ?? ''} onChange={handleInputChange} className={styles['edit-input']} />
                                 ) : (
                                     profile.children_count ?? 'Not provided'
                                 )}
@@ -259,7 +259,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Children Raised</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <input type="number" min="0" name="children_raised" value={editForm.children_raised ?? ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
+                                    <input type="number" min="0" name="children_raised" value={editForm.children_raised ?? ''} onChange={handleInputChange} className={styles['edit-input']} />
                                 ) : (
                                     profile.children_raised ?? 'Not provided'
                                 )}
@@ -269,7 +269,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Education</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <select name="education" value={editForm.education || ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>
+                                    <select name="education" value={editForm.education || ''} onChange={handleInputChange} className={styles['edit-input']}>
                                         <option value="" disabled></option>
                                         <option value="No formal education">No formal education</option>
                                         <option value="Primary school">Primary school</option>
@@ -286,7 +286,7 @@ export default function Profile(): JSX.Element {
                             <div className={styles['detail-label']}>Religious Affiliation</div>
                             <div className={styles['detail-value']}>
                                 {isEditing ? (
-                                    <select name="religious_affiliation" value={editForm.religious_affiliation || ''} onChange={handleInputChange} style={{ width: '100%', padding: '5px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>
+                                    <select name="religious_affiliation" value={editForm.religious_affiliation || ''} onChange={handleInputChange} className={styles['edit-input']}>
                                         <option value="" disabled></option>
                                         <option value="Protestant">Protestant</option>
                                         <option value="Catholic">Catholic</option>

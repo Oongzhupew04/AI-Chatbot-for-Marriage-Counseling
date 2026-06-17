@@ -40,20 +40,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/admin-upload-faq' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/admin-upload-faq'); }}>
                         <i className="fas fa-question-circle"></i> Upload FAQs
                     </a>
-                    <div style={{ flex: 1 }}></div>
+                    <div className={styles['spacer']}></div>
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/admin-profile' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/admin-profile'); }}>
                         <i className="fas fa-cog"></i> Settings
                     </a>
-                    <a href="#" className={styles['nav-item']} style={{ color: 'var(--accent-alert)' }} onClick={(e) => { e.preventDefault(); handleLogout(); }}>
+                    <a href="#" className={`${styles['nav-item']} ${styles['logout']}`} onClick={(e) => { e.preventDefault(); handleLogout(); }}>
                         <i className="fas fa-sign-out-alt"></i> Log Out
                     </a>
                 </ul>
 
                 <div className={styles['user-profile']}>
                     <div className={styles['avatar']}>AD</div>
-                    <div style={{ fontSize: '0.85rem' }}>
-                        <div style={{ fontWeight: '600' }}>Admin User</div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>System Administrator</div>
+                    <div className={styles['user-details']}>
+                        <div className={styles['user-name']}>Admin User</div>
+                        <div className={styles['user-role']}>System Administrator</div>
                     </div>
                 </div>
             </nav>

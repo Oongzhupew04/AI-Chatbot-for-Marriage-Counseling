@@ -106,7 +106,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                 </TouchableWithoutFeedback>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}
+                    style={styles.keyboardAvoidingView}
                     pointerEvents="box-none"
                 >
                     <View style={styles.modalContainer}>
@@ -114,13 +114,13 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                             <View style={styles.headerTopRow}>
                                 <Text style={styles.headerTitle}>Daily Check-In</Text>
                                 <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                                    <FontAwesome5 name="times" size={16} color={theme.textSecondary} />
+                                    <FontAwesome5 name="times" style={[styles.iconTimes, { color: theme.textSecondary }]} />
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.headerBottomRow}>
                                 <Text style={styles.headerSubtitle}>Track your relationship satisfaction and needs.</Text>
                                 <View style={styles.dateBadge}>
-                                    <FontAwesome5 name="calendar-alt" size={12} color={'black'} />
+                                    <FontAwesome5 name="calendar-alt" style={styles.iconCalendar} />
                                     <Text style={styles.dateBadgeText}>Today</Text>
                                 </View>
                             </View>
@@ -210,7 +210,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                                     <Text style={styles.cardHeaderSubtitle}>What is your primary unmet need today?</Text>
                                 </View>
 
-                                <View style={[styles.checklist, { marginBottom: 20 }]}>
+                                <View style={[styles.checklist, styles.checklistMargin]}>
                                     {['Love & Belonging', 'Esteem', 'Safety', 'Physiological'].map(need => (
                                         <TouchableOpacity
                                             key={need}
@@ -218,7 +218,7 @@ export default function CheckinModal({ isOpen, onClose, onSuccess }: CheckinModa
                                             onPress={() => handleNeedToggle(need)}
                                         >
                                             <View style={[styles.checkbox, selectedNeeds.includes(need) && styles.checkboxSelected]}>
-                                                {selectedNeeds.includes(need) && <FontAwesome5 name="check" size={10} color="white" />}
+                                                {selectedNeeds.includes(need) && <FontAwesome5 name="check" style={styles.iconCheck} />}
                                             </View>
                                             <Text style={[styles.checklistLabel, styles.checklistLabelBold]}>{need}</Text>
                                         </TouchableOpacity>

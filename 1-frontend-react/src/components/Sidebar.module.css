@@ -79,3 +79,16 @@
 }
 .user-info h4 { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;}
 .user-info p { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;}
+
+.flex1 {
+    flex: 1;
+}
+
+.textDanger {
+    color: var(--accent-alert);
+}
+
+.avatarCover {
+    object-fit: cover;
+    padding: 0;
+}

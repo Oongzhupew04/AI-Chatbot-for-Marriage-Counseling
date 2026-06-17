@@ -25,32 +25,25 @@ export default function UserDetailsModal({ isOpen, user, onClose, onAction, acti
                         {user.profile_pic ? (
                             <img src={user.profile_pic} alt={user.username} className={styles.userAvatar} />
                         ) : (
-                            <div className={styles.userAvatar} style={{ background: '#B2F5EA', color: '#2C7A7B' }}>
+                            <div className={`${styles.userAvatar} ${styles.avatarPlaceholder}`}>
                                 <i className="fas fa-user"></i>
                             </div>
                         )}
                         <div>
-                            <div style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-main)' }}>{user.username}</div>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{user.email}</div>
+                            <div className={styles.username}>{user.username}</div>
+                            <div className={styles.email}>{user.email}</div>
                         </div>
                     </div>
 
                     <p>
                         <strong>Account Status</strong>
-                        <span style={{ 
-                            color: user.status === 'frozen' ? '#9B2C2C' : '#276749',
-                            background: user.status === 'frozen' ? '#FED7D7' : '#C6F6D5',
-                            padding: '4px 10px',
-                            borderRadius: '15px',
-                            fontSize: '0.75rem',
-                            fontWeight: 700
-                        }}>
+                        <span className={`${styles.statusBadge} ${user.status === 'frozen' ? styles.statusFrozen : styles.statusActive}`}>
                             {user.status === 'frozen' ? 'Frozen' : 'Active'}
                         </span>
                     </p>
                     <p>
                         <strong>Total Sessions</strong>
-                        <span style={{ fontWeight: 600 }}>{user.sessions_count}</span>
+                        <span className={styles.sessionCount}>{user.sessions_count}</span>
                     </p>
                     <p>
                         <strong>Registered</strong>

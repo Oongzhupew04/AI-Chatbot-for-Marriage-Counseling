@@ -232,13 +232,30 @@
 .incident-avatar {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
-    background: #FED7D7;
-    color: var(--accent-alert);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FE6B8B 30%, #FF8E53 90%);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(254, 107, 139, 0.3);
+    animation: alertPulse 2s infinite;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+@keyframes alertPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(254, 107, 139, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(254, 107, 139, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(254, 107, 139, 0);
+    }
 }
 
 .incident-info h4 {
@@ -258,6 +275,8 @@
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 15px;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .pill-pending {
@@ -370,5 +389,179 @@
     fill: none;
     stroke: var(--primary-sage);
     stroke-width: 2;
-    stroke-linecap: round;
+}
+
+.iconAlert {
+    color: var(--accent-alert);
+}
+
+.iconSage {
+    color: var(--primary-sage);
+}
+
+.subText {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+
+.avatarDanger {
+    background: #FED7D7;
+    color: #C53030;
+}
+
+.avatarMore {
+    background: #eee;
+    color: #666;
+}
+
+.textPrimaryDark {
+    color: var(--primary-dark);
+}
+
+.textSuccess {
+    font-size: 0.8rem;
+    color: #38A169;
+}
+
+.textDanger {
+    font-size: 0.8rem;
+    color: #E53E3E;
+}
+
+.badgeActive {
+    background: #C6F6D5;
+    color: #276749;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.bigNumber {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.mutedLabel {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.emptyIncidents {
+    padding: 20px;
+    color: var(--text-muted);
+}
+
+.searchWrapper {
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    color: #A0AEC0;
+}
+
+.searchInput {
+    padding: 8px 10px 8px 30px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    outline: none;
+}
+
+.colProfile {
+    width: 30%;
+}
+
+.colAccount {
+    width: 15%;
+}
+
+.colStatus {
+    width: 15%;
+}
+
+.colRegDate {
+    width: 20%;
+}
+
+.colSessions {
+    width: 10%;
+}
+
+.colActions {
+    width: 10%;
+}
+
+.roundedCircle {
+    border-radius: 50%;
+}
+
+.bgTeal {
+    background: #B2F5EA;
+}
+
+.textCapitalize {
+    text-transform: capitalize;
+}
+
+.badgeFrozen {
+    background: #FED7D7;
+    color: #9B2C2C;
+}
+
+.badgeActiveUser {
+    background: #C6F6D5;
+    color: #22543D;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 20px;
+}
+
+.h0 {
+    height: 0%;
+}
+
+.h10 {
+    height: 10%;
+}
+
+.h20 {
+    height: 20%;
+}
+
+.h30 {
+    height: 30%;
+}
+
+.h40 {
+    height: 40%;
+}
+
+.h50 {
+    height: 50%;
+}
+
+.h60 {
+    height: 60%;
+}
+
+.h70 {
+    height: 70%;
+}
+
+.h80 {
+    height: 80%;
+}
+
+.h90 {
+    height: 90%;
+}
+
+.h100 {
+    height: 100%;
 }

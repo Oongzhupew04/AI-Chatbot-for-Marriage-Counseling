@@ -168,3 +168,17 @@
     font-weight: 600;
 }
 .footer-links a:hover { text-decoration: underline; }
+
+.mt-8 {
+    margin-top: 8px;
+}
+
+.mr-8 {
+    margin-right: 8px;
+}
+
+.forgot-password-link {
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}

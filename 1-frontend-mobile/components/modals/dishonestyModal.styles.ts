@@ -59,4 +59,8 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontSize: 15,
         fontFamily: 'Inter_600SemiBold',
     },
+    iconInfo: {
+        fontSize: 24,
+        color: '#FFFFFF',
+    }
 });

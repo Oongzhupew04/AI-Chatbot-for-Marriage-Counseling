@@ -89,5 +89,12 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         color: theme.card,
         fontSize: 15,
         textAlign: 'center',
+    },
+    iconWarning: {
+        fontSize: 24,
+        color: '#EF4444',
+    },
+    btnDeleteDisabled: {
+        opacity: 0.7,
     }
 });

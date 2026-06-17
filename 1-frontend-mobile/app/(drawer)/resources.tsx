@@ -113,7 +113,7 @@ export default function ResourcesScreen() {
                                 end={{ x: 1, y: 1 }}
                                 style={styles.iconContainer}
                             >
-                                <FontAwesome5 name={mapIconName(res.icon)} size={24} color="#7C9A92" />
+                                <FontAwesome5 name={mapIconName(res.icon)} style={styles.iconResource} />
                             </LinearGradient>
 
                             <View style={styles.content}>

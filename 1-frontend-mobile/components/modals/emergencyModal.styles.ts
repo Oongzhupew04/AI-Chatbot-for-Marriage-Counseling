@@ -60,6 +60,8 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     },
     contactIcon: {
         marginRight: 15,
+        fontSize: 20,
+        color: theme.danger,
     },
     contactInfo: {
         flex: 1,
@@ -87,4 +89,12 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
     },
+    scrollContent: {
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    iconLifeRing: {
+        fontSize: 60,
+        color: theme.danger,
+    }
 });

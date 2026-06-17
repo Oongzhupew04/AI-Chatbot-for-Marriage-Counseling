@@ -31,7 +31,7 @@
     backdrop-filter: blur(10px);
     border-radius: var(--radius-xl);
     padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     gap: 30px;
@@ -58,7 +58,7 @@
     border: 4px solid white;
 }
 
-.avatar-container i {
+.avatar-container>i {
     font-size: 4rem;
     color: var(--primary-sage, #10B981);
 }
@@ -121,7 +121,7 @@
 
 .profile-details-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
     border-color: var(--border-light);
 }
 
@@ -180,7 +180,7 @@
     font-weight: 600;
     float: right;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .edit-btn:hover {
@@ -201,4 +201,57 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* --- Utilities for removing inline styles --- */
+.loading-text {
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.avatar-img {
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.icon-white-md {
+    font-size: 1rem;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+.icon-warning {
+    color: #F59E0B;
+}
+
+.ml-auto {
+    margin-left: auto;
+}
+
+.edit-btn-group {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 5px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
 }

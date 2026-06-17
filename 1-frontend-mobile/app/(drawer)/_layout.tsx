@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Image, DeviceEventEmitter, Platform } from 'react-native';
-import { getStyles } from './_layout.styles';
+import { getStyles, getDrawerIconStyle } from './_layout.styles';
 import { Drawer } from 'expo-router/drawer';
 import { useTheme } from '../../context/ThemeContext';
 import { DrawerContentScrollView, DrawerItemList, DrawerToggleButton } from '@react-navigation/drawer';
@@ -143,10 +143,10 @@ function CustomDrawerContent(props: any) {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.card }}>
-            <DrawerContentScrollView {...props} contentContainerStyle={{ padding: 24 }}>
+        <View style={styles.container}>
+            <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
                 <View style={styles.homebrand}>
-                    <FontAwesome6 name="heart-pulse" size={20} color="#7C9A92" />
+                    <FontAwesome6 name="heart-pulse" style={styles.iconHeartPulseDrawer} />
                     <Text style={styles.homebrandText}>Counselor.AI</Text>
                 </View>
 
@@ -157,29 +157,29 @@ function CustomDrawerContent(props: any) {
 
                 {/* Settings / Help */}
                 <TouchableOpacity style={styles.navItem} onPress={() => router.push('/settings' as any)}>
-                    <FontAwesome6 name="gear" size={16} color={theme.textSecondary} style={{ width: 24 }} />
+                    <FontAwesome6 name="gear" style={[styles.iconWidth, styles.iconGear]} />
                     <Text style={styles.navText}>Settings</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navItem} onPress={() => router.push('/help' as any)}>
-                    <FontAwesome6 name="circle-question" size={16} color={theme.textSecondary} style={{ width: 24 }} />
+                    <FontAwesome6 name="circle-question" style={[styles.iconWidth, styles.iconQuestionDrawer]} />
                     <Text style={styles.navText}>Help</Text>
                 </TouchableOpacity>
 
             </DrawerContentScrollView>
 
-            <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
+            <View style={styles.bottomNavContainer}>
                 <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile' as any)}>
-                    <FontAwesome6 name="circle-user" size={16} color={theme.textSecondary} style={{ width: 24 }} />
+                    <FontAwesome6 name="circle-user" style={[styles.iconWidth, styles.iconUserDrawer]} />
                     <Text style={styles.navText}>My Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navItem} onPress={handleLogout}>
-                    <FontAwesome6 name="arrow-right-from-bracket" size={16} color={theme.danger} style={{ width: 24 }} />
-                    <Text style={[styles.navText, { color: theme.danger }]}>Log Out</Text>
+                    <FontAwesome6 name="arrow-right-from-bracket" style={[styles.iconWidth, styles.iconLogout]} />
+                    <Text style={[styles.navText, styles.navTextDanger]}>Log Out</Text>
                 </TouchableOpacity>
 
-                <View style={[styles.divider, { marginBottom: 16, marginTop: 8 }]} />
+                <View style={[styles.divider, styles.bottomDivider]} />
 
-                <View style={[styles.userProfile, { padding: 0, borderTopWidth: 0 }]}>
+                <View style={[styles.userProfile, styles.bottomUserProfile]}>
                     {profilePic ? (
                         <Image source={{ uri: profilePic }} style={styles.avatar} />
                     ) : (
@@ -227,7 +227,7 @@ export default function DrawerLayout() {
     }, []);
 
     if (isChecking) {
-        return <View style={{ flex: 1, backgroundColor: theme.background }} />;
+        return <View style={styles.loadingContainer} />;
     }
 
     if (!isAuthenticated) {
@@ -240,14 +240,14 @@ export default function DrawerLayout() {
             screenOptions={{
                 headerShown: true,
                 header: () => (
-                    <SafeAreaView style={{ backgroundColor: theme.card }}>
+                    <SafeAreaView style={styles.safeArea}>
                         <View style={styles.customHeader}>
                             <DrawerToggleButton tintColor={theme.text} />
-                            <FontAwesome6 name="heart-pulse" size={20} color={theme.primary} />
+                            <FontAwesome6 name="heart-pulse" style={styles.iconHeartPulseHeader} />
                             <Text style={styles.homebrandText}>Counselor.AI</Text>
                             {pathname === '/' && (
                                 <TouchableOpacity style={styles.headerRightIcon} onPress={() => DeviceEventEmitter.emit('openRightDrawer')}>
-                                    <FontAwesome6 name="clock-rotate-left" size={20} color={theme.textSecondary} />
+                                    <FontAwesome6 name="clock-rotate-left" style={styles.iconClockRotate} />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -278,7 +278,7 @@ export default function DrawerLayout() {
                     drawerLabel: 'Home',
                     title: 'Home',
                     drawerIcon: ({ color }) => (
-                        <FontAwesome6 name="house" size={16} color={color} style={{ width: 20 }} />
+                        <FontAwesome6 name="house" style={[styles.drawerIcon, getDrawerIconStyle(color)]} />
                     ),
                 }}
             />
@@ -288,7 +288,7 @@ export default function DrawerLayout() {
                     drawerLabel: 'Analysis',
                     title: 'Analysis',
                     drawerIcon: ({ color }) => (
-                        <FontAwesome6 name="chart-pie" size={16} color={color} style={{ width: 20 }} />
+                        <FontAwesome6 name="chart-pie" style={[styles.drawerIcon, getDrawerIconStyle(color)]} />
                     ),
                 }}
             />
@@ -298,7 +298,7 @@ export default function DrawerLayout() {
                     drawerLabel: 'Resources',
                     title: 'Resources',
                     drawerIcon: ({ color }) => (
-                        <FontAwesome6 name="book-open" size={16} color={color} style={{ width: 20 }} />
+                        <FontAwesome6 name="book-open" style={[styles.drawerIcon, getDrawerIconStyle(color)]} />
                     ),
                 }}
             />

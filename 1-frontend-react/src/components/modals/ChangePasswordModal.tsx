@@ -95,7 +95,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 {passwordError && <p className={styles['error-text']}>{passwordError}</p>}
                 {passwordSuccess && <p className={styles['success-text']}>{passwordSuccess}</p>}
                 {otpSentMessage && <p className={styles['success-text']}>{otpSentMessage}</p>}
-                <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <form onSubmit={handleChangePassword} className={styles.form}>
                     <div className={styles['form-group']}>
                         <label>Current Password</label>
                         <input
@@ -107,28 +107,20 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                     </div>
                     <div className={styles['form-group']}>
                         <label>Verification Code (OTP)</label>
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className={styles.otpContainer}>
                             <input
                                 type="text"
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
                                 required
-                                style={{ flex: 1 }}
+                                className={styles.flex1}
                                 placeholder="6-digit code"
                             />
                             <button
                                 type="button"
                                 onClick={handleSendOtp}
                                 disabled={isSendingOtp}
-                                style={{
-                                    padding: '0 15px',
-                                    border: '1px solid var(--primary-sage, #10B981)',
-                                    background: 'transparent',
-                                    color: 'var(--primary-sage, #10B981)',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    fontWeight: 600
-                                }}
+                                className={styles.btnOtp}
                             >
                                 {isSendingOtp ? 'Sending...' : 'Send OTP'}
                             </button>

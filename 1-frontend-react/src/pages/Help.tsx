@@ -42,19 +42,19 @@ export default function Help(): JSX.Element {
             <div className={styles['header']}>
                 <div>
                     <h1>Help & Support</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Find answers and get in touch with our support team</p>
+                    <p className={styles['text-muted']}>Find answers and get in touch with our support team</p>
                 </div>
             </div>
 
             <div className={styles['help-container']}>
                 <div className={styles['help-card']}>
                     <div className={styles['card-title']}>
-                        <i className="fas fa-question-circle" style={{ color: '#3B82F6' }}></i> Frequently Asked Questions
+                        <i className={`fas fa-question-circle ${styles['text-blue']}`}></i> Frequently Asked Questions
                     </div>
 
                     <div className={styles['faq-list']}>
                         {loading ? (
-                            <p style={{ color: 'var(--text-muted)' }}>Loading FAQs...</p>
+                            <p className={styles['text-muted']}>Loading FAQs...</p>
                         ) : faqs.length > 0 ? (
                             faqs.map((faq) => (
                                 <div key={faq.id} className={styles['faq-item']}>
@@ -63,7 +63,7 @@ export default function Help(): JSX.Element {
                                 </div>
                             ))
                         ) : (
-                            <p style={{ color: 'var(--text-muted)' }}>No FAQs available at the moment.</p>
+                            <p className={styles['text-muted']}>No FAQs available at the moment.</p>
                         )}
                     </div>
                 </div>

@@ -106,3 +106,24 @@ body {
     color: white;
     font-size: 0.8rem;
 }
+
+.spacer {
+    flex: 1;
+}
+
+.nav-item.logout {
+    color: var(--accent-alert);
+}
+
+.user-details {
+    font-size: 0.85rem;
+}
+
+.user-name {
+    font-weight: 600;
+}
+
+.user-role {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}

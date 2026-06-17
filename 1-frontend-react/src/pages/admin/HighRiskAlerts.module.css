@@ -80,6 +80,8 @@
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 15px;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .pill-pending {
@@ -108,5 +110,18 @@
     border-color: var(--primary-sage);
     background: var(--primary-sage);
     color: white;
-    transform: scale(1.05);
+}
+
+.userEmail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.successColor {
+    color: var(--success-color);
+}
+
+.emptyState {
+    text-align: center;
+    padding: 20px;
 }

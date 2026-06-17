@@ -21,8 +21,8 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
         <View style={[styles.formGroup, style]}>
             <Text style={styles.label}>{label}</Text>
             <TouchableOpacity style={styles.dropdownInput} onPress={() => setVisible(true)}>
-                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: value ? '#2D3748' : '#A0AEC0' }}>{selectedLabel}</Text>
-                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
+                <Text style={[styles.dropdownItemText, value ? styles.dropdownLabelActive : styles.dropdownLabelInactive]}>{selectedLabel}</Text>
+                <Ionicons name="chevron-down" style={[styles.iconChevron, { color: theme.textSecondary }]} />
             </TouchableOpacity>
 
             <Modal visible={visible} transparent animationType="slide">
@@ -40,7 +40,7 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
                                     onPress={() => { onSelect(item.value); setVisible(false); }}
                                 >
                                     <Text style={[styles.dropdownItemText, value === item.value && styles.dropdownItemTextSelected]}>{item.label}</Text>
-                                    {value === item.value && <Ionicons name="checkmark" size={20} color="#7C9A92" />}
+                                    {value === item.value && <Ionicons name="checkmark" style={styles.iconCheckmark} />}
                                 </TouchableOpacity>
                             )}
                         />
@@ -171,12 +171,12 @@ export default function RegisterScreen() {
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor={theme.card} />
 
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex1}>
                 <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
 
                     <View style={styles.card}>
                         <View style={styles.brandContainer}>
-                            <FontAwesome6 name="heart-pulse" size={22} color="#7C9A92" />
+                            <FontAwesome6 name="heart-pulse" style={styles.iconHeartPulse} />
                             <Text style={styles.brandText}>Counselor.AI</Text>
                         </View>
                         <View style={styles.header}>
@@ -195,11 +195,11 @@ export default function RegisterScreen() {
                         </View>
 
                         <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { width: '48%' }]}>
+                            <View style={[styles.formGroup, styles.formGroupHalf]}>
                                 <Text style={styles.label}>Password</Text>
                                 <TextInput style={styles.input} value={formData.password} onChangeText={(val) => handleChange('password', val)} secureTextEntry />
                             </View>
-                            <View style={[styles.formGroup, { width: '48%' }]}>
+                            <View style={[styles.formGroup, styles.formGroupHalf]}>
                                 <Text style={styles.label}>Confirm Password</Text>
                                 <TextInput style={styles.input} value={formData.confirm_password} onChangeText={(val) => handleChange('confirm_password', val)} secureTextEntry />
                             </View>
@@ -209,8 +209,8 @@ export default function RegisterScreen() {
                         <Text style={styles.sectionTitle}>Personal Information</Text>
 
                         <View style={styles.formRow}>
-                            {renderPicker("Sex", "sex", [{ label: "Male", value: "Male" }, { label: "Female", value: "Female" }], { width: '48%' })}
-                            <View style={[styles.formGroup, { width: '48%' }]}>
+                            {renderPicker("Sex", "sex", [{ label: "Male", value: "Male" }, { label: "Female", value: "Female" }], styles.formGroupHalf)}
+                            <View style={[styles.formGroup, styles.formGroupHalf]}>
                                 <Text style={styles.label}>Age</Text>
                                 <TextInput style={styles.input} value={formData.age} onChangeText={(val) => handleChange('age', val)} keyboardType="number-pad" />
                             </View>
@@ -222,11 +222,11 @@ export default function RegisterScreen() {
                         </View>
 
                         <View style={styles.formRow}>
-                            <View style={[styles.formGroup, { width: '48%', marginTop: 18 }]}>
+                            <View style={[styles.formGroup, styles.formGroupHalfMarginTop]}>
                                 <Text style={styles.label}>Children (Total)</Text>
                                 <TextInput style={styles.input} value={formData.children_count} onChangeText={(val) => handleChange('children_count', val)} keyboardType="number-pad" />
                             </View>
-                            <View style={[styles.formGroup, { width: '48%' }]}>
+                            <View style={[styles.formGroup, styles.formGroupHalf]}>
                                 <Text style={styles.label}>Children Raised Presently</Text>
                                 <TextInput style={styles.input} value={formData.children_raised} onChangeText={(val) => handleChange('children_raised', val)} keyboardType="number-pad" />
                             </View>
@@ -266,11 +266,11 @@ export default function RegisterScreen() {
                         <View style={styles.dividerLine} />
 
                         <TouchableOpacity style={styles.checkboxRow} onPress={() => handleChange('privacy_policy', !formData.privacy_policy)}>
-                            <Ionicons name={formData.privacy_policy ? "checkbox" : "square-outline"} size={22} color={formData.privacy_policy ? "#7C9A92" : "#718096"} />
+                            <Ionicons name={formData.privacy_policy ? "checkbox" : "square-outline"} style={formData.privacy_policy ? styles.iconCheckboxChecked : styles.iconCheckboxUnchecked} />
                             <Text style={styles.checkboxLabel}>I agree to the Privacy Policy.</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.checkboxRow} onPress={() => handleChange('ai_consent', !formData.ai_consent)}>
-                            <Ionicons name={formData.ai_consent ? "checkbox" : "square-outline"} size={22} color={formData.ai_consent ? "#7C9A92" : "#718096"} />
+                            <Ionicons name={formData.ai_consent ? "checkbox" : "square-outline"} style={formData.ai_consent ? styles.iconCheckboxChecked : styles.iconCheckboxUnchecked} />
                             <Text style={styles.checkboxLabel}>I consent to AI-assisted emotional support.</Text>
                         </TouchableOpacity>
 
@@ -280,7 +280,7 @@ export default function RegisterScreen() {
                             {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitBtnText}>Create Account</Text>}
                         </TouchableOpacity>
 
-                        <View style={[styles.footerLinks, { marginBottom: 10 }]}>
+                        <View style={[styles.footerLinks, styles.footerLinksBottom]}>
                             <Text style={styles.footerText}>Already have an account? </Text>
                             <Link href="/auth/login" asChild>
                                 <TouchableOpacity><Text style={styles.linkText}>Sign in</Text></TouchableOpacity>

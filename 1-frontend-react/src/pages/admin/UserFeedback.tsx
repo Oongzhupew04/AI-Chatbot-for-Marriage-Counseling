@@ -138,20 +138,20 @@ export default function UserFeedback() {
                                             onClick={() => viewConversation(feedback.chat_id)}
                                             title="Click to view full conversation"
                                         >
-                                            <i className="fas fa-comment-alt" style={{ fontSize: '0.8rem' }}></i>
+                                            <i className={`fas fa-comment-alt ${styles.iconSmall}`}></i>
                                             #{feedback.chat_id || 'N/A'}
                                         </span>
                                     </td>
                                     <td>
                                         <div>
                                             <strong>{feedback.username}</strong>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{feedback.email}</div>
+                                            <div className={styles.userEmail}>{feedback.email}</div>
                                         </div>
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                            <span style={{ fontWeight: 'bold' }}>{feedback.rating}/5</span>
-                                            <i className="fas fa-star" style={{ color: '#ECC94B' }}></i>
+                                        <div className={styles.ratingContainer}>
+                                            <span className={styles.bold}>{feedback.rating}/5</span>
+                                            <i className={`fas fa-star ${styles.starIcon}`}></i>
                                         </div>
                                     </td>
                                     <td>
@@ -159,22 +159,17 @@ export default function UserFeedback() {
                                             {getRatingLabel(feedback.rating)}
                                         </span>
                                     </td>
-                                    <td style={{ maxWidth: '300px' }}>
+                                    <td className={styles.commentsCell}>
                                         <div 
-                                            className={styles['clickable-text']}
-                                            style={{
-                                                whiteSpace: 'nowrap',
-                                                maxWidth: '100%',
-                                                display: 'inline-flex'
-                                            }} 
+                                            className={`${styles['clickable-text']} ${styles.feedbackWrapper}`}
                                             title="Click to view full feedback details" 
                                             onClick={() => {
                                                 setSelectedFeedback(feedback);
                                                 setIsModalOpen(true);
                                             }}
                                         >
-                                            <i className="fas fa-external-link-alt" style={{ fontSize: '0.8rem', flexShrink: 0, marginTop: '3px' }}></i>
-                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>"{feedback.comments}"</span>
+                                            <i className={`fas fa-external-link-alt ${styles.linkIcon}`}></i>
+                                            <span className={styles.ellipsisText}>"{feedback.comments}"</span>
                                         </div>
                                     </td>
                                     <td>{feedback.timestamp ? new Date(feedback.timestamp).toLocaleString() : 'N/A'}</td>
@@ -182,7 +177,7 @@ export default function UserFeedback() {
                             ))}
                             {feedbacks.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>No feedback found.</td>
+                                    <td colSpan={6} className={styles.emptyState}>No feedback found.</td>
                                 </tr>
                             )}
                         </tbody>

@@ -107,7 +107,7 @@ export default function AdminUploadFAQ() {
                 </div>
             </div>
 
-            <div className={styles['card-header-row']} style={{ marginTop: '30px' }}>
+            <div className={`${styles['card-header-row']} ${styles.headerSection}`}>
                 <span className={styles['card-title']}>Saved FAQs</span>
             </div>
 
@@ -115,9 +115,9 @@ export default function AdminUploadFAQ() {
                 <table className={styles['data-table']}>
                     <thead>
                         <tr>
-                            <th style={{ width: '10%' }}>ID</th>
-                            <th style={{ width: '40%' }}>Question</th>
-                            <th style={{ width: '50%' }}>Answer</th>
+                            <th className={styles.colId}>ID</th>
+                            <th className={styles.colQuestion}>Question</th>
+                            <th className={styles.colAnswer}>Answer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,12 +125,12 @@ export default function AdminUploadFAQ() {
                             <tr key={faq.id}>
                                 <td>{faq.id}</td>
                                 <td><strong>{faq.question}</strong></td>
-                                <td style={{ whiteSpace: 'pre-wrap' }}>{faq.answer}</td>
+                                <td className={styles.preWrap}>{faq.answer}</td>
                             </tr>
                         ))}
                         {faqs.length === 0 && (
                             <tr>
-                                <td colSpan={3} style={{ textAlign: 'center', padding: '20px' }}>No FAQs found in the database.</td>
+                                <td colSpan={3} className={styles.emptyState}>No FAQs found in the database.</td>
                             </tr>
                         )}
                     </tbody>

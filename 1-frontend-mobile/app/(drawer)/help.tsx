@@ -74,13 +74,13 @@ export default function HelpScreen() {
                 {/* FAQ Card */}
                 <View style={styles.helpCard}>
                     <View style={styles.cardTitleContainer}>
-                        <FontAwesome5 name="question-circle" size={18} color="#3B82F6" />
+                        <FontAwesome5 name="question-circle" style={styles.iconQuestion} />
                         <Text style={styles.cardTitle}>Frequently Asked Questions</Text>
                     </View>
 
                     <View style={styles.faqList}>
                         {loading ? (
-                            <ActivityIndicator size="small" color="#7C9A92" style={{ paddingVertical: 20 }} />
+                            <ActivityIndicator size="small" color="#7C9A92" style={styles.loadingIndicator} />
                         ) : faqs.length > 0 ? (
                             faqs.map((faq) => (
                                 <View key={faq.id} style={styles.faqItem}>
@@ -111,7 +111,7 @@ export default function HelpScreen() {
                             onPress={handleContactSupport}
                             activeOpacity={0.8}
                         >
-                            <FontAwesome5 name="envelope" size={14} color="#FFFFFF" />
+                            <FontAwesome5 name="envelope" style={styles.iconEnvelope} />
                             <Text style={styles.contactBtnText}>Contact Support</Text>
                         </TouchableOpacity>
                     </LinearGradient>

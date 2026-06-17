@@ -34,8 +34,8 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
     return (
         <View style={[style]}>
             <TouchableOpacity style={styles.dropdownInput} onPress={() => setVisible(true)}>
-                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 16, color: value ? theme.text : theme.textSecondary }}>{selectedLabel}</Text>
-                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
+                <Text style={[styles.dropdownLabelText, value ? styles.dropdownLabelActive : styles.dropdownLabelInactive]}>{selectedLabel}</Text>
+                <Ionicons name="chevron-down" style={styles.iconChevron} />
             </TouchableOpacity>
 
             <Modal visible={visible} transparent animationType="slide">
@@ -53,7 +53,7 @@ const CustomDropdown = ({ label, value, options, onSelect, style }: { label: str
                                     onPress={() => { onSelect(item.value); setVisible(false); }}
                                 >
                                     <Text style={[styles.dropdownItemText, value === item.value && styles.dropdownItemTextSelected]}>{item.label}</Text>
-                                    {value === item.value && <Ionicons name="checkmark" size={20} color="#7C9A92" />}
+                                    {value === item.value && <Ionicons name="checkmark" style={styles.iconCheckmark} />}
                                 </TouchableOpacity>
                             )}
                         />
@@ -247,10 +247,10 @@ export default function ProfileScreen() {
                                 contentFit="cover"
                             />
                         ) : (
-                            <FontAwesome5 name="user" size={40} color={theme.primary} />
+                            <FontAwesome5 name="user" style={styles.iconUser} />
                         )}
                         <TouchableOpacity style={styles.editAvatarBtn} onPress={handleImageUpload} activeOpacity={0.8}>
-                            <FontAwesome5 name="camera" size={14} color="#FFFFFF" />
+                            <FontAwesome5 name="camera" style={styles.iconCamera} />
                         </TouchableOpacity>
                     </View>
 
@@ -258,7 +258,7 @@ export default function ProfileScreen() {
                         <Text style={styles.profileName}>{profile.username}</Text>
                         <Text style={styles.profileEmail}>{profile.email}</Text>
                         <View style={styles.statusBadge}>
-                            <FontAwesome5 name={profile.role === 'admin' ? "shield-alt" : "user-check"} size={12} color="#059669" />
+                            <FontAwesome5 name={profile.role === 'admin' ? "shield-alt" : "user-check"} style={styles.iconRole} />
                             <Text style={styles.statusBadgeText}>{profile.role === 'admin' ? 'Admin' : 'User'}</Text>
                         </View>
                     </View>
@@ -267,12 +267,12 @@ export default function ProfileScreen() {
                 {/* Details Card */}
                 <View style={styles.profileDetailsCard}>
                     <View style={styles.cardTitleContainer}>
-                        <FontAwesome5 name="address-card" size={18} color="#F59E0B" />
+                        <FontAwesome5 name="address-card" style={styles.iconAddressCard} />
                         <Text style={styles.cardTitle}>Personal Details</Text>
 
                         {!isEditing ? (
                             <TouchableOpacity style={styles.editBtn} onPress={handleEditClick}>
-                                <FontAwesome5 name="pen" size={12} color={theme.text} />
+                                <FontAwesome5 name="pen" style={styles.iconPen} />
                                 <Text style={styles.editBtnText}>Edit</Text>
                             </TouchableOpacity>
                         ) : (
@@ -281,7 +281,7 @@ export default function ProfileScreen() {
                                     <Text style={styles.editBtnText}>Cancel</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.editBtn, styles.editBtnActive]} onPress={handleSaveClick}>
-                                    <FontAwesome5 name="save" size={12} color="#FFFFFF" />
+                                    <FontAwesome5 name="save" style={styles.iconSave} />
                                     <Text style={[styles.editBtnText, styles.editBtnTextActive]}>Save</Text>
                                 </TouchableOpacity>
                             </View>
@@ -310,9 +310,9 @@ export default function ProfileScreen() {
                         </View>
 
                         {/* Sex and Age Row */}
-                        <View style={{ flexDirection: 'row', gap: 15 }}>
+                        <View style={styles.rowGap15}>
                             {/* Sex */}
-                            <View style={[styles.detailItem, { flex: 1 }]}>
+                            <View style={[styles.detailItem, styles.flex1]}>
                                 <Text style={styles.detailLabel}>Sex</Text>
                                 {isEditing ? (
                                     <CustomDropdown
@@ -330,7 +330,7 @@ export default function ProfileScreen() {
                             </View>
 
                             {/* Age */}
-                            <View style={[styles.detailItem, { flex: 1 }]}>
+                            <View style={[styles.detailItem, styles.flex1]}>
                                 <Text style={styles.detailLabel}>Age</Text>
                                 {isEditing ? (
                                     <TextInput
@@ -346,9 +346,9 @@ export default function ProfileScreen() {
                         </View>
 
                         {/* Years Married and Children Count Row */}
-                        <View style={{ flexDirection: 'row', gap: 15 }}>
+                        <View style={styles.rowGap15}>
                             {/* Years Married */}
-                            <View style={[styles.detailItem, { flex: 1 }]}>
+                            <View style={[styles.detailItem, styles.flex1]}>
                                 <Text style={styles.detailLabel}>Years Married</Text>
                                 {isEditing ? (
                                     <TextInput
@@ -363,7 +363,7 @@ export default function ProfileScreen() {
                             </View>
 
                             {/* Children Count */}
-                            <View style={[styles.detailItem, { flex: 1 }]}>
+                            <View style={[styles.detailItem, styles.flex1]}>
                                 <Text style={styles.detailLabel}>Children Count</Text>
                                 {isEditing ? (
                                     <TextInput

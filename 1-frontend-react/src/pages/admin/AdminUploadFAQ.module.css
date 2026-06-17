@@ -187,3 +187,28 @@
     border-top-right-radius: 12px;
     border-bottom-right-radius: 12px;
 }
+
+.headerSection {
+    margin-top: 30px;
+}
+
+.colId {
+    width: 10%;
+}
+
+.colQuestion {
+    width: 40%;
+}
+
+.colAnswer {
+    width: 50%;
+}
+
+.preWrap {
+    white-space: pre-wrap;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 20px;
+}

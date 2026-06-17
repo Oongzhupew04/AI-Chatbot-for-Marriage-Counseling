@@ -59,7 +59,7 @@ export default function FeedbackModal({ onClose, onSubmit }: FeedbackModalProps)
 
                 <div className={styles['modal-body']}>
                     <div className={styles['feedback-card']}>
-                        <div className={styles['card-header']} style={{ textAlign: 'center' }}>
+                        <div className={`${styles['card-header']} ${styles.textCenter}`}>
                             <h3>How helpful was this session?</h3>
                             <span>Rate the advice and empathy provided.</span>
                         </div>

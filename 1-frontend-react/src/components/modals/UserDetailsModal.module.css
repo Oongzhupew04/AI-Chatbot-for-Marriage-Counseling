@@ -160,3 +160,40 @@
     background: #C53030;
     transform: translateY(-1px);
 }
+
+.avatarPlaceholder {
+    background: #B2F5EA;
+    color: #2C7A7B;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.email {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.statusBadge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.statusFrozen {
+    color: #9B2C2C;
+    background: #FED7D7;
+}
+
+.statusActive {
+    color: #276749;
+    background: #C6F6D5;
+}
+
+.sessionCount {
+    font-weight: 600;
+}

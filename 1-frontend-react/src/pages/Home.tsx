@@ -288,7 +288,7 @@ export default function Home(): JSX.Element {
     return (
         <>
             <main className={styles['main-content']}>
-                <div style={{ position: 'absolute', top: '24px', left: '40px', fontWeight: 600, fontSize: '1.1rem' }}>AI Chat</div>
+                <div className={styles['ai-chat-title']}>AI Chat</div>
 
 
                 {messages.length === 0 && (
@@ -340,10 +340,10 @@ export default function Home(): JSX.Element {
                         {(messages || []).map((m, index) => {
                             if (m.text === '[Session Ended]') {
                                 return (
-                                    <div key={index} style={{ display: 'flex', alignItems: 'center', margin: '30px 0', color: 'var(--text-muted)' }}>
-                                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color, #e2e8f0)' }}></div>
-                                        <span style={{ padding: '0 15px', fontSize: '0.9rem', fontWeight: 500 }}>Session Ended</span>
-                                        <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color, #e2e8f0)' }}></div>
+                                    <div key={index} className={styles['session-ended-divider']}>
+                                        <div className={styles['divider-line']}></div>
+                                        <span className={styles['divider-text']}>Session Ended</span>
+                                        <div className={styles['divider-line']}></div>
                                     </div>
                                 );
                             }
@@ -358,15 +358,15 @@ export default function Home(): JSX.Element {
 
                                     {/* Conditionally render the Yes/No buttons ONLY on the last message */}
                                     {isLastMessage && m.action === "confirm_end" && (
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                        <div className={styles['confirmation-buttons']}>
                                             <button
-                                                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
+                                                className={styles['btn-confirm-yes']}
                                                 onClick={handleConfirmEnd}
                                             >
                                                 Yes
                                             </button>
                                             <button
-                                                style={{ padding: '8px 23px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary-dark)', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
+                                                className={styles['btn-confirm-no']}
                                                 onClick={handleCancelEnd}
                                             >
                                                 No
@@ -391,7 +391,7 @@ export default function Home(): JSX.Element {
                     </div>
                 )}
 
-                <div className={styles['input-wrapper']} style={isSessionEnded ? { opacity: 0.6, pointerEvents: 'none' } : {}}>
+                <div className={`${styles['input-wrapper']} ${isSessionEnded ? styles['input-disabled'] : ''}`}>
                     <textarea
                         id="user-input"
                         className={styles['chat-input']}
@@ -452,12 +452,11 @@ export default function Home(): JSX.Element {
                                     <p>{new Date(session.updated_at).toLocaleDateString('en-GB')}</p>
                                 </div>
                                 {/* 🌟 NEW: The Relative Wrapper */}
-                                <div style={{ position: 'relative', marginLeft: 'auto' }}>
+                                <div className={styles['history-action-wrapper']}>
 
                                     {/* The Trigger Icon */}
                                     <i
-                                        className="fas fa-ellipsis-h"
-                                        style={{ color: 'var(--text-muted)', cursor: 'pointer', padding: '5px' }}
+                                        className={`fas fa-ellipsis-h ${styles['history-ellipsis']}`}
                                         onClick={(e) => {
                                             e.stopPropagation(); // Stop row click
                                             setOpenDropdownId(openDropdownId === session.id ? null : session.id);

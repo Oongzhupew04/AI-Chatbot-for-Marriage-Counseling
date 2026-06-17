@@ -134,18 +134,18 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/help' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/help'); }}>
                         <i className="fas fa-question-circle"></i> Help
                     </a>
-                    <div style={{ flex: 1 }}></div> 
+                    <div className={styles.flex1}></div> 
                     <a href="#" className={`${styles['nav-item']} ${location.pathname === '/profile' ? styles['active'] : ''}`} onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
                         <i className="fas fa-user-circle"></i> My Profile
                     </a>
-                    <a href="#" className={styles['nav-item']} style={{ color: 'var(--accent-alert)' }} onClick={(e) => { e.preventDefault(); handleLogout(); }}>
+                    <a href="#" className={`${styles['nav-item']} ${styles.textDanger}`} onClick={(e) => { e.preventDefault(); handleLogout(); }}>
                         <i className="fas fa-sign-out-alt"></i> Log Out
                     </a>
                 </div>
 
                 <div className={styles['user-profile']}>
                     {profilePic ? (
-                        <img src={profilePic} alt="Profile" className={styles['avatar']} style={{ objectFit: 'cover', padding: 0 }} />
+                        <img src={profilePic} alt="Profile" className={`${styles['avatar']} ${styles.avatarCover}`} />
                     ) : (
                         <div className={styles['avatar']}>{initials}</div>
                     )}

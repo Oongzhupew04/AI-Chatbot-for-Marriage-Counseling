@@ -95,13 +95,13 @@ export default function AnalysisScreen() {
                 <View style={styles.metricCard}>
                     <View style={styles.cardTitleContainer}>
                         <Text style={styles.cardLabel}>Marital Risk Percentage</Text>
-                        <View style={[styles.iconBg, { backgroundColor: riskBg }]}>
-                            <FontAwesome5 name="exclamation-triangle" size={16} color={riskColor} />
+                        <View style={[styles.iconBg, isHighRisk ? styles.riskBgHigh : isMedRisk ? styles.riskBgMed : styles.riskBgLow]}>
+                            <FontAwesome5 name="exclamation-triangle" style={[styles.iconBase16, isHighRisk ? styles.iconRiskHigh : isMedRisk ? styles.iconRiskMed : styles.iconRiskLow]} />
                         </View>
                     </View>
 
                     <View style={styles.riskScoreContainer}>
-                        <Text style={[styles.riskScoreValue, { color: riskColor }]}>
+                        <Text style={[styles.riskScoreValue, isHighRisk ? styles.riskTextHigh : isMedRisk ? styles.riskTextMed : styles.riskTextLow]}>
                             {riskPct}%
                         </Text>
                         <Text style={styles.riskScoreDesc}>
@@ -110,7 +110,7 @@ export default function AnalysisScreen() {
                     </View>
 
                     <View style={styles.progressTrack}>
-                        <View style={[styles.progressFill, { width: `${riskPct}%`, backgroundColor: riskColor }]} />
+                        <View style={[styles.progressFill, isHighRisk ? styles.riskFillHigh : isMedRisk ? styles.riskFillMed : styles.riskFillLow, { width: `${riskPct}%` }]} />
                     </View>
                 </View>
 
@@ -119,19 +119,19 @@ export default function AnalysisScreen() {
                     <View style={styles.cardTitleContainer}>
                         <Text style={styles.cardLabel}>Core Vulnerabilities</Text>
                         <View style={[styles.iconBg, { backgroundColor: '#EBF3F1' }]}>
-                            <FontAwesome5 name="search-plus" size={16} color="#7C9A92" />
+                            <FontAwesome5 name="search-plus" style={styles.iconSearchPlus} />
                         </View>
                     </View>
 
                     <View style={styles.concernsList}>
                         {/* Q17 Self Actualization */}
                         <View style={[styles.concernRow, isConcerning(baselineData?.q17 || 0) ? styles.concernRowConcerning : styles.concernRowHealthy]}>
-                            <View style={{ flex: 1, paddingRight: 10 }}>
+                            <View style={styles.concernFlex}>
                                 <Text style={styles.concernTitle}>Self-Actualization</Text>
                                 <Text style={styles.concernSubtitle}>"Are you proud of your spouse?"</Text>
                             </View>
                             <View style={[styles.concernBadge, isConcerning(baselineData?.q17 || 0) ? styles.badgeConcerning : styles.badgeHealthy]}>
-                                <FontAwesome5 name={isConcerning(baselineData?.q17 || 0) ? "exclamation-circle" : "check-circle"} size={12} color={isConcerning(baselineData?.q17 || 0) ? "#EF4444" : "#10B981"} />
+                                <FontAwesome5 name={isConcerning(baselineData?.q17 || 0) ? "exclamation-circle" : "check-circle"} style={[styles.iconBase12, isConcerning(baselineData?.q17 || 0) ? styles.iconWarning : styles.iconSuccess]} />
                                 <Text style={isConcerning(baselineData?.q17 || 0) ? styles.badgeTextConcerning : styles.badgeTextHealthy}>
                                     {isConcerning(baselineData?.q17 || 0) ? 'Concerning' : 'Healthy'}
                                 </Text>
@@ -140,12 +140,12 @@ export default function AnalysisScreen() {
 
                         {/* Q13 Esteem */}
                         <View style={[styles.concernRow, isConcerning(baselineData?.q13 || 0) ? styles.concernRowConcerning : styles.concernRowHealthy]}>
-                            <View style={{ flex: 1, paddingRight: 10 }}>
+                            <View style={styles.concernFlex}>
                                 <Text style={styles.concernTitle}>Esteem</Text>
                                 <Text style={styles.concernSubtitle}>"Do you find your spouse attractive?"</Text>
                             </View>
                             <View style={[styles.concernBadge, isConcerning(baselineData?.q13 || 0) ? styles.badgeConcerning : styles.badgeHealthy]}>
-                                <FontAwesome5 name={isConcerning(baselineData?.q13 || 0) ? "exclamation-circle" : "check-circle"} size={12} color={isConcerning(baselineData?.q13 || 0) ? "#EF4444" : "#10B981"} />
+                                <FontAwesome5 name={isConcerning(baselineData?.q13 || 0) ? "exclamation-circle" : "check-circle"} style={[styles.iconBase12, isConcerning(baselineData?.q13 || 0) ? styles.iconWarning : styles.iconSuccess]} />
                                 <Text style={isConcerning(baselineData?.q13 || 0) ? styles.badgeTextConcerning : styles.badgeTextHealthy}>
                                     {isConcerning(baselineData?.q13 || 0) ? 'Concerning' : 'Healthy'}
                                 </Text>
@@ -154,12 +154,12 @@ export default function AnalysisScreen() {
 
                         {/* Q19 Love */}
                         <View style={[styles.concernRow, isConcerning(baselineData?.q19 || 0) ? styles.concernRowConcerning : styles.concernRowHealthy]}>
-                            <View style={{ flex: 1, paddingRight: 10 }}>
+                            <View style={styles.concernFlex}>
                                 <Text style={styles.concernTitle}>Love</Text>
                                 <Text style={styles.concernSubtitle}>"Do you love your spouse?"</Text>
                             </View>
                             <View style={[styles.concernBadge, isConcerning(baselineData?.q19 || 0) ? styles.badgeConcerning : styles.badgeHealthy]}>
-                                <FontAwesome5 name={isConcerning(baselineData?.q19 || 0) ? "exclamation-circle" : "check-circle"} size={12} color={isConcerning(baselineData?.q19 || 0) ? "#EF4444" : "#10B981"} />
+                                <FontAwesome5 name={isConcerning(baselineData?.q19 || 0) ? "exclamation-circle" : "check-circle"} style={[styles.iconBase12, isConcerning(baselineData?.q19 || 0) ? styles.iconWarning : styles.iconSuccess]} />
                                 <Text style={isConcerning(baselineData?.q19 || 0) ? styles.badgeTextConcerning : styles.badgeTextHealthy}>
                                     {isConcerning(baselineData?.q19 || 0) ? 'Concerning' : 'Healthy'}
                                 </Text>
@@ -173,7 +173,7 @@ export default function AnalysisScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <View style={[styles.container, styles.loadingContainer]}>
                 <ActivityIndicator size="large" color="#7C9A92" />
             </View>
         );
@@ -190,7 +190,7 @@ export default function AnalysisScreen() {
                 </View>
 
                 <View style={styles.notEnoughDataContainer}>
-                    <FontAwesome6 name="chart-line" size={60} color="#7C9A92" style={styles.notEnoughDataIcon} />
+                    <FontAwesome6 name="chart-line" style={[styles.notEnoughDataIcon, styles.iconLarge]} />
                     <Text style={styles.notEnoughDataTitle}>Not Enough Data Yet</Text>
                     <Text style={styles.notEnoughDataDesc}>
                         Our AI needs at least 7 days of daily check-ins to analyse your behavioral insights and trend analysis.{'\n\n'}
@@ -317,11 +317,11 @@ export default function AnalysisScreen() {
             {/* 1. SATISFACTION TREND */}
             <View style={styles.metricCard}>
                 <View style={styles.cardTitleContainer}>
-                    <View style={[styles.iconBg, { backgroundColor: 'rgba(236, 72, 153, 0.1)' }]}>
-                        <FontAwesome5 name="heart" size={16} color="#EC4899" />
+                    <View style={[styles.iconBg, styles.heartIconBg]}>
+                        <FontAwesome5 name="heart" style={styles.iconHeart} />
                     </View>
                     <View style={[styles.trendBadge, trend.isUp ? styles.trendUp : styles.trendDown]}>
-                        <FontAwesome5 name={trend.isUp ? "arrow-up" : "arrow-down"} size={10} color={trend.isUp ? "#10B981" : "#EF4444"} />
+                        <FontAwesome5 name={trend.isUp ? "arrow-up" : "arrow-down"} style={[styles.iconBase10, trend.isUp ? styles.iconUp : styles.iconDown]} />
                         <Text style={trend.isUp ? styles.trendTextUp : styles.trendTextDown}>
                             {trend.isUp ? '+' : '-'}{trend.value}%
                         </Text>
@@ -331,34 +331,24 @@ export default function AnalysisScreen() {
                 <Text style={styles.cardValue}>{avgScore}/7</Text>
 
                 {/* Chart Toggle Buttons */}
-                <View style={{ flexDirection: 'row', width: '100%', gap: 10, marginVertical: 15 }}>
+                <View style={styles.chartToggleContainer}>
                     <TouchableOpacity 
-                        style={{
-                            flex: 1,
-                            paddingVertical: 10, borderRadius: 20,
-                            alignItems: 'center',
-                            backgroundColor: chartMode === '7day' ? '#5B8DEF' : '#F1F5F9'
-                        }}
+                        style={chartMode === '7day' ? styles.chartToggleBtnActive7 : styles.chartToggleBtnInactive}
                         onPress={() => setChartMode('7day')}
                     >
-                        <Text style={{ fontWeight: '600', fontSize: 13, color: chartMode === '7day' ? 'white' : '#64748B' }}>7-Day Volatility</Text>
+                        <Text style={chartMode === '7day' ? styles.chartToggleTextActive : styles.chartToggleTextInactive}>7-Day Volatility</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                        style={{
-                            flex: 1,
-                            paddingVertical: 10, borderRadius: 20,
-                            alignItems: 'center',
-                            backgroundColor: chartMode === '30day' ? '#10B981' : '#F1F5F9'
-                        }}
+                        style={chartMode === '30day' ? styles.chartToggleBtnActive30 : styles.chartToggleBtnInactive}
                         onPress={() => setChartMode('30day')}
                     >
-                        <Text style={{ fontWeight: '600', fontSize: 13, color: chartMode === '30day' ? 'white' : '#64748B' }}>30-Day Stability</Text>
+                        <Text style={chartMode === '30day' ? styles.chartToggleTextActive : styles.chartToggleTextInactive}>30-Day Stability</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.chartContainer}>
                     {hoveredPoint !== null && (
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                        <View style={styles.tooltipOverlay}>
                             <View style={[styles.chartTooltip, {
                                 left: points[hoveredPoint].x - 30, // Center it roughly
                                 top: points[hoveredPoint].y - 35
@@ -424,7 +414,7 @@ export default function AnalysisScreen() {
                                     // Backend sends "Jun 08" (Month Day), flip to "08 Jun" (Date Month) like Web
                                     return <Text key={i} style={styles.chartXAxisText}>{`${parts[1]}\n${parts[0]}`}</Text>;
                                 }
-                                return <Text key={i} style={[styles.chartXAxisText, { color: 'transparent' }]}>.</Text>;
+                                return <Text key={i} style={[styles.chartXAxisText, styles.transparentText]}>.</Text>;
                             })
                         }
                     </View>
@@ -436,22 +426,22 @@ export default function AnalysisScreen() {
                 <View style={styles.cardTitleContainer}>
                     <Text style={styles.cardLabel}>Recent Reflection</Text>
                     <View style={[styles.iconBg, { backgroundColor: '#EBF3F1' }]}>
-                        <FontAwesome5 name="brain" size={16} color="#7C9A92" />
+                        <FontAwesome5 name="brain" style={styles.iconBrain} />
                     </View>
                 </View>
-                <Text style={[styles.cardValue, { fontSize: 18, marginVertical: 15, lineHeight: 30, paddingBottom: 5, flexWrap: 'wrap' }]}>
+                <Text style={[styles.cardValue, styles.reflectionValue]}>
                     "{latestCheckin.rotationalQuestion}"
                 </Text>
 
-                <View style={{ backgroundColor: '#F8FAFC', padding: 15, borderRadius: 12, marginTop: 10 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <Text style={{ color: theme.textSecondary, fontFamily: 'Inter_400Regular', fontSize: 13 }}>Latest Answer:</Text>
-                        <Text style={{ color: '#F2994A', fontFamily: 'Inter_700Bold', fontSize: 12.5 }}>
+                <View style={styles.rotationalContainer}>
+                    <View style={styles.rotationalHeader}>
+                        <Text style={styles.rotationalLabel}>Latest Answer:</Text>
+                        <Text style={styles.rotationalScoreText}>
                             {getRotationalLabel(latestCheckin.rotationalScore)} ({latestCheckin.rotationalScore > 0 ? '+' : ''}{latestCheckin.rotationalScore})
                         </Text>
                     </View>
-                    <View style={{ width: '100%', backgroundColor: '#E2E8F0', height: 8, borderRadius: 4, overflow: 'hidden' }}>
-                        <View style={{ width: `${((latestCheckin.rotationalScore + 2) / 4) * 100}%`, backgroundColor: '#F2994A', height: '100%', borderRadius: 4 }} />
+                    <View style={styles.rotationalTrack}>
+                        <View style={[styles.rotationalFill, { width: `${((latestCheckin.rotationalScore + 2) / 4) * 100}%` }]} />
                     </View>
                 </View>
             </View>
@@ -466,7 +456,7 @@ export default function AnalysisScreen() {
                                 key={need}
                                 style={[
                                     styles.maslowLevel,
-                                    { backgroundColor: isMostUnmet ? '#10B981' : '#A0AEC0' }
+                                    isMostUnmet ? styles.maslowActive : styles.maslowInactive
                                 ]}
                             >
                                 <Text style={isMostUnmet ? styles.maslowTextActive : styles.maslowTextInactive}>
@@ -477,8 +467,8 @@ export default function AnalysisScreen() {
                     })}
                 </View>
 
-                <Text style={{ fontFamily: 'Merriweather_700Bold', fontSize: 20, color: theme.text, marginBottom: 5 }}>Unmet Needs Analysis</Text>
-                <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 13, color: theme.textSecondary }}>Aggregated from your check-ins.</Text>
+                <Text style={styles.unmetNeedsTitle}>Unmet Needs Analysis</Text>
+                <Text style={styles.unmetNeedsDesc}>Aggregated from your check-ins.</Text>
 
                 <View style={styles.insightBox}>
                     <Text style={styles.insightBoxTitle}>Primary Focus: {mostUnmetNeed}</Text>
@@ -491,15 +481,15 @@ export default function AnalysisScreen() {
                 <View style={styles.cardTitleContainer}>
                     <Text style={styles.cardLabel}>Behavioral Patterns</Text>
                     <View style={[styles.iconBg, { backgroundColor: '#EBF3F1' }]}>
-                        <FontAwesome5 name="chart-pie" size={16} color="#7C9A92" />
+                        <FontAwesome5 name="chart-pie" style={styles.iconPie} />
                     </View>
                 </View>
 
-                <View style={{ marginTop: 10 }}>
+                <View style={styles.patternsContainer}>
                     {/* Insight 1 */}
                     <View style={styles.interactiveRow}>
-                        <View style={[styles.interactiveRowIconBox, { backgroundColor: 'rgba(242, 153, 74, 0.2)' }]}>
-                            <FontAwesome5 name="balance-scale" size={16} color="#F2994A" />
+                        <View style={[styles.interactiveRowIconBox, styles.needsImpactIconBg]}>
+                            <FontAwesome5 name="balance-scale" style={styles.iconScale} />
                         </View>
                         <View style={styles.interactiveRowContent}>
                             <Text style={styles.interactiveRowLabel}>Needs Impact</Text>
@@ -511,8 +501,8 @@ export default function AnalysisScreen() {
 
                     {/* Insight 2 */}
                     <View style={styles.interactiveRow}>
-                        <View style={[styles.interactiveRowIconBox, { backgroundColor: 'rgba(91, 141, 239, 0.2)' }]}>
-                            <FontAwesome5 name="calendar-day" size={16} color="#5B8DEF" />
+                        <View style={[styles.interactiveRowIconBox, styles.routineImpactIconBg]}>
+                            <FontAwesome5 name="calendar-day" style={styles.iconCalendar} />
                         </View>
                         <View style={styles.interactiveRowContent}>
                             <Text style={styles.interactiveRowLabel}>Routine Impact</Text>
@@ -524,8 +514,8 @@ export default function AnalysisScreen() {
 
                     {/* Insight 3 */}
                     <View style={styles.interactiveRow}>
-                        <View style={[styles.interactiveRowIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-                            <FontAwesome5 name="water" size={16} color={theme.primary} />
+                        <View style={[styles.interactiveRowIconBox, styles.stabilityIconBg]}>
+                            <FontAwesome5 name="water" style={styles.iconWater} />
                         </View>
                         <View style={styles.interactiveRowContent}>
                             <Text style={styles.interactiveRowLabel}>Emotional Stability</Text>

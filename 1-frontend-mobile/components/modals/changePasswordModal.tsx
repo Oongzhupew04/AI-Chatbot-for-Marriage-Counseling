@@ -160,7 +160,7 @@ export default function ChangePasswordModal({ visible, onClose }: ChangePassword
                                 <Text style={styles.btnCancelText}>Cancel</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.btnSubmit, isSubmitting && { opacity: 0.7 }]}
+                                style={[styles.btnSubmit, isSubmitting && styles.btnSubmitDisabled]}
                                 onPress={handleChangePassword}
                                 disabled={isSubmitting}
                             >

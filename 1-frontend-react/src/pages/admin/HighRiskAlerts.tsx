@@ -146,7 +146,7 @@ export default function HighRiskAlerts() {
                                     <td>
                                         <div>
                                             <strong>{incident.username}</strong>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{incident.email}</div>
+                                            <div className={styles.userEmail}>{incident.email}</div>
                                         </div>
                                     </td>
                                     <td>"{incident.trigger_keyword}"</td>
@@ -164,7 +164,7 @@ export default function HighRiskAlerts() {
                                             <i className="fas fa-envelope"></i> Contact
                                         </button>
                                         {incident.status !== 'Resolved' && (
-                                            <button className={styles['action-btn']} style={{ color: 'var(--success-color)' }} onClick={() => handleResolveIncident(incident.id)}>
+                                            <button className={`${styles['action-btn']} ${styles.successColor}`} onClick={() => handleResolveIncident(incident.id)}>
                                                 <i className="fas fa-check"></i> Resolve
                                             </button>
                                         )}
@@ -173,7 +173,7 @@ export default function HighRiskAlerts() {
                             ))}
                             {incidents.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>No high-risk alerts found.</td>
+                                    <td colSpan={5} className={styles.emptyState}>No high-risk alerts found.</td>
                                 </tr>
                             )}
                         </tbody>

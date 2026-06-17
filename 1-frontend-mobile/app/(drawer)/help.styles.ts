@@ -88,6 +88,9 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         textAlign: 'center',
         paddingVertical: 20,
     },
+    loadingIndicator: {
+        paddingVertical: 20,
+    },
     emptyText: {
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
@@ -131,6 +134,14 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
     contactBtnText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        color: theme.card,
+        color: '#FFFFFF',
+    },
+    iconQuestion: {
+        fontSize: 18,
+        color: '#3B82F6',
+    },
+    iconEnvelope: {
+        fontSize: 14,
+        color: '#FFFFFF',
     }
 });

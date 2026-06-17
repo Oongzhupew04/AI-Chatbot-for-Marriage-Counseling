@@ -16,7 +16,7 @@ export default function DishonestyModal({ onClose }: DishonestyModalProps) {
             <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
                 <TouchableOpacity style={styles.modalContainer} activeOpacity={1} onPress={() => {}}>
                     <View style={styles.iconCircle}>
-                        <FontAwesome5 name="info" size={24} color="#FFFFFF" />
+                        <FontAwesome5 name="info" style={styles.iconInfo} />
                     </View>
                     <Text style={styles.heading}>Notice</Text>
                     <Text style={styles.text}>

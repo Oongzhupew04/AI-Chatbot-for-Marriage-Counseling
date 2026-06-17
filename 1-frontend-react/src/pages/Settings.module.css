@@ -176,4 +176,33 @@ input:checked+.slider:before {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
 }
+
+/* --- Added for removing inline styles --- */
+.text-muted {
+    color: var(--text-muted);
+}
+
+.icon-warning {
+    color: #F59E0B;
+}
+
+.icon-primary {
+    color: #3B82F6;
+}
+
+.icon-success {
+    color: #10B981;
+}
+
+.card-danger {
+    border: 1px solid #fca5a5;
+}
+
+.card-title-danger {
+    color: #ef4444;
+}
+
+.text-danger {
+    color: #ef4444;
+}
 

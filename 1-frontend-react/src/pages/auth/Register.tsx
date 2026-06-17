@@ -149,8 +149,8 @@ export default function Register() {
 
     // Helper function to render Q13, Q17, Q19 dropdowns to save code space
     const renderScale1Select = (name: string, label: string) => (
-        <div className={styles['form-group']} style={{ marginBottom: '10px' }}>
-            <label style={{ fontSize: '0.85rem' }}>{label}</label>
+        <div className={`${styles['form-group']} ${styles['mb-10']}`}>
+            <label className={styles['text-sm']}>{label}</label>
             <select name={name} className={styles['input-field']} onChange={handleChange} value={(formData as any)[name]} required>
                 <option value="" disabled></option>
                 <option value="1">Yes</option>
@@ -165,7 +165,7 @@ export default function Register() {
     return (
         <div className={styles['body']}>
             <div className={styles['bg-blob']}></div>
-            <div className={styles['register-card']} style={{ maxWidth: '600px' }}>
+            <div className={`${styles['register-card']} ${styles['max-w-600']}`}>
                 <div className={styles.brand}><i className="fas fa-heart-pulse"></i><span>Counselor.AI</span></div>
                 <div className={styles.header}>
                     <h1>Create your account</h1>
@@ -182,7 +182,7 @@ export default function Register() {
                         <label>Email Address</label>
                         <input type="email" name="email" className={styles['input-field']} onChange={handleChange} required />
                     </div>
-                    <div className={styles['form-row']} style={{ display: 'flex', gap: '16px' }}>
+                    <div className={styles['form-row']}>
                         <div className={styles['form-group']}>
                             <label>Password</label>
                             <input type="password" name="password" className={styles['input-field']} onChange={handleChange} required />
@@ -193,12 +193,12 @@ export default function Register() {
                         </div>
                     </div>
 
-                    <hr style={{ margin: '20px 0', borderColor: '#eee' }} />
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '15px' }}>Personal Information</h3>
+                    <hr className={styles['custom-hr']} />
+                    <h3 className={styles['section-title']}>Personal Information</h3>
 
                     {/* Q1, Q2, Q3 */}
-                    <div className={styles['form-row']} style={{ display: 'flex', gap: '16px', marginBottom: '15px' }}>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                    <div className={`${styles['form-row']} ${styles['mb-15']}`}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Sex</label>
                             <select name="sex" className={styles['input-field']} onChange={handleChange} value={formData.sex} required>
                                 <option value="" disabled></option>
@@ -206,32 +206,32 @@ export default function Register() {
                                 <option value="Female">Female</option>
                             </select>
                         </div>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Age</label>
                             <input type="number" min="0" name="age" className={styles['input-field']} onChange={handleChange} required />
                         </div>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Years Married</label>
                             <input type="number" min="0" name="years_married" className={styles['input-field']} onChange={handleChange} required />
                         </div>
                     </div>
 
                     {/* Q4, Q5 */}
-                    <div className={styles['form-row']} style={{ display: 'flex', gap: '16px', marginBottom: '15px' }}>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                    <div className={`${styles['form-row']} ${styles['mb-15']}`}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Children (Total)</label>
                             <input type="number" min="0" name="children_count" className={styles['input-field']} onChange={handleChange} required />
                         </div>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Children Raised Presently</label>
                             <input type="number" min="0" name="children_raised" className={styles['input-field']} onChange={handleChange} required />
                         </div>
                     </div>
 
                     {/* Q6, Q7 */}
-                    <div className={styles['form-row']} style={{ display: 'flex', gap: '16px', marginBottom: '15px' }}>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
-                            <label><br />Education</label>
+                    <div className={`${styles['form-row']} ${styles['mb-15']}`}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
+                            <label>Education</label>
                             <select name="education" className={styles['input-field']} onChange={handleChange} value={formData.education} required>
                                 <option value="" disabled></option>
                                 <option value="No formal education">No formal education</option>
@@ -241,7 +241,7 @@ export default function Register() {
                                 <option value="Bachelor or masters degree">Bachelor or masters degree</option>
                             </select>
                         </div>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Material Situation (compared to Average People)</label>
                             <select name="material_situation" className={styles['input-field']} onChange={handleChange} value={formData.material_situation} required>
                                 <option value="" disabled></option>
@@ -255,8 +255,8 @@ export default function Register() {
                     </div>
 
                     {/* Q8, Q9 */}
-                    <div className={styles['form-row']} style={{ display: 'flex', gap: '16px', marginBottom: '15px' }}>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                    <div className={`${styles['form-row']} ${styles['mb-15']}`}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Religious Affiliation</label>
                             <select name="religious_affiliation" className={styles['input-field']} onChange={handleChange} value={formData.religious_affiliation} required>
                                 <option value="" disabled></option>
@@ -274,7 +274,7 @@ export default function Register() {
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-                        <div className={styles['form-group']} style={{ flex: 1 }}>
+                        <div className={`${styles['form-group']} ${styles['flex-1']}`}>
                             <label>Religiousness (1-7)</label>
                             <select name="religiousness" className={styles['input-field']} onChange={handleChange} value={formData.religiousness} required>
                                 <option value="" disabled></option>
@@ -289,10 +289,10 @@ export default function Register() {
                         </div>
                     </div>
 
-                    <hr style={{ margin: '20px 0', borderColor: '#eee' }} />
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '15px' }}>Relationship Assessment</h3>
+                    <hr className={styles['custom-hr']} />
+                    <h3 className={styles['section-title']}>Relationship Assessment</h3>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className={styles['grid-cols-2']}>
                         {renderScale1Select('q13', 'Do you find your spouse attractive?')}
                         {renderScale1Select('q17', 'Are you proud of your spouse?')}
                         {renderScale1Select('q19', 'Do you love your spouse?')}
@@ -302,8 +302,8 @@ export default function Register() {
                     <br />
 
                     {/* Q20 implementation */}
-                    <div className={styles['form-group']} style={{ marginBottom: '10px' }}>
-                        <label style={{ fontSize: '1rem', textAlign: 'center' }}>Overall, how satisfied are you with your marriage?</label>
+                    <div className={`${styles['form-group']} ${styles['mb-10']}`}>
+                        <label className={`${styles['text-md']} ${styles['text-center']}`}>Overall, how satisfied are you with your marriage?</label>
                         <select name="q20" className={styles['input-field']} onChange={handleChange} value={formData.q20} required>
                             <option value="" disabled></option>
                             <option value="1">1 - Very dissatisfied</option>
@@ -314,21 +314,21 @@ export default function Register() {
                         </select>
                     </div>
 
-                    <hr style={{ margin: '20px 0', borderColor: '#eee' }} />
+                    <hr className={styles['custom-hr']} />
 
                     {/* Consents */}
-                    <div className={styles['checkbox-group']} style={{ display: 'flex', gap: '10px', textAlign: 'left', marginBottom: '10px' }}>
+                    <div className={`${styles['checkbox-group']} ${styles['mb-10']}`}>
                         <input type="checkbox" name="privacy_policy" onChange={handleChange} required />
-                        <label style={{ fontSize: '0.85rem' }}>I agree to the Privacy Policy.</label>
+                        <label className={styles['text-sm']}>I agree to the Privacy Policy.</label>
                     </div>
-                    <div className={styles['checkbox-group']} style={{ display: 'flex', gap: '10px', textAlign: 'left' }}>
+                    <div className={styles['checkbox-group']}>
                         <input type="checkbox" name="ai_consent" onChange={handleChange} required />
-                        <label style={{ fontSize: '0.85rem' }}>I consent to AI-assisted emotional support.</label>
+                        <label className={styles['text-sm']}>I consent to AI-assisted emotional support.</label>
                     </div>
 
-                    <div className={styles['error-message']} style={{ color: '#ef4444', height: '20px', marginTop: '10px' }}>{error}</div>
+                    <div className={`${styles['error-message']} ${styles['mt-10']}`}>{error}</div>
 
-                    <button type="submit" className={styles['btn-submit']} disabled={!isValid} style={{ backgroundColor: isValid ? '#000' : 'var(--primary-sage)', cursor: isValid ? 'pointer' : 'not-allowed' }}>
+                    <button type="submit" className={`${styles['btn-submit']} ${isValid ? styles['btn-submit-valid'] : ''}`} disabled={!isValid}>
                         {isSubmitting ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </form>

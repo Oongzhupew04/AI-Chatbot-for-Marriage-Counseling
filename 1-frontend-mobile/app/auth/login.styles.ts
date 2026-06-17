@@ -127,7 +127,13 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         marginTop: 2, // Slight offset to align with text
     },
     checkboxIcon: {
-        // sizing managed in icon props
+        fontSize: 20,
+    },
+    checkboxIconChecked: {
+        color: '#7C9A92',
+    },
+    checkboxIconUnchecked: {
+        color: '#718096',
     },
     disclaimerText: {
         fontFamily: 'Inter_400Regular',
@@ -171,5 +177,17 @@ export const getStyles = (theme: ThemeColors) => StyleSheet.create({
         color: theme.textSecondary,
         fontSize: 13,
         textDecorationLine: 'underline',
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    iconHeartPulse: {
+        fontSize: 24,
+        color: '#7C9A92',
+    },
+    footerLinksAlt: {
+        marginTop: 8,
+        marginBottom: 10,
     }
 });
