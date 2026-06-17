@@ -91,17 +91,6 @@ export default function LoginScreen() {
                                 <Text style={styles.headerSubtitle}>Please enter your details to sign in.</Text>
                             </View>
 
-                            <TouchableOpacity style={styles.googleBtn}>
-                                <FontAwesome6 name="google" size={18} color={theme.text} style={{ marginRight: 10 }} />
-                                <Text style={styles.googleBtnText}>Sign in with Google</Text>
-                            </TouchableOpacity>
-
-                            <View style={styles.dividerContainer}>
-                                <View style={styles.dividerLine} />
-                                <Text style={styles.dividerText}>or sign in with email</Text>
-                                <View style={styles.dividerLine} />
-                            </View>
-
                             <View style={styles.formGroup}>
                                 <Text style={styles.label}>Email Address</Text>
                                 <TextInput

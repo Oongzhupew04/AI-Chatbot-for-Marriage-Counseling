@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./1-frontend-react
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  gateway:
+    build:
+      context: ./2-gateway-node
+    ports:
+      - "3000:3000"
+    environment:
+      - PYTHON_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      - ai-service
+
+  ai-service:
+    build:
+      context: ./3-ai-service-python
+    ports:
+      - "8000:8000"
+    environment:
+      # Connect to the database running on the host machine
+      - DB_HOST=host.docker.internal
+    # Ensures host.docker.internal works correctly across different OS environments
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

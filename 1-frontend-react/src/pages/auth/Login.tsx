@@ -17,19 +17,19 @@ export default function Login() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            
+
             const data = await response.json();
-            
+
             // Added response.ok so fetch handles 400/500 level errors properly
             if (response.ok && data.token) {
-                
+
                 // 1. Save the token to browser memory
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userID', data.id);
                 localStorage.setItem('username', data.username);
                 localStorage.setItem('email', data.email);
                 localStorage.removeItem('currentChatId');
-                
+
                 // 2. Extract and save the role (assuming your backend sends data.user.role)
                 const userRole = data.role;
                 if (userRole) {
@@ -42,7 +42,7 @@ export default function Login() {
                 } else {
                     navigate('/'); // Send normal users here
                 }
-                
+
             } else {
                 // If response is not ok (e.g., wrong password), show the error
                 alert(data.error || "Login failed. Please check your credentials.");
@@ -65,10 +65,6 @@ export default function Login() {
                     <h1>Welcome Back</h1>
                     <p>Please enter your details to sign in.</p>
                 </div>
-                <button className={styles['btn-google']}>
-                    <i className="fa-brands fa-google"></i> Sign in with Google
-                </button>
-                <div className={styles.divider}><span>or sign in with email</span></div>
 
                 <form onSubmit={handleLogin}>
                     <div className={styles['form-group']}>
@@ -80,7 +76,7 @@ export default function Login() {
                         <input type="password" id="password" className={styles['input-field']} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
                     </div>
                     <div className={styles['disclaimer-box']}>
-                        <input type="checkbox" id="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} required style={{ marginRight: '8px' }}/>
+                        <input type="checkbox" id="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} required style={{ marginRight: '8px' }} />
                         <label htmlFor="consent">
                             I understand this AI provides emotional support, not professional therapy. In emergencies, I will contact local authorities.
                         </label>
