@@ -68,7 +68,7 @@ export default function CheckinModal({ onClose, onSuccess }: CheckinModalProps) 
             // Retrieve the token saved during login
             const token = localStorage.getItem('token'); 
 
-            const response = await fetch('http://localhost:3000/api/checkin', {
+            const response = await fetch('/api/checkin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

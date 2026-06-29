@@ -20,7 +20,7 @@ export default function Resources(): JSX.Element {
         const fetchResources = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:3000/api/resources', {
+                const response = await axios.get('/api/resources', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (response.data && response.data.success) {

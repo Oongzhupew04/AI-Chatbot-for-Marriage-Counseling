@@ -12,7 +12,7 @@ export default function Login() {
         e.preventDefault();
         // Pointing to your new Node.js Gateway
         try {
-            const response = await fetch('http://localhost:3000/api/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })

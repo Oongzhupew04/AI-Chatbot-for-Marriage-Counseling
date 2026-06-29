@@ -20,7 +20,7 @@ export default function UserFeedback() {
                 const token = localStorage.getItem('token');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 // Attempt to fetch from an endpoint (may not exist yet, fallback to mock data)
-                const res = await axios.get('http://localhost:3000/api/admin/feedbacks', config);
+                const res = await axios.get('/api/admin/feedbacks', config);
                 if (res.data.success) {
                     setFeedbacks(res.data.feedbacks);
                 } else {
@@ -87,7 +87,7 @@ export default function UserFeedback() {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const res = await axios.get(`http://localhost:3000/api/chats/${chatId}/messages`, config);
+            const res = await axios.get(`/api/chats/${chatId}/messages`, config);
             setSelectedChat(res.data.messages || []);
             setIsChatModalOpen(true);
         } catch (error) {

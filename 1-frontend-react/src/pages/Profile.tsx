@@ -34,7 +34,7 @@ export default function Profile(): JSX.Element {
             try {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 // Using location.key ensures refetch on every visit
-                const response = await axios.get('http://localhost:3000/api/users/profile', config);
+                const response = await axios.get('/api/users/profile', config);
                 if (response.data.success) {
                     setProfile(response.data.profile);
                     setEditForm(response.data.profile);
@@ -76,7 +76,7 @@ export default function Profile(): JSX.Element {
                     'Content-Type': 'multipart/form-data'
                 }
             };
-            const response = await axios.post('http://localhost:3000/api/users/profile-pic', formData, config);
+            const response = await axios.post('/api/users/profile-pic', formData, config);
             if (response.data.success) {
                 const newPicUrl = response.data.profile_pic;
                 setProfile(prev => prev ? { ...prev, profile_pic: newPicUrl } : null);
@@ -105,7 +105,7 @@ export default function Profile(): JSX.Element {
 
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const response = await axios.put('http://localhost:3000/api/users/profile', editForm, config);
+            const response = await axios.put('/api/users/profile', editForm, config);
             if (response.data.success) {
                 setProfile({ ...profile, ...editForm } as UserProfile);
                 if (editForm.username) {

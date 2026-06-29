@@ -15,7 +15,7 @@ export default function AdminUploadFAQ() {
     const fetchFaqs = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3000/api/faq', {
+            const res = await fetch('/api/faq', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -38,7 +38,7 @@ export default function AdminUploadFAQ() {
         setIsSubmitting(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/admin/faqs', {
+            const response = await fetch('/api/admin/faqs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

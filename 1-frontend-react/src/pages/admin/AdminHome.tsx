@@ -19,9 +19,9 @@ export default function AdminHome() {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
 
                 const [statsRes, incidentsRes, usersRes] = await Promise.all([
-                    axios.get('http://localhost:3000/api/admin/stats', config),
-                    axios.get('http://localhost:3000/api/admin/incidents', config),
-                    axios.get('http://localhost:3000/api/admin/users', config)
+                    axios.get('/api/admin/stats', config),
+                    axios.get('/api/admin/incidents', config),
+                    axios.get('/api/admin/users', config)
                 ]);
 
                 if (statsRes.data.success) setStats(statsRes.data.stats);
@@ -58,17 +58,17 @@ export default function AdminHome() {
             const userId = selectedUser.id;
 
             if (actionType === 'freeze') {
-                const res = await axios.put(`http://localhost:3000/api/admin/users/${userId}/freeze`, {}, config);
+                const res = await axios.put(`/api/admin/users/${userId}/freeze`, {}, config);
                 if (res.data.success) {
                     setUsers(users.map(u => u.id === userId ? { ...u, status: res.data.status } : u));
                     setSelectedUser({ ...selectedUser, status: res.data.status });
                     alert(`User status changed to ${res.data.status}`);
                 }
             } else if (actionType === 'reset-password') {
-                const res = await axios.post(`http://localhost:3000/api/admin/users/${userId}/reset-password`, {}, config);
+                const res = await axios.post(`/api/admin/users/${userId}/reset-password`, {}, config);
                 if (res.data.success) alert(res.data.message);
             } else if (actionType === 'delete') {
-                const res = await axios.delete(`http://localhost:3000/api/admin/users/${userId}`, config);
+                const res = await axios.delete(`/api/admin/users/${userId}`, config);
                 if (res.data.success) {
                     setUsers(users.filter(u => u.id !== userId));
                     setIsModalOpen(false);

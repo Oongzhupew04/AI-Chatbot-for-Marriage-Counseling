@@ -48,7 +48,7 @@ export default function Analysis(): JSX.Element {
             try {
                 const token = localStorage.getItem('token');
                 // This assumes your Node gateway has an /api/analysis endpoint implemented
-                const response = await axios.get('http://localhost:3000/api/analysis', {
+                const response = await axios.get('/api/analysis', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

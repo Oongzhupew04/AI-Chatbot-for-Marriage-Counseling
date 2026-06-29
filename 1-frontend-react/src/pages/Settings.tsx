@@ -41,7 +41,7 @@ export default function Settings(): JSX.Element {
 
             const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
-                const response = await axios.get('http://localhost:3000/api/settings/preferences', config);
+                const response = await axios.get('/api/settings/preferences', config);
                 
                 if (response.data.success) {
                     const { push_notifications_enabled, dark_mode_enabled } = response.data;
@@ -86,7 +86,7 @@ export default function Settings(): JSX.Element {
 
         try {
             // Tell backend about the preference change
-            await axios.put('http://localhost:3000/api/settings/preferences', { pushEnabled: newValue }, config);
+            await axios.put('/api/settings/preferences', { pushEnabled: newValue }, config);
 
             if (newValue) {
                 // Subscribe logic
@@ -100,7 +100,7 @@ export default function Settings(): JSX.Element {
                         });
 
                         // Save subscription to backend
-                        await axios.post('http://localhost:3000/api/settings/push-subscription', subscription.toJSON(), config);
+                        await axios.post('/api/settings/push-subscription', subscription.toJSON(), config);
                     } else {
                         console.warn("Notification permission denied");
                         setNotifications(false);
@@ -113,7 +113,7 @@ export default function Settings(): JSX.Element {
                     const subscription = await registration.pushManager.getSubscription();
                     if (subscription) {
                         await subscription.unsubscribe();
-                        await axios.delete('http://localhost:3000/api/settings/push-subscription', {
+                        await axios.delete('/api/settings/push-subscription', {
                             ...config,
                             data: { endpoint: subscription.endpoint } // Express needs data for DELETE body
                         });
@@ -142,7 +142,7 @@ export default function Settings(): JSX.Element {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         try {
-            await axios.put('http://localhost:3000/api/settings/darkmode', { darkModeEnabled: newValue }, config);
+            await axios.put('/api/settings/darkmode', { darkModeEnabled: newValue }, config);
         } catch (error) {
             console.error("Failed to update dark mode settings", error);
             // Revert state on failure

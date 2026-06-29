@@ -270,7 +270,7 @@ app.post('/api/users/profile-pic', upload.single('profile_pic'), async (req: Aut
         }
         
         // Construct the URL to access the image
-        const picUrl = `http://localhost:3000/uploads/profiles/${req.file.filename}`;
+        const picUrl = `/uploads/profiles/${req.file.filename}`;
         
         // Tell Python to save this URL
         const pythonResponse = await axios.put(`${PYTHON_SERVICE_URL}/internal/users/${userId}/profile-pic`, { profile_pic: picUrl });
@@ -668,7 +668,7 @@ app.post('/api/admin/resources', requireAdmin, uploadResource.single('file'), as
         let finalUrl = url;
         // If a file was uploaded, construct its local URL
         if (req.file) {
-            finalUrl = `http://localhost:3000/uploads/resources/${req.file.filename}`;
+            finalUrl = `/uploads/resources/${req.file.filename}`;
         }
         
         const pythonResponse = await axios.post(`${PYTHON_SERVICE_URL}/internal/admin/resources`, {

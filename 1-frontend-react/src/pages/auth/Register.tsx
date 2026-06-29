@@ -96,7 +96,7 @@ export default function Register() {
             setIsSubmitting(true);
             setError(''); // Clear any previous UI errors
 
-            const response = await axios.post('http://localhost:3000/api/auth/request-registration-otp', {
+            const response = await axios.post('/api/auth/request-registration-otp', {
                 email: formData.email
             });
 
@@ -123,7 +123,7 @@ export default function Register() {
             setOtpError('');
 
             const payload = { ...formData, otp };
-            const response = await axios.post('http://localhost:3000/api/auth/register', payload);
+            const response = await axios.post('/api/auth/register', payload);
 
             if (response.data.success) {
                 setShowOtpModal(false);

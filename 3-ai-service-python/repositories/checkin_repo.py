@@ -185,7 +185,7 @@ class CheckinRepository:
                 ids=[f"checkin_{checkin.user_id}_{checkin.timestamp}"]
             )
             """
-            print("Embedded journal entry into ChromaDB.")
+            # print("Embedded journal entry into ChromaDB.")
 
         return {
             "status": "Check-in successfully saved", 

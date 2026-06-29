@@ -44,7 +44,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         try {
-            await axios.post('http://localhost:3000/api/settings/request-otp', {}, config);
+            await axios.post('/api/settings/request-otp', {}, config);
             setOtpSentMessage('OTP has been sent to your email.');
         } catch (error: any) {
             setPasswordError(error.response?.data?.message || 'Failed to send OTP.');
@@ -72,7 +72,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         try {
-            await axios.put('http://localhost:3000/api/settings/change-password', {
+            await axios.put('/api/settings/change-password', {
                 currentPassword,
                 newPassword,
                 otp

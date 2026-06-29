@@ -38,7 +38,7 @@ export default function HighRiskAlerts() {
             try {
                 const token = localStorage.getItem('token');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const res = await axios.get('http://localhost:3000/api/admin/incidents/all', config);
+                const res = await axios.get('/api/admin/incidents/all', config);
                 if (res.data.success) {
                     setIncidents(res.data.incidents);
                 }
@@ -61,7 +61,7 @@ export default function HighRiskAlerts() {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const res = await axios.get(`http://localhost:3000/api/chats/${chatId}/messages`, config);
+            const res = await axios.get(`/api/chats/${chatId}/messages`, config);
             setSelectedChat(res.data.messages || []);
             setIsChatModalOpen(true);
         } catch (error) {
@@ -83,7 +83,7 @@ export default function HighRiskAlerts() {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const res = await axios.post(`http://localhost:3000/api/admin/incidents/${selectedUserForEmail.id}/contact`, {
+            const res = await axios.post(`/api/admin/incidents/${selectedUserForEmail.id}/contact`, {
                 user_id: selectedUserForEmail.user_id,
                 message: emailMessage
             }, config);
@@ -106,7 +106,7 @@ export default function HighRiskAlerts() {
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const res = await axios.put(`http://localhost:3000/api/admin/incidents/${incidentId}/resolve`, {}, config);
+            const res = await axios.put(`/api/admin/incidents/${incidentId}/resolve`, {}, config);
             
             if (res.data.success) {
                 alert("Incident marked as resolved!");

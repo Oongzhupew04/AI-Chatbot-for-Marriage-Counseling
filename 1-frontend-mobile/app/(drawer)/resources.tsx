@@ -50,7 +50,7 @@ export default function ResourcesScreen() {
 
     const openLink = async (url: string) => {
         try {
-            // Replace localhost with the actual network IP so the mobile device can reach the server
+            // Handle old database entries with localhost and new relative URLs
             let parsedUrl = url;
             if (parsedUrl.includes('localhost:3000') || parsedUrl.includes('127.0.0.1:3000')) {
                 const baseUrlWithoutHttp = API_BASE_URL.replace(/^https?:\/\//, '');
@@ -60,6 +60,9 @@ export default function ResourcesScreen() {
                 if (!parsedUrl.startsWith('http')) {
                     parsedUrl = API_BASE_URL.startsWith('https') ? `https://${parsedUrl}` : `http://${parsedUrl}`;
                 }
+            } else if (parsedUrl.startsWith('/')) {
+                // Handle relative URLs by prepending the API_BASE_URL
+                parsedUrl = `${API_BASE_URL}${parsedUrl}`;
             }
 
             const supported = await Linking.canOpenURL(parsedUrl);

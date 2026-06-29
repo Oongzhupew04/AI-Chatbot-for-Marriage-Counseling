@@ -19,7 +19,7 @@ export default function AdminResources() {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:3000/api/resources', {
+            const res = await axios.get('/api/resources', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -63,7 +63,7 @@ export default function AdminResources() {
                 formData.append('url', url);
             }
 
-            const response = await axios.post('http://localhost:3000/api/admin/resources', formData, {
+            const response = await axios.post('/api/admin/resources', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
@@ -90,7 +90,7 @@ export default function AdminResources() {
         if (window.confirm('Are you sure you want to delete this resource?')) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://localhost:3000/api/admin/resources/${id}`, {
+                await axios.delete(`/api/admin/resources/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setResources(resources.filter(r => r.id !== id));

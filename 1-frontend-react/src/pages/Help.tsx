@@ -24,7 +24,7 @@ export default function Help(): JSX.Element {
         const fetchFaqs = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:3000/api/faq');
+                const response = await axios.get('/api/faq');
                 if (response.data.success) {
                     setFaqs(response.data.faqs);
                 }

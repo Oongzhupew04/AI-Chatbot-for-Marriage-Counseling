@@ -72,7 +72,7 @@ export default function Home(): JSX.Element {
         const fetchSessions = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:3000/api/chats', {
+                const response = await axios.get('/api/chats', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (response.data && response.data.sessions) {
@@ -117,7 +117,7 @@ export default function Home(): JSX.Element {
     const handleLoadSession = async (loadChatId: number) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:3000/api/chats/${loadChatId}/messages`, {
+            const response = await axios.get(`/api/chats/${loadChatId}/messages`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -135,7 +135,7 @@ export default function Home(): JSX.Element {
         try {
             // 1. (Optional) Call your backend to delete it from the database
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:3000/api/chats/${sessionIdToDelete}`, {
+            await axios.delete(`/api/chats/${sessionIdToDelete}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -216,7 +216,7 @@ export default function Home(): JSX.Element {
         try {
             const token = localStorage.getItem('token');
             if (chatId) {
-                await axios.post(`http://localhost:3000/api/chats/${chatId}/end`, {}, {
+                await axios.post(`/api/chats/${chatId}/end`, {}, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 // Add it locally so UI updates instantly
@@ -264,7 +264,7 @@ export default function Home(): JSX.Element {
     const handleFeedbackSubmit = async (data: any) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:3000/api/feedback', {
+            await axios.post('/api/feedback', {
                 chatId,
                 ...data
             }, {

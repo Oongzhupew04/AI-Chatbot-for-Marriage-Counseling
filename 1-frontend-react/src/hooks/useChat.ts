@@ -18,7 +18,7 @@ export const useChatMutation = () => {
         mutationFn: async (payload) => {
             const token = localStorage.getItem('token');
             const { data } = await axios.post(
-                'http://localhost:3000/api/chat',
+                '/api/chat',
                 payload,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

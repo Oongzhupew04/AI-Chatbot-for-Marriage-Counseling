@@ -16,7 +16,7 @@ export default function DeleteAccountModal({ onClose, onSuccess }: Props) {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete('http://localhost:3000/api/users/profile', {
+            const response = await axios.delete('/api/users/profile', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.data.success) {
