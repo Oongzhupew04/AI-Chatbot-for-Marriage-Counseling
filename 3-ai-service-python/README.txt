@@ -26,6 +26,13 @@ Install dependencies:
 Run testing:
 .\venv\Scripts\python.exe -m pytest tests/ -v
 
+DigitalOcean ipv4 address: http://165.22.103.4/
+
+To see log in server:
+ssh root@165.22.103.4
+cd ~/AI-Chatbot-for-Marriage-Counseling
+docker compose -f docker-compose.prod.yml logs -f
+
 
 Example AI question for level2_safety_emotional_infidelity.md:
 My husband is giving all his intimate emotional energy to an online friend. He shares our secrets with her and constantly complains about me to her. Whenever I get upset, he gaslights me by saying, 'We didn't do anything, we're just friends!' Even though no physical line is crossed, I feel like this emotional abandonment is completely destroying the safety of our marriage.
