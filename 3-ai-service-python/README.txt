@@ -23,6 +23,8 @@ admin123
 
 Install dependencies:
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
+Run testing:
+.\venv\Scripts\python.exe -m pytest tests/ -v
 
 
 Example AI question for level2_safety_emotional_infidelity.md:

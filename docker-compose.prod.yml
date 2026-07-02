@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: ./2-gateway-node
+      # Assuming your production build might use a different Dockerfile, 
+      # e.g., dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    environment:
+      - PYTHON_SERVICE_URL=http://ai-service:8000
+      - DB_HOST=opengauss-db
+      - NODE_ENV=production
+    depends_on:
+      - ai-service
+      - opengauss-db
+    restart: unless-stopped
+
+  ai-service:
+    build:
+      context: ./3-ai-service-python
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=opengauss-db
+      # You can add other production DB credentials here:
+      # - DB_USER=your_db_user
+      # - DB_PASSWORD=your_db_password
+    depends_on:
+      - opengauss-db
+    restart: unless-stopped
+
+  opengauss-db:
+    image: enmotech/opengauss:latest
+    environment:
+      - GS_PASSWORD=YourStrongPassword123! # Ensure you change this to a secure password
+    ports:
+      - "5432:5432" # Optional: Expose port for local administration
+    volumes:
+      - opengauss-data:/var/lib/opengauss
+    restart: unless-stopped
+
+volumes:
+  opengauss-data:
