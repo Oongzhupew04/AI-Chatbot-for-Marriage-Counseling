@@ -59,7 +59,7 @@ services:
     privileged: true
     environment:
       - TZ=Asia/Singapore
-      - GS_PASSWORD=YourStrongPassword123! # Ensure you change this to a secure password
+      - GS_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432" # Optional: Expose port for local administration
     volumes:

@@ -8,7 +8,11 @@ from repositories.user_repo import UserRepository
 from repositories.push_subscription_repo import PushSubscriptionRepository
 
 # Read keys from .env or constants
-VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "xUvANKNNet0uoxU6E4YIjXVWgDWNo9serIROcv5gA6k")
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY")
+if not VAPID_PRIVATE_KEY:
+    # Log a warning or handle missing key if WebPush is optional, or let it fail downstream
+    print("WARNING: VAPID_PRIVATE_KEY environment variable is missing. WebPush notifications will fail.")
+
 VAPID_CLAIMS = {
     "sub": "mailto:vincentoong12345@gmail.com"
 }

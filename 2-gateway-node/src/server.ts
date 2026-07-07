@@ -72,7 +72,12 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 const PORT = process.env.PORT || 3000;
 // This points to your Python AI Service (FastAPI/Flask running on port 8000)
 const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://127.0.0.1:8000';
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_sage_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    console.error("FATAL ERROR: JWT_SECRET environment variable is missing. Authentication cannot function securely.");
+    process.exit(1);
+}
 
 // Define custom interface for the Request to include user data
 interface AuthRequest extends Request {
