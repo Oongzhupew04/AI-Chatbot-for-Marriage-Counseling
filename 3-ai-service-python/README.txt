@@ -18,6 +18,7 @@ npx expo start
 
 npx expo start -c
 
+Admin Account:
 admin@gmail.com
 admin123
 

@@ -1,3 +1,4 @@
+import os
 import requests
 import re
 import json
@@ -42,7 +43,7 @@ def init_semantic_model(shared_model):
 # MODEL_NAME = "deepseek-r1:1.5b"
 
 # --- NEW GROQ API CONFIG ---
-GROQ_API_KEY = "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"  # <-- PASTE YOUR GROQ API KEY HERE
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")  # <-- SET THIS IN YOUR .env FILE
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL_NAME = "llama-3.3-70b-versatile" # Much smarter and incredibly fast on Groq
 

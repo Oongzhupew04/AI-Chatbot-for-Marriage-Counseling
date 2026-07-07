@@ -41,15 +41,15 @@ services:
       - DB_PORT=5432
       - DB_NAME=ad1
       - DB_USER=ogc
-      - DB_PASSWORD=Zxcv@123
+      - DB_PASSWORD=${DB_PASSWORD:-your_db_password}
       - DB_JAR_PATH=opengauss-jdbc-6.0.3.jar
-      - HF_TOKEN=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
+      - HF_TOKEN=${HF_TOKEN:-your_hf_token}
       - JAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=587
-      - SMTP_USER=vincentoong12345@gmail.com
-      - SMTP_PASS=mhms xgcw tjwb mymu
-      - AES_ENCRYPTION_KEY=bW1Yj/t1b5yY+uD1w6BkTf4Yv/sF9lO3O0pMzE6AqzE=
+      - SMTP_USER=${SMTP_USER:-vincentoong12345@gmail.com}
+      - SMTP_PASS=${SMTP_PASS:-your_smtp_app_password}
+      - AES_ENCRYPTION_KEY=${AES_ENCRYPTION_KEY:-your_aes_key}
     depends_on:
       - opengauss-db
     restart: unless-stopped

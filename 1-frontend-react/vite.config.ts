@@ -14,11 +14,11 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: 'http://165.22.103.4:3000',
+        target: 'http://localhost:3000', // Change to 'http://localhost:3000' for local dev
         changeOrigin: true
       },
       '/uploads': {
-        target: 'http://165.22.103.4:3000',
+        target: 'http://localhost:3000', // Change to 'http://localhost:3000' for local dev
         changeOrigin: true
       }
     }
