@@ -68,3 +68,9 @@
 {"chat_id":46,"latency_ms":382,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-06-30T09:37:41.407Z","user_id":3}
 {"chat_id":46,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-06-30T09:38:10.205Z","user_id":3}
 {"chat_id":46,"latency_ms":3046,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-06-30T09:38:13.251Z","user_id":3}
+{"chat_id":47,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-07-08T03:21:01.721Z","user_id":3}
+{"chat_id":47,"latency_ms":3597,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-07-08T03:21:05.329Z","user_id":3}
+{"chat_id":47,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-07-08T03:21:18.558Z","user_id":3}
+{"chat_id":47,"latency_ms":3454,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-07-08T03:21:22.015Z","user_id":3}
+{"chat_id":47,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-07-08T03:22:07.911Z","user_id":3}
+{"chat_id":47,"latency_ms":30215,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-07-08T03:22:38.128Z","user_id":3}

@@ -8,6 +8,8 @@ services:
       - "5173:5173"
     environment:
       - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - gateway
 
   gateway:
     build:
@@ -15,6 +17,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - TZ=Asia/Singapore
       - PYTHON_SERVICE_URL=http://ai-service:8000
     depends_on:
       - ai-service
@@ -25,8 +28,34 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # Connect to the database running on the host machine
-      - DB_HOST=host.docker.internal
-    # Ensures host.docker.internal works correctly across different OS environments
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - TZ=Asia/Singapore
+      - DB_HOST=opengauss-db
+      - DB_PORT=5432
+      - DB_NAME=ad1
+      - DB_USER=ogc
+      - DB_PASSWORD=${DB_PASSWORD:-Changeme@123}
+      - DB_JAR_PATH=opengauss-jdbc-6.0.3.jar
+      - HF_TOKEN=${HF_TOKEN:-}
+      - JAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=${SMTP_USER:-your_email@gmail.com}
+      - SMTP_PASS=${SMTP_PASS:-your_smtp_app_password}
+      - AES_ENCRYPTION_KEY=${AES_ENCRYPTION_KEY:-your_aes_key}
+    depends_on:
+      - opengauss-db
+
+  opengauss-db:
+    build: ./custom_db
+    privileged: true
+    environment:
+      - TZ=Asia/Singapore
+      - GS_PASSWORD=${DB_PASSWORD:-Changeme@123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - opengauss-data:/var/lib/opengauss
+    restart: unless-stopped
+
+volumes:
+  opengauss-data:

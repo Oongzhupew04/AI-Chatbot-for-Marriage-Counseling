@@ -29,57 +29,48 @@ This project is built using a microservices architecture, fully containerized wi
 ## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
-*   Docker & Docker Compose
-*   Node.js (v18+)
-*   Python (3.10+)
-*   openGauss database container
+*   [Docker & Docker Compose](https://docs.docker.com/get-docker/) (required)
+*   Node.js (v18+) — only needed for mobile app development
 
-### 1. Environment Variables Setup
-You will need to configure your environment variables securely. Do **not** commit these to version control.
+### 1. Clone & Configure Environment Variables
+```bash
+git clone https://github.com/YOUR_USERNAME/AI-Chatbot-for-Marriage-Counseling.git
+cd AI-Chatbot-for-Marriage-Counseling
 
-Create a `.env` file in the `3-ai-service-python` directory:
-```env
-# 3-ai-service-python/.env
-DB_HOST=host.docker.internal
-DB_PORT=5432
-DB_NAME=ad1
-DB_USER=ogc
-DB_PASSWORD=your_db_password
-
-# LLM API
-GROQ_API_KEY=your_groq_api_key
-
-# Security
-AES_ENCRYPTION_KEY=your_base64_aes_key
-
-# Email
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
+# Copy the environment template and fill in your own values
+cp .env.example .env
 ```
+Edit the `.env` file with your own API keys and credentials. The default database password (`Changeme@123`) works out of the box for local development.
 
-*(Note: HuggingFace token is not required as the embedding model used is public).*
-
-### 2. Start the Database
-Start the local openGauss database using the provided batch script:
-```cmd
-.\Start_AI.bat
-```
-Wait for the terminal to confirm that the backend database and AI bridge are fully online.
-
-### 3. Boot the Microservices
-In a new terminal at the root of the project, run:
+### 2. Start Everything (One Command)
 ```bash
 docker-compose up --build
 ```
-This will build and start the React Frontend, the Node Gateway, and the Python AI Service.
+This single command will:
+1.  **Pull & build the openGauss database** container with the full schema auto-initialized
+2.  **Build and start** the React Frontend, Node.js Gateway, and Python AI Service
+3.  **Connect all services** together automatically via Docker networking
 
-### 4. Access the Application
+> ☕ First run takes a few minutes to download images and build. Subsequent runs are much faster.
+
+### 3. Access the Application
 Once the containers are running, the services will be available at:
 *   **Frontend Web App:** `http://localhost:5173`
 *   **Node.js API Gateway:** `http://localhost:3000`
 *   **Python AI Service (FastAPI Swagger UI):** `http://localhost:8000/docs`
+
+### 4. Connect to the Database (Optional)
+You can connect to the openGauss database using any **PostgreSQL-compatible** DBMS tool (e.g., DBeaver, pgAdmin, DataGrip):
+
+| Setting    | Value              |
+|------------|--------------------|
+| **Host**   | `localhost`        |
+| **Port**   | `5432`             |
+| **Database** | `ad1`            |
+| **Username** | `ogc`            |
+| **Password** | Your `DB_PASSWORD` from `.env` |
+| **Driver** | PostgreSQL         |
+
 
 ## 📱 Running the Mobile App
 To run the Expo React Native application:
