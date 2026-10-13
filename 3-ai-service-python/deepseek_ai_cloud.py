@@ -45,7 +45,8 @@ def init_semantic_model(shared_model):
 # --- NEW GROQ API CONFIG ---
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")  # <-- SET THIS IN YOUR .env FILE
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL_NAME = "llama-3.3-70b-versatile" # Much smarter and incredibly fast on Groq
+# MODEL_NAME = "llama-3.3-70b-versatile" # Much smarter and incredibly fast on Groq
+MODEL_NAME = "openai/gpt-oss-120b" # Replacement for retired llama-3.3-70b-versatile
 
 # --- CONSTANTS ---
 CRISIS_RESOURCES = (

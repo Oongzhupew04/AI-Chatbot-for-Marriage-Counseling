@@ -74,3 +74,15 @@
 {"chat_id":47,"latency_ms":3454,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-07-08T03:21:22.015Z","user_id":3}
 {"chat_id":47,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-07-08T03:22:07.911Z","user_id":3}
 {"chat_id":47,"latency_ms":30215,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-07-08T03:22:38.128Z","user_id":3}
+{"chat_id":48,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-10-12T02:51:32.154Z","user_id":3}
+{"chat_id":48,"latency_ms":6847,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-10-12T02:51:39.011Z","user_id":3}
+{"chat_id":48,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-10-12T02:54:29.496Z","user_id":3}
+{"chat_id":48,"latency_ms":7799,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-10-12T02:54:37.311Z","user_id":3}
+{"chat_id":48,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-10-12T03:00:53.711Z","user_id":3}
+{"chat_id":48,"latency_ms":4547,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-10-12T03:00:58.261Z","user_id":3}
+{"chat_id":48,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-10-12T03:01:57.607Z","user_id":3}
+{"chat_id":48,"latency_ms":2668,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-10-12T03:02:00.277Z","user_id":3}
+{"chat_id":48,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-10-12T03:04:56.753Z","user_id":3}
+{"chat_id":48,"latency_ms":6544,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-10-12T03:05:03.299Z","user_id":3}
+{"chat_id":49,"level":"info","message":"Sending chat request to AI Service","timestamp":"2026-10-12T07:35:53.973Z","user_id":3}
+{"chat_id":49,"latency_ms":14690,"level":"info","message":"Received chat response from AI Service","timestamp":"2026-10-12T07:36:08.693Z","user_id":3}
